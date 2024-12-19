@@ -10,7 +10,7 @@ public class Category {
 
     // Constructeur avec arguments
     public Category(String category_name) {
-        this.category_id = category_id;
+        //this.category_id = category_id;
         this.category_name = category_name;
     }
 

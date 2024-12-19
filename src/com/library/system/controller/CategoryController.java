@@ -21,12 +21,18 @@ public class CategoryController {
     // Méthode pour ajouter une catégorie
     public void addCategory(String categoryName) {
         try {
-            categoryService.addCategory(new Category(categoryName)); // Utilisation du service pour ajouter la catégorie
+            // Créer une catégorie avec seulement le nom
+            Category category = new Category(categoryName);
+
+            // Utilisation du service pour ajouter la catégorie
+            categoryService.addCategory(category);
+
             System.out.println("Catégorie ajoutée avec succès !");
         } catch (SQLException e) {
             System.out.println("Erreur lors de l'ajout de la catégorie : " + e.getMessage());
         }
     }
+
 
 
     // Modifier une catégorie

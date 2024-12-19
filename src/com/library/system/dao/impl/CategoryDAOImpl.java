@@ -18,9 +18,23 @@ public class CategoryDAOImpl implements CategoryDAO {
 
     public void addCategory(Category category) throws SQLException {
         String query = "INSERT INTO Category (category_name) VALUES (?)";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+        try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, category.getCategory_name());
-            stmt.executeUpdate();
+
+            // Exécuter la requête d'insertion
+            int affectedRows = stmt.executeUpdate();
+
+            // Si la catégorie a été insérée avec succès, récupérer l'ID généré
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        // Assigner l'ID généré à l'objet Category
+                        category.setCategory_id(generatedKeys.getInt(1));
+                    }
+                }
+            } else {
+                throw new SQLException("Aucune catégorie n'a été insérée.");
+            }
         }
     }
 
