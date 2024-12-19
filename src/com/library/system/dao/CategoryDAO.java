@@ -19,4 +19,9 @@ public interface CategoryDAO {
 
     // Méthode pour rechercher des catégories par mot-clé
     List<Category> findCategoryByKeyword(String keyword) throws SQLException;
+
+    List<Category> findAllCategories() throws SQLException;
+
+
+    void addCategory(Category category) throws SQLException;
 }

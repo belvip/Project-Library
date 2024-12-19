@@ -1,17 +1,21 @@
 package com.library.system.model;
 
-/**
- * Représente une catégorie dans le système de bibliothèque.
- */
 public class Category {
-    private int category_id;           // L'identifiant unique de la catégorie
-    private String category_name;      // Le nom de la catégorie
+    private int category_id;
+    private String category_name;
 
-    public Category(int category_id, String category_name) {
+    // Constructeur sans argument
+    public Category() {
+    }
+
+    // Constructeur avec arguments
+    public Category(String category_name) {
         this.category_id = category_id;
         this.category_name = category_name;
     }
 
+
+    // Getter et Setter
     public int getCategory_id() {
         return category_id;
     }
@@ -26,14 +30,5 @@ public class Category {
 
     public void setCategory_name(String category_name) {
         this.category_name = category_name;
-    }
-
-    // toString pour afficher les informations sur la catégorie
-    @Override
-    public String toString() {
-        return "Category{" +
-                "id=" + category_id +
-                ", name='" + category_name + '\'' +
-                '}';
     }
 }

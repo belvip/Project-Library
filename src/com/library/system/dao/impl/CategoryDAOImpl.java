@@ -3,10 +3,7 @@ package com.library.system.dao.impl;
 import com.library.system.dao.CategoryDAO;
 import com.library.system.model.Category;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +14,16 @@ public class CategoryDAOImpl implements CategoryDAO {
     public CategoryDAOImpl(Connection connection) {
         this.connection = connection;
     }
+
+
+    public void addCategory(Category category) throws SQLException {
+        String query = "INSERT INTO Category (category_name) VALUES (?)";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, category.getCategory_name());
+            stmt.executeUpdate();
+        }
+    }
+
 
     /**
      * Récupère une catégorie par son nom ou la crée si elle n'existe pas.
@@ -37,7 +44,6 @@ public class CategoryDAOImpl implements CategoryDAO {
 
             if (rs.next()) { // Si la catégorie existe, la retourner
                 return new Category(
-                        rs.getInt("category_id"),
                         rs.getString("category_name")
                 );
             } else { // Sinon, créer la catégorie et la retourner
@@ -47,7 +53,6 @@ public class CategoryDAOImpl implements CategoryDAO {
 
                     if (insertRs.next()) {
                         return new Category(
-                                insertRs.getInt("category_id"),
                                 insertRs.getString("category_name")
                         );
                     } else {
@@ -74,7 +79,6 @@ public class CategoryDAOImpl implements CategoryDAO {
 
             if (rs.next()) {
                 return new Category(
-                        rs.getInt("category_id"),
                         rs.getString("category_name")
                 );
             } else {
@@ -133,12 +137,40 @@ public class CategoryDAOImpl implements CategoryDAO {
             // Ajouter toutes les catégories correspondantes à la liste
             while (rs.next()) {
                 categories.add(new Category(
-                        rs.getInt("category_id"),
                         rs.getString("category_name")
                 ));
             }
         }
 
+        return categories;
+    }
+
+    @Override
+    public List<Category> findAllCategories() throws SQLException {
+        // Crée une liste vide pour stocker les catégories récupérées depuis la base de données.
+        List<Category> categories = new ArrayList<>();
+
+        // La requête SQL pour sélectionner toutes les colonnes de la table "Category".
+        String query = "SELECT * FROM Category";
+
+        // Utilisation d'un bloc try-with-resources pour garantir la fermeture des ressources
+        // après leur utilisation, évitant ainsi les fuites de mémoire.
+        try (Statement stmt = connection.createStatement(); // Création d'un objet Statement pour exécuter la requête SQL.
+             ResultSet rs = stmt.executeQuery(query)) {     // Exécution de la requête et récupération des résultats.
+
+            // Parcourt chaque ligne du ResultSet pour récupérer les données.
+            while (rs.next()) {
+                // Création d'un objet Category à partir des colonnes du ResultSet.
+                Category category = new Category(
+                        // Récupère la valeur de la colonne "category_id" comme un entier.
+                        rs.getString("category_name") // Récupère la valeur de la colonne "category_name" comme une chaîne.
+                );
+
+                // Ajoute l'objet Category à la liste des catégories.
+                categories.add(category);
+            }
+        }
+        // Retourne la liste des catégories trouvées dans la base de données.
         return categories;
     }
 }
