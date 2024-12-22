@@ -1,6 +1,8 @@
-import com.library.system.dao.CategoryDAO;
-import com.library.system.dao.impl.CategoryDAOImpl;
+package com.library.system;
+
 import com.library.system.service.impl.CategoryServiceImpl;
+import com.library.system.controller.CategoryController;
+import com.library.system.handler.CategoryHandler;
 import com.library.system.util.ConsoleHandler;
 import com.library.system.util.DatabaseConnection;
 import com.library.system.util.DatabaseTableCreator;
@@ -13,7 +15,6 @@ public class LibrarySystemApp {
     public static final String RESET = "\u001B[0m";
     public static final String GREEN = "\u001B[32m";
     public static final String YELLOW = "\u001B[33m";
-    public static final String BLUE = "\u001B[34m";
 
     public static void main(String[] args) {
         // Message de bienvenue en couleur
@@ -24,25 +25,24 @@ public class LibrarySystemApp {
     private static void initialize() {
         try (Connection connection = DatabaseConnection.getConnection()) {
             if (connection != null) {
-                System.out.println("Connexion réussie à la base de données PostgreSQL !");
+                System.out.println(YELLOW + "Connexion réussie à la base de données PostgreSQL !" + RESET);
                 DatabaseTableCreator.createTables(connection);
 
-                // Créer une instance de CategoryDAO
-                CategoryDAO categoryDAO = new CategoryDAOImpl(connection);
-
+                // Initialisation des composants nécessaires
                 CategoryServiceImpl categoryService = new CategoryServiceImpl(connection);
+                CategoryController categoryController = new CategoryController(connection);
 
+                // Initialisation de CategoryHandler
+                CategoryHandler categoryHandler = new CategoryHandler(categoryService, categoryController);
 
-                // Initialisation de ConsoleHandler avec CategoryServiceImpl, Connection et CategoryDAO
-                ConsoleHandler consoleHandler = new ConsoleHandler(categoryService, connection);
+                // Initialisation de ConsoleHandler
+                ConsoleHandler consoleHandler = new ConsoleHandler(categoryHandler);
 
-                // Démarrer l'interaction avec l'utilisateur via ConsoleHandler
+                // Lancer l'interaction avec l'utilisateur via ConsoleHandler
                 consoleHandler.start();
             } else {
                 System.out.println("Connexion échouée !");
-                return; // Arrêter le programme si la connexion échoue
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
