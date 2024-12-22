@@ -18,22 +18,36 @@ public class CategoryController {
         this.categoryService = new CategoryServiceImpl(connection, categoryDAO);
     }
 
-    // Méthode pour ajouter une catégorie
+    // Méthode pour ajouter une catégorie avec validation (uniquement des lettres)
     public void addCategory(String categoryName) {
         try {
-            // Créer une catégorie avec seulement le nom
+            // Validation du nom de la catégorie
+            if (categoryName == null || categoryName.trim().isEmpty()) {
+                System.out.println("Le nom de la catégorie ne peut pas être vide.");
+                return;
+            }
+
+            // Vérifier si le nom de la catégorie contient uniquement des lettres
+            if (!categoryName.matches("^[a-zA-Z]+$")) {
+                System.out.println("Le nom de la catégorie ne peut contenir que des lettres.");
+                return;
+            }
+
+            // Créer une catégorie avec le nom validé
             Category category = new Category(categoryName);
 
-            // Utilisation du service pour ajouter la catégorie
-            categoryService.addCategory(category);
-
-            System.out.println("Catégorie ajoutée avec succès !");
+            // Vérifier si la catégorie existe déjà
+            if (categoryService.doesCategoryExist(category.getCategory_name())) {
+                System.out.println("La catégorie existe déjà : " + category.getCategory_name());
+            } else {
+                // Utilisation du service pour ajouter la catégorie
+                categoryService.addCategory(category);  // Cela va ajouter la catégorie si elle n'existe pas déjà
+                System.out.println("Catégorie ajoutée avec succès !");
+            }
         } catch (SQLException e) {
             System.out.println("Erreur lors de l'ajout de la catégorie : " + e.getMessage());
         }
     }
-
-
 
     // Modifier une catégorie
     public void modifyCategory(int categoryId, String newCategoryName) {
@@ -58,11 +72,12 @@ public class CategoryController {
         }
     }
 
-    // Lister toutes les catégories
+    // Lister toutes catégories
     public void listCategories() {
         try {
             List<Category> categories = categoryService.getAllCategories();
-            if (categories.isEmpty()) {
+
+            if (categories == null || categories.isEmpty()) {
                 System.out.println("Aucune catégorie disponible.");
             } else {
                 System.out.println("\nListe des catégories:");
@@ -74,4 +89,21 @@ public class CategoryController {
             System.out.println("Erreur lors de la récupération des catégories: " + e.getMessage());
         }
     }
+
+    // Méthode pour rechercher des catégories par mot-clé
+    public void searchCategories(String keyword) {
+        try {
+            List<Category> categories = categoryService.findCategoryByKeyword(keyword);
+            if (categories.isEmpty()) {
+                System.out.println("Aucune catégorie trouvée avec le mot-clé : " + keyword);
+            } else {
+                for (Category category : categories) {
+                    System.out.println("ID: " + category.getCategory_id() + " | Nom: " + category.getCategory_name());
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la recherche des catégories : " + e.getMessage());
+        }
+    }
+
 }

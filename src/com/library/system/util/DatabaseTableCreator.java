@@ -16,7 +16,16 @@ public class DatabaseTableCreator {
                     ");";
             statement.executeUpdate(createCategoryTable);
 
-            System.out.println("Tables created successfully.");
+            // Supprimer la contrainte existante (si elle existe)
+            String dropConstraint = "ALTER TABLE Category DROP CONSTRAINT IF EXISTS unique_category_name;";
+            statement.executeUpdate(dropConstraint);
+
+            // Ajouter la contrainte d'unicité pour category_name
+            String addUniqueConstraint = "ALTER TABLE Category " +
+                    "ADD CONSTRAINT unique_category_name UNIQUE (category_name);";
+            statement.executeUpdate(addUniqueConstraint);
+
+            System.out.println("Tables créées et contraintes appliquées avec succès.");
 
         } catch (SQLException e) {
             e.printStackTrace();

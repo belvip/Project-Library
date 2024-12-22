@@ -22,4 +22,9 @@ public interface CategoryService {
     void addCategory(Category category) throws SQLException;
 
     void updateCategory(Category category) throws SQLException;
+    boolean doesCategoryExist(String categoryName) throws SQLException;
+
+    List<Category> findAllCategories() throws SQLException;
+
+
 }

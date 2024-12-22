@@ -3,188 +3,158 @@ package com.library.system.dao.impl;
 import com.library.system.dao.CategoryDAO;
 import com.library.system.model.Category;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryDAOImpl implements CategoryDAO {
+
     private final Connection connection;
 
-    // Constructeur pour injecter la connexion à la base de données
     public CategoryDAOImpl(Connection connection) {
         this.connection = connection;
     }
 
-
+    @Override
     public void addCategory(Category category) throws SQLException {
         String query = "INSERT INTO Category (category_name) VALUES (?)";
-        try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, category.getCategory_name());
-
-            // Exécuter la requête d'insertion
-            int affectedRows = stmt.executeUpdate();
-
-            // Si la catégorie a été insérée avec succès, récupérer l'ID généré
-            if (affectedRows > 0) {
-                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        // Assigner l'ID généré à l'objet Category
-                        category.setCategory_id(generatedKeys.getInt(1));
-                    }
-                }
-            } else {
-                throw new SQLException("Aucune catégorie n'a été insérée.");
-            }
-        }
-    }
-
-
-    /**
-     * Récupère une catégorie par son nom ou la crée si elle n'existe pas.
-     *
-     * @param categoryName Nom de la catégorie.
-     * @return La catégorie récupérée ou créée.
-     * @throws SQLException En cas de problème lors de la requête SQL.
-     */
-    @Override
-    public Category getOrCreateCategory(String categoryName) throws SQLException {
-        String selectQuery = "SELECT category_id, category_name FROM category WHERE category_name = ?";
-        String insertQuery = "INSERT INTO category (category_name) VALUES (?) RETURNING category_id, category_name";
-
-        // Rechercher si la catégorie existe déjà
-        try (PreparedStatement selectStmt = connection.prepareStatement(selectQuery)) {
-            selectStmt.setString(1, categoryName);
-            ResultSet rs = selectStmt.executeQuery();
-
-            if (rs.next()) { // Si la catégorie existe, la retourner
-                return new Category(
-                        rs.getString("category_name")
-                );
-            } else { // Sinon, créer la catégorie et la retourner
-                try (PreparedStatement insertStmt = connection.prepareStatement(insertQuery)) {
-                    insertStmt.setString(1, categoryName);
-                    ResultSet insertRs = insertStmt.executeQuery();
-
-                    if (insertRs.next()) {
-                        return new Category(
-                                insertRs.getString("category_name")
-                        );
-                    } else {
-                        throw new SQLException("L'insertion de la catégorie a échoué.");
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Trouve une catégorie par son ID.
-     *
-     * @param categoryId ID de la catégorie.
-     * @return La catégorie si elle existe, sinon null.
-     * @throws SQLException En cas de problème lors de la requête SQL.
-     */
-    @Override
-    public Category findById(int categoryId) throws SQLException {
-        String query = "SELECT category_id, category_name FROM category WHERE category_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, categoryId);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return new Category(
-                        rs.getString("category_name")
-                );
-            } else {
-                return null;
-            }
+            stmt.setString(1, category.getCategory_name());
+            stmt.executeUpdate();
         }
     }
 
-    /**
-     * Met à jour le nom d'une catégorie existante.
-     *
-     * @param category Catégorie à mettre à jour.
-     * @throws SQLException En cas de problème lors de la requête SQL.
-     */
     @Override
     public void updateCategory(Category category) throws SQLException {
-        String updateQuery = "UPDATE category SET category_name = ? WHERE category_id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(updateQuery)) {
+        // Vérification des valeurs avant mise à jour
+        if (category.getCategory_name() == null || category.getCategory_name().isEmpty()) {
+            System.out.println("Le nom de la catégorie ne peut pas être vide.");
+            return;
+        }
+
+        if (!doesCategoryExist(category.getCategory_id())) {
+            System.out.println("La catégorie avec l'ID " + category.getCategory_id() + " n'existe pas.");
+            return;
+        }
+
+        String query = "UPDATE Category SET category_name = ? WHERE category_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, category.getCategory_name());
             stmt.setInt(2, category.getCategory_id());
-            stmt.executeUpdate();
-        }
-    }
 
-    /**
-     * Supprime une catégorie par son ID.
-     *
-     * @param categoryId ID de la catégorie à supprimer.
-     * @throws SQLException En cas de problème lors de la requête SQL.
-     */
-    @Override
-    public void deleteCategory(int categoryId) throws SQLException {
-        String deleteQuery = "DELETE FROM category WHERE category_id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(deleteQuery)) {
-            stmt.setInt(1, categoryId);
-            stmt.executeUpdate();
-        }
-    }
-
-    /**
-     * Recherche des catégories dont le nom contient un mot-clé donné.
-     *
-     * @param keyword Mot-clé pour la recherche.
-     * @return Liste des catégories correspondantes.
-     * @throws SQLException En cas de problème lors de la requête SQL.
-     */
-    @Override
-    public List<Category> findCategoryByKeyword(String keyword) throws SQLException {
-        String query = "SELECT category_id, category_name FROM category WHERE category_name ILIKE ?";
-        List<Category> categories = new ArrayList<>();
-
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setString(1, "%" + keyword + "%");
-            ResultSet rs = stmt.executeQuery();
-
-            // Ajouter toutes les catégories correspondantes à la liste
-            while (rs.next()) {
-                categories.add(new Category(
-                        rs.getString("category_name")
-                ));
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                //System.out.println("Catégorie mise à jour avec succès!");
+            } else {
+                System.out.println("La catégorie n'a pas été mise à jour.");
             }
         }
-
-        return categories;
     }
 
     @Override
-    public List<Category> findAllCategories() throws SQLException {
-        // Crée une liste vide pour stocker les catégories récupérées depuis la base de données.
+    public boolean doesCategoryExist(int categoryId) throws SQLException {
+        String query = "SELECT COUNT(*) FROM Category WHERE category_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, categoryId);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() && rs.getInt(1) > 0;
+        }
+    }
+
+    @Override
+    public Category getOrCreateCategory(String categoryName) throws SQLException {
+        // Logique pour récupérer ou créer une catégorie
+        return null;
+    }
+
+    @Override
+    public List<Category> findCategoryByKeyword(String keyword) throws SQLException {
+        // Initialisation de la liste des catégories
         List<Category> categories = new ArrayList<>();
 
-        // La requête SQL pour sélectionner toutes les colonnes de la table "Category".
-        String query = "SELECT * FROM Category";
+        // Requête SQL pour rechercher des catégories dont le nom contient le mot-clé
+        String query = "SELECT * FROM category WHERE category_name ILIKE ?";
 
-        // Utilisation d'un bloc try-with-resources pour garantir la fermeture des ressources
-        // après leur utilisation, évitant ainsi les fuites de mémoire.
-        try (Statement stmt = connection.createStatement(); // Création d'un objet Statement pour exécuter la requête SQL.
-             ResultSet rs = stmt.executeQuery(query)) {     // Exécution de la requête et récupération des résultats.
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            // Utilisation de "%" pour effectuer une recherche de type "contient"
+            stmt.setString(1, "%" + keyword + "%");
 
-            // Parcourt chaque ligne du ResultSet pour récupérer les données.
+            // Exécution de la requête
+            ResultSet rs = stmt.executeQuery();
+
+            // Parcours des résultats et ajout des catégories à la liste
             while (rs.next()) {
-                // Création d'un objet Category à partir des colonnes du ResultSet.
-                Category category = new Category(
-                        // Récupère la valeur de la colonne "category_id" comme un entier.
-                        rs.getString("category_name") // Récupère la valeur de la colonne "category_name" comme une chaîne.
-                );
-
-                // Ajoute l'objet Category à la liste des catégories.
+                Category category = new Category();
+                category.setCategory_id(rs.getInt("category_id"));
+                category.setCategory_name(rs.getString("category_name"));
                 categories.add(category);
             }
         }
-        // Retourne la liste des catégories trouvées dans la base de données.
+
+        return categories; // Retourner la liste des catégories trouvées
+    }
+
+
+    @Override
+    public List<Category> findAllCategories() throws SQLException {
+        String query = "SELECT * FROM category ORDER BY category_id ASC";  // Tri croissant par ID
+        List<Category> categories = new ArrayList<>();
+
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Category category = new Category();
+                category.setCategory_id(rs.getInt("category_id"));
+                category.setCategory_name(rs.getString("category_name"));
+                categories.add(category);
+            }
+        }
         return categories;
     }
+
+
+    @Override
+    public void deleteCategory(int categoryId) throws SQLException {
+        String query = "DELETE FROM Category WHERE category_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, categoryId);
+            stmt.executeUpdate();
+        }
+    }
+
+    @Override
+    public boolean doesCategoryExist(String categoryName) throws SQLException {
+        String query = "SELECT COUNT(*) FROM Category WHERE category_name = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, categoryName);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0; // Si le nombre de résultats est supérieur à 0, la catégorie existe
+            }
+            return false; // Si aucune catégorie n'est trouvée, retourner false
+        }
+    }
+
+    @Override
+    public Category findById(int categoryId) throws SQLException {
+        String query = "SELECT * FROM Category WHERE category_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, categoryId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                // Créez un objet Category et remplissez les données de la base de données
+                Category category = new Category();
+                category.setCategory_id(rs.getInt("category_id"));
+                category.setCategory_name(rs.getString("category_name"));
+                return category;
+            }
+            return null; // Retourne null si aucune catégorie n'est trouvée
+        }
+    }
+
+
+
 }
