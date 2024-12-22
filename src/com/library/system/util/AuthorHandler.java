@@ -3,14 +3,17 @@ package com.library.system.util;
 import com.library.system.controller.AuthorController;
 import com.library.system.exception.authorException.AuthorAlreadyExistException;
 import com.library.system.model.Author;
+import com.library.system.service.impl.AuthorServiceImpl;
 
 import java.util.Scanner;
 
 public class AuthorHandler {
     private final Scanner scanner = new Scanner(System.in);
+    private final AuthorServiceImpl authorService;
     private final AuthorController authorController;
 
-    public AuthorHandler(AuthorController authorController) {
+    public AuthorHandler(AuthorServiceImpl authorService, AuthorController authorController) {
+        this.authorService = authorService;
         this.authorController = authorController;
     }
 
