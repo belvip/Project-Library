@@ -30,11 +30,11 @@ public class LibrarySystemApp {
                 // Créer une instance de CategoryDAO
                 CategoryDAO categoryDAO = new CategoryDAOImpl(connection);
 
-                // Créer une instance de CategoryServiceImpl en passant la connexion et le DAO
-                CategoryServiceImpl categoryService = new CategoryServiceImpl(connection, categoryDAO);
+                CategoryServiceImpl categoryService = new CategoryServiceImpl(connection);
+
 
                 // Initialisation de ConsoleHandler avec CategoryServiceImpl, Connection et CategoryDAO
-                ConsoleHandler consoleHandler = new ConsoleHandler(categoryService, connection, categoryDAO);
+                ConsoleHandler consoleHandler = new ConsoleHandler(categoryService, connection);
 
                 // Démarrer l'interaction avec l'utilisateur via ConsoleHandler
                 consoleHandler.start();

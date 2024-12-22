@@ -65,12 +65,6 @@ public class CategoryDAOImpl implements CategoryDAO {
     }
 
     @Override
-    public Category getOrCreateCategory(String categoryName) throws SQLException {
-        // Logique pour récupérer ou créer une catégorie
-        return null;
-    }
-
-    @Override
     public List<Category> findCategoryByKeyword(String keyword) throws SQLException {
         // Initialisation de la liste des catégories
         List<Category> categories = new ArrayList<>();

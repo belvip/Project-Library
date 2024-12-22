@@ -1,11 +1,11 @@
-package com.library.system.dao;
+package com.library.system.repository;
 
 import com.library.system.model.Category;
 
 import java.sql.SQLException;
 import java.util.List;
 
-public interface CategoryDAO {
+public interface CategoryRepository {
 
     void addCategory(Category category) throws SQLException;
 
@@ -18,7 +18,8 @@ public interface CategoryDAO {
     void deleteCategory(int categoryId) throws SQLException;
 
     boolean doesCategoryExist(int categoryId) throws SQLException;
-    // Ajout de la méthode findById
-    Category findById(int categoryId) throws SQLException; // Méthode pour rechercher une catégorie par ID
-    boolean doesCategoryExist(String categoryName) throws SQLException; // Méthode pour vérifier si la catégorie existe
+
+    Category findById(int categoryId) throws SQLException;
+
+    boolean doesCategoryExist(String categoryName) throws SQLException;
 }

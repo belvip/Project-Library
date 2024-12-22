@@ -15,12 +15,12 @@ public class ConsoleHandler {
     private final CategoryServiceImpl categoryService;
     private final CategoryController categoryController;
 
-    // Le constructeur prend CategoryServiceImpl, Connection, CategoryDAO comme paramètres
-    public ConsoleHandler(CategoryServiceImpl categoryService, Connection connection, CategoryDAO categoryDAO) throws SQLException {
+    // Le constructeur prend CategoryServiceImpl et Connection comme paramètres
+    public ConsoleHandler(CategoryServiceImpl categoryService, Connection connection) throws SQLException {
         this.categoryService = categoryService;
 
-        // Créer une instance de CategoryController avec les paramètres nécessaires
-        this.categoryController = new CategoryController(connection, categoryDAO);
+        // Créer une instance de CategoryController avec uniquement la connexion
+        this.categoryController = new CategoryController(connection);
     }
 
     // Méthode pour démarrer le menu principal

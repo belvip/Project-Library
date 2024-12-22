@@ -14,8 +14,8 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     // Constructeur pour injecter le service
-    public CategoryController(Connection connection, CategoryDAO categoryDAO) throws SQLException {
-        this.categoryService = new CategoryServiceImpl(connection, categoryDAO);
+    public CategoryController(Connection connection) throws SQLException {
+        this.categoryService = new CategoryServiceImpl(connection); // Appel au nouveau constructeur
     }
 
     // Méthode pour ajouter une catégorie avec validation (uniquement des lettres)

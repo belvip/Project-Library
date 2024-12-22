@@ -7,9 +7,6 @@ import java.util.List;
 
 public interface CategoryService {
 
-    // Méthode pour ajouter ou récupérer une catégorie
-    Category getOrCreateCategory(String categoryName) throws SQLException;
-
     // Méthode pour trouver une catégorie par mot-clé
     List<Category> findCategoryByKeyword(String keyword) throws SQLException;
 
