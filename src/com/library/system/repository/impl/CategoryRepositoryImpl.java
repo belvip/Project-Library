@@ -71,16 +71,6 @@ public class CategoryRepositoryImpl implements CategoryRepository {
         }
     }
 
-    @Override
-    public boolean doesCategoryExist(int categoryId) throws SQLException {
-        String query = "SELECT 1 FROM category WHERE category_id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, categoryId);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                return resultSet.next();
-            }
-        }
-    }
 
     @Override
     public Category findById(int categoryId) throws SQLException {
@@ -105,6 +95,20 @@ public class CategoryRepositoryImpl implements CategoryRepository {
                 return resultSet.next();
             }
         }
+    }
+
+    @Override
+    public boolean doesCategoryExistById(int categoryId) throws SQLException {
+        String query = "SELECT COUNT(*) FROM category WHERE category_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, categoryId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1) > 0;  // Si le count est supérieur à 0, la catégorie existe
+                }
+            }
+        }
+        return false;  // Si aucune catégorie n'est trouvée, retourner false
     }
 
     private Category mapResultSetToCategory(ResultSet resultSet) throws SQLException {

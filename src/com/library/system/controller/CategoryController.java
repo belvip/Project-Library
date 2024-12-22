@@ -1,6 +1,8 @@
 package com.library.system.controller;
 
 import com.library.system.dao.CategoryDAO;
+import com.library.system.exception.categoryException.CategoryAlreadyExistsException;
+import com.library.system.exception.categoryException.CategoryNotFoundException;
 import com.library.system.model.Category;
 import com.library.system.service.CategoryService;
 import com.library.system.service.impl.CategoryServiceImpl;
@@ -18,37 +20,33 @@ public class CategoryController {
         this.categoryService = new CategoryServiceImpl(connection); // Appel au nouveau constructeur
     }
 
-    // Méthode pour ajouter une catégorie avec validation (uniquement des lettres)
+    // Méthode pour ajouter une catégorie avec validation
     public void addCategory(String categoryName) {
         try {
-            // Validation du nom de la catégorie
             if (categoryName == null || categoryName.trim().isEmpty()) {
                 System.out.println("Le nom de la catégorie ne peut pas être vide.");
                 return;
             }
 
-            // Vérifier si le nom de la catégorie contient uniquement des lettres
             if (!categoryName.matches("^[a-zA-Z]+$")) {
                 System.out.println("Le nom de la catégorie ne peut contenir que des lettres.");
                 return;
             }
 
-            // Créer une catégorie avec le nom validé
             Category category = new Category(categoryName);
 
-            // Vérifier si la catégorie existe déjà
             if (categoryService.doesCategoryExist(category.getCategory_name())) {
                 System.out.println("La catégorie existe déjà : " + category.getCategory_name());
             } else {
-                // Utilisation du service pour ajouter la catégorie
-                categoryService.addCategory(category);  // Cela va ajouter la catégorie si elle n'existe pas déjà
+                categoryService.addCategory(category);
                 System.out.println("Catégorie ajoutée avec succès !");
             }
         } catch (SQLException e) {
             System.out.println("Erreur lors de l'ajout de la catégorie : " + e.getMessage());
+        } catch (CategoryAlreadyExistsException e) {
+            System.out.println("Erreur : " + e.getMessage()); // Gestion de l'exception CategoryAlreadyExistsException
         }
     }
-
     // Modifier une catégorie
     public void modifyCategory(int categoryId, String newCategoryName) {
         Category category = new Category();
@@ -62,15 +60,17 @@ public class CategoryController {
         }
     }
 
-    // Supprimer une catégorie
     public void deleteCategory(int categoryId) {
         try {
             categoryService.deleteCategory(categoryId);
             System.out.println("Catégorie supprimée avec succès!");
+        } catch (CategoryNotFoundException e) {
+            System.out.println("Erreur: " + e.getMessage());
         } catch (SQLException e) {
             System.out.println("Erreur lors de la suppression de la catégorie: " + e.getMessage());
         }
     }
+
 
     // Lister toutes catégories
     public void listCategories() {
@@ -105,5 +105,7 @@ public class CategoryController {
             System.out.println("Erreur lors de la recherche des catégories : " + e.getMessage());
         }
     }
+
+
 
 }

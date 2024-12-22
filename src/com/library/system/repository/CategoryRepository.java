@@ -17,9 +17,8 @@ public interface CategoryRepository {
 
     void deleteCategory(int categoryId) throws SQLException;
 
-    boolean doesCategoryExist(int categoryId) throws SQLException;
-
     Category findById(int categoryId) throws SQLException;
 
     boolean doesCategoryExist(String categoryName) throws SQLException;
+    boolean doesCategoryExistById(int categoryId) throws SQLException;
 }
