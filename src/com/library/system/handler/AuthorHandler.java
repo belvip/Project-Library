@@ -1,6 +1,7 @@
 package com.library.system.handler;
 
 import com.library.system.controller.AuthorController;
+import com.library.system.exception.authorException.InvalidAuthorEmailException;
 import com.library.system.model.Author;
 import com.library.system.exception.authorException.AuthorNotFoundException;
 import com.library.system.exception.authorException.AuthorEmailAlreadyExistsException;
@@ -74,8 +75,6 @@ public class AuthorHandler {
             return -1;
         }
     }
-
-    // Méthode pour créer un auteur
     private void createAuthor() {
         scanner.nextLine(); // Nettoyer le buffer du scanner
         System.out.print("Entrez le prénom de l'auteur : ");
@@ -85,6 +84,17 @@ public class AuthorHandler {
         System.out.print("Entrez l'email de l'auteur : ");
         String email = scanner.nextLine();
 
+        // Validation du prénom et du nom
+        if (!isValidName(firstName)) {
+            System.out.println("Erreur : Le prénom ne doit contenir que des lettres.");
+            return; // Retourner sans créer l'auteur si la validation échoue
+        }
+
+        if (!isValidName(lastName)) {
+            System.out.println("Erreur : Le nom ne doit contenir que des lettres.");
+            return; // Retourner sans créer l'auteur si la validation échoue
+        }
+
         try {
             Author author = authorController.createAuthor(firstName, lastName, email);
             if (author != null) {
@@ -92,21 +102,36 @@ public class AuthorHandler {
             }
         } catch (AuthorEmailAlreadyExistsException e) {
             System.out.println("Erreur : L'email existe déjà.");
+        } catch (InvalidAuthorEmailException e) {
+            System.out.println("Erreur : L'email n'est pas valide. Veuillez entrer un email valide.");
         }
     }
 
-    // Méthode pour afficher tous les auteurs
+    // Méthode pour valider si le nom contient uniquement des lettres
+    private boolean isValidName(String name) {
+        return name.matches("[a-zA-Z]+([\\s][a-zA-Z]+)*");
+    }
+
+
+
+    // AuthorHandler.java
     private void displayAuthors() {
-        List<Author> authors = authorController.displayAuthors();
+        List<Author> authors = authorService.displayAuthors(); // Appel à la méthode du service
         if (authors.isEmpty()) {
             System.out.println("Aucun auteur trouvé.");
         } else {
-            System.out.println("\nListe des auteurs :");
+            System.out.println("\n\u001B[34m======== Liste des Auteurs ========\u001B[0m");
+            System.out.println("+------------+-----------------------------------+-----------------------------------+-----------------------------------------+");
+            System.out.printf("| %-10s | %-30s | %-30s | %-35s |\n", "ID", "Nom", "Prenom", "Email");
+            System.out.println("+------------+-----------------------------------+-----------------------------------+-----------------------------------------+");
             for (Author author : authors) {
-                System.out.println(author.getFirst_name() + " " + author.getLast_name() + " | Email: " + author.getAuthor_email());
+                // Ajoutez author.getAuthor_email() pour afficher l'email dans la 4ème colonne
+                System.out.printf("| %-10d | %-30s | %-30s | %-35s |\n", author.getAuthor_id(), author.getFirst_name(), author.getLast_name(), author.getAuthor_email());
             }
+            System.out.println("+------------+-----------------------------------+-----------------------------------+-----------------------------------------+");
         }
     }
+
 
     // Méthode pour supprimer un auteur par ID
     private void deleteAuthor() {
