@@ -33,13 +33,11 @@ public class LibrarySystemApp {
 
                 // Initialisation des services et contrôleurs pour les catégories
                 CategoryServiceImpl categoryService = new CategoryServiceImpl(connection);
-                CategoryController categoryController = new CategoryController(connection);
-                CategoryHandler categoryHandler = new CategoryHandler(categoryService, categoryController);
+                CategoryHandler categoryHandler = new CategoryHandler(categoryService, new CategoryController(connection));
 
                 // Initialisation des services et contrôleurs pour les auteurs
                 AuthorServiceImpl authorService = new AuthorServiceImpl(connection);
-                AuthorController authorController = new AuthorController(authorService);
-                AuthorHandler authorHandler = new AuthorHandler(authorService);
+                AuthorHandler authorHandler = new AuthorHandler(authorService, new AuthorController(connection));
 
                 // Initialisation de ConsoleHandler avec CategoryHandler et AuthorHandler
                 ConsoleHandler consoleHandler = new ConsoleHandler(categoryHandler, authorHandler);

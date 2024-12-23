@@ -1,133 +1,113 @@
 package com.library.system.model;
 
+
+import com.library.system.exception.authorException.InvalidAuthorEmailException;
+import com.library.system.exception.authorException.InvalidAuthorIdException;
+import com.library.system.exception.authorException.InvalidAuthorNameException;
+
 /**
  * Classe représentant un auteur dans le système de gestion de bibliothèque.
  */
 public class Author {
-    // Attributs privés pour représenter les propriétés de l'auteur
-    private int author_id; // Identifiant unique de l'auteur
-    private String first_name; // Prénom de l'auteur
-    private String last_name; // Nom de famille de l'auteur
-    private String author_email; // Adresse email de l'auteur
+    private int author_id;
+    private String first_name;
+    private String last_name;
+    private String author_email;
 
     // ================== Constructeurs ==================
 
-    /**
-     * Constructeur par défaut.
-     */
     public Author() {}
 
-    /**
-     * Constructeur avec paramètres pour initialiser les attributs.
-     *
-     * @param first_name   Prénom de l'auteur.
-     * @param last_name    Nom de famille de l'auteur.
-     * @param author_email Email de l'auteur.
-     */
+    public Author(int author_id, String first_name, String last_name, String author_email) {
+        setAuthor_id(author_id);
+        setFirst_name(first_name);
+        setLast_name(last_name);
+        setAuthor_email(author_email);
+    }
+
     public Author(String first_name, String last_name, String author_email) {
-        setFirst_name(first_name); // Utilise les setters pour inclure les validations
+        setFirst_name(first_name);
         setLast_name(last_name);
         setAuthor_email(author_email);
     }
 
     // ================== Getters et Setters ==================
 
-    /**
-     * Retourne l'identifiant unique de l'auteur.
-     *
-     * @return author_id.
-     */
     public int getAuthor_id() {
         return author_id;
     }
 
-    /**
-     * Définit l'identifiant unique de l'auteur.
-     *
-     * @param author_id Identifiant de l'auteur.
-     */
     public void setAuthor_id(int author_id) {
         if (author_id <= 0) {
-            throw new IllegalArgumentException("L'identifiant de l'auteur doit être un entier positif.");
+            throw new InvalidAuthorIdException("L'identifiant de l'auteur doit être un entier positif.");
         }
         this.author_id = author_id;
     }
 
-
-    /**
-     * Retourne le prénom de l'auteur.
-     *
-     * @return first_name.
-     */
     public String getFirst_name() {
         return first_name;
     }
 
-    /**
-     * Définit le prénom de l'auteur avec validation.
-     *
-     * @param first_name Prénom de l'auteur.
-     * @throws IllegalArgumentException si le prénom est null, vide ou dépasse 50 caractères.
-     */
     public void setFirst_name(String first_name) {
         if (first_name == null || first_name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Le prénom ne peut pas être vide.");
+            throw new InvalidAuthorNameException("Le prénom ne peut pas être vide.");
         }
         if (first_name.length() > 50) {
-            throw new IllegalArgumentException("Le prénom ne peut pas dépasser 50 caractères.");
+            throw new InvalidAuthorNameException("Le prénom ne peut pas dépasser 50 caractères.");
         }
         this.first_name = first_name;
     }
 
-    /**
-     * Retourne le nom de famille de l'auteur.
-     *
-     * @return last_name.
-     */
     public String getLast_name() {
         return last_name;
     }
 
-    /**
-     * Définit le nom de famille de l'auteur avec validation.
-     *
-     * @param last_name Nom de famille de l'auteur.
-     * @throws IllegalArgumentException si le nom de famille est null, vide ou dépasse 50 caractères.
-     */
     public void setLast_name(String last_name) {
         if (last_name == null || last_name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Le nom de famille ne peut pas être vide.");
+            throw new InvalidAuthorNameException("Le nom de famille ne peut pas être vide.");
         }
         if (last_name.length() > 50) {
-            throw new IllegalArgumentException("Le nom de famille ne peut pas dépasser 50 caractères.");
+            throw new InvalidAuthorNameException("Le nom de famille ne peut pas dépasser 50 caractères.");
         }
         this.last_name = last_name;
     }
 
-    /**
-     * Retourne l'email de l'auteur.
-     *
-     * @return author_email.
-     */
     public String getAuthor_email() {
         return author_email;
     }
 
-    /**
-     * Définit l'email de l'auteur avec validation.
-     *
-     * @param author_email Email de l'auteur.
-     * @throws IllegalArgumentException si l'email est null, vide ou invalide.
-     */
     public void setAuthor_email(String author_email) {
         if (author_email == null || author_email.trim().isEmpty()) {
-            throw new IllegalArgumentException("L'email ne peut pas être vide.");
+            throw new InvalidAuthorEmailException("L'email ne peut pas être vide.");
         }
-        // Regex pour valider l'email
         if (!author_email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
-            throw new IllegalArgumentException("L'email n'est pas valide.");
+            throw new InvalidAuthorEmailException("L'email n'est pas valide.");
         }
-
         this.author_email = author_email;
+
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Author author = (Author) obj;
+        return author_email != null && author_email.equals(author.author_email);
+    }
+
+    @Override
+    public int hashCode() {
+        return author_email != null ? author_email.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Author{" +
+                "author_id=" + author_id +
+                ", first_name='" + first_name + '\'' +
+                ", last_name='" + last_name + '\'' +
+                ", author_email='" + author_email + '\'' +
+                '}';
+    }
+
 }

@@ -1,71 +1,64 @@
-
 package com.library.system.controller;
 
 import com.library.system.model.Author;
 import com.library.system.service.AuthorService;
 import com.library.system.service.impl.AuthorServiceImpl;
-import com.library.system.exception.authorException.AuthorAlreadyExistsException;
 import com.library.system.exception.authorException.AuthorNotFoundException;
-import com.library.system.exception.authorException.AuthorDeleteException;
+import com.library.system.exception.authorException.AuthorEmailAlreadyExistsException;
 
-import java.sql.SQLException;
+import java.sql.Connection;
 import java.util.List;
 
 public class AuthorController {
-
     private AuthorService authorService;
 
-
-    public AuthorController(AuthorServiceImpl authorService) {
-        this.authorService = authorService;
+    public AuthorController(Connection connection) {
+        this.authorService = new AuthorServiceImpl(connection);
     }
 
-
-    public void addAuthor(Author author) {
+    // Méthode pour créer un auteur
+    public Author createAuthor(String first_name, String last_name, String author_email) {
+        Author author = new Author(first_name, last_name, author_email);
         try {
-            authorService.createAuthor(author);
-            System.out.println("Auteur ajouté avec succès !");
-        } catch (AuthorAlreadyExistsException | SQLException e) {
-            e.printStackTrace();
+            return authorService.createAuthor(author);
+        } catch (AuthorEmailAlreadyExistsException e) {
+            System.out.println("Erreur lors de la création de l'auteur : " + e.getMessage());
+            return null;
         }
     }
 
-    public List<Author> showAuthors() {
+    // Méthode pour récupérer un auteur par ID
+    public Author getAuthorById(int author_id) {
         try {
-            List<Author> authors = authorService.displayAuthors();
-            authors.forEach(author -> System.out.println(author.getFirst_name() + " " + author.getLast_name()));
-        } catch (AuthorNotFoundException | SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public void removeAuthor(int authorId) {
-        try {
-            authorService.deleteAuthor(authorId);
-            System.out.println("Auteur supprimé avec succès !");
-        } catch (AuthorDeleteException | SQLException e) {
-            e.printStackTrace();
+            return authorService.findAuthorById(author_id);
+        } catch (AuthorNotFoundException e) {
+            System.out.println("Auteur non trouvé : " + e.getMessage());
+            return null;
         }
     }
 
-    // Méthode pour rechercher un auteur par ID
-    public void findAuthorById(int authorId) {
+    // Méthode pour récupérer un auteur par email
+    public Author getAuthorByEmail(String author_email) {
         try {
-            Author author = authorService.findAuthorById(authorId);
-            System.out.println("Auteur trouvé: " + author.getFirst_name() + " " + author.getLast_name());
-        } catch (AuthorNotFoundException | SQLException e) {
-            e.printStackTrace();
+            return authorService.findAuthorByEmail(author_email);
+        } catch (AuthorNotFoundException e) {
+            System.out.println("Auteur non trouvé : " + e.getMessage());
+            return null;
         }
     }
 
-    // Méthode pour rechercher un auteur par email
-    public void findAuthorByEmail(String email) {
+    // Méthode pour afficher tous les auteurs
+    public List<Author> displayAuthors() {
+        return authorService.displayAuthors();
+    }
+
+    // Méthode pour supprimer un auteur
+    public boolean deleteAuthor(int author_id) {
         try {
-            Author author = authorService.findByEmail(email);
-            System.out.println("Auteur trouvé: " + author.getFirst_name() + " " + author.getLast_name());
-        } catch (AuthorNotFoundException | SQLException e) {
-            e.printStackTrace();
+            return authorService.deleteAuthor(author_id);
+        } catch (AuthorNotFoundException e) {
+            System.out.println("Erreur lors de la suppression de l'auteur : " + e.getMessage());
+            return false;
         }
     }
 }

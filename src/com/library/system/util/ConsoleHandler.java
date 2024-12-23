@@ -1,22 +1,25 @@
 package com.library.system.util;
 
+import com.library.system.exception.authorException.AuthorNotFoundException;
 import com.library.system.handler.AuthorHandler;
 import com.library.system.handler.CategoryHandler;
 
+import java.sql.SQLException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class ConsoleHandler {
     private final Scanner scanner = new Scanner(System.in);
     private final CategoryHandler categoryHandler;
-    private final AuthorHandler authorHandler; // Champ pour AuthorHandler
+    private final AuthorHandler authorHandler;  // Ajoutez ce champ pour AuthorHandler
 
+    // Modifiez le constructeur pour accepter AuthorHandler en plus de CategoryHandler
     public ConsoleHandler(CategoryHandler categoryHandler, AuthorHandler authorHandler) {
         this.categoryHandler = categoryHandler;
-        this.authorHandler = authorHandler; // Initialisation d'AuthorHandler
+        this.authorHandler = authorHandler;
     }
 
-    public void start() {
+    public void start() throws AuthorNotFoundException, SQLException {
         boolean running = true;
         while (running) {
             displayMenu();

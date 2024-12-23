@@ -1,25 +1,50 @@
 package com.library.system.dao;
 
-import com.library.system.exception.authorException.AuthorAlreadyExistsException;
-import com.library.system.exception.authorException.AuthorDeleteException;
-import com.library.system.exception.authorException.AuthorNotFoundException;
 import com.library.system.model.Author;
 
-import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Interface pour les opérations CRUD (Create, Read, Update, Delete) sur les auteurs.
+ */
 public interface AuthorDAO {
-    // Ajouter un auteur
-    void createAuthor(Author author) throws SQLException, AuthorAlreadyExistsException;
-    // Afficher tous les auteurs
-    List<Author> displayAuthors() throws SQLException ,AuthorNotFoundException;
 
-    // Supprimer un auteur par son ID
-    void deleteAuthor(int authorId) throws SQLException, AuthorDeleteException;
+    /**
+     * Crée un nouvel auteur dans la base de données.
+     *
+     * @param author L'auteur à ajouter.
+     * @return L'auteur ajouté avec son identifiant généré.
+     */
+    Author createAuthor(Author author);
 
-    // Trouver un auteur par son ID
-    Author findAuthorById(int authorId) throws SQLException,  AuthorNotFoundException;
+    /**
+     * Affiche tous les auteurs.
+     *
+     * @return Une liste d'auteurs.
+     */
+    List<Author> displayAuthors();
 
-    // Méthode pour récupérer un auteur par son email
-    Author findByEmail(String email) throws SQLException, AuthorNotFoundException;
+    /**
+     * Supprime un auteur de la base de données par son identifiant.
+     *
+     * @param author_id L'identifiant de l'auteur à supprimer.
+     * @return true si l'auteur a été supprimé avec succès, false sinon.
+     */
+    boolean deleteAuthor(int author_id);
+
+    /**
+     * Recherche un auteur par son identifiant.
+     *
+     * @param author_id L'identifiant de l'auteur à rechercher.
+     * @return L'auteur trouvé, ou null si aucun auteur n'a été trouvé.
+     */
+    Author findAuthorById(int author_id);
+
+    /**
+     * Recherche un auteur par son adresse email.
+     *
+     * @param author_email L'email de l'auteur à rechercher.
+     * @return L'auteur trouvé, ou null si aucun auteur n'a été trouvé.
+     */
+    Author findAuthorByEmail(String author_email);
 }
