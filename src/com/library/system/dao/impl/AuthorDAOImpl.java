@@ -2,6 +2,7 @@ package com.library.system.dao.impl;
 
 import com.library.system.dao.AuthorDAO;
 import com.library.system.exception.authorException.AuthorAlreadyExistsException;
+import com.library.system.exception.authorException.AuthorDeleteException;
 import com.library.system.exception.authorException.AuthorNotFoundException;
 import com.library.system.model.Author;
 
@@ -66,15 +67,24 @@ public class AuthorDAOImpl implements AuthorDAO {
     }
 
     @Override
-    public void deleteAuthor(int authorId) throws SQLException {
-        String query = "DELETE FROM Author WHERE author_id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, authorId);
-            int rowsDeleted = stmt.executeUpdate();
-            if (rowsDeleted > 0) {
-                System.out.println("Auteur supprimé avec succès.");
-            } else {
-                System.out.println("Aucun auteur trouvé avec cet ID.");
+    public void deleteAuthor(int authorId) throws SQLException, AuthorDeleteException {
+        // Vérifier si l'auteur existe d'abord
+        String checkQuery = "SELECT COUNT(*) FROM Author WHERE author_id = ?";
+        try (PreparedStatement stmtCheck = connection.prepareStatement(checkQuery)) {
+            stmtCheck.setInt(1, authorId);
+            ResultSet rs = stmtCheck.executeQuery();
+            if (rs.next() && rs.getInt(1) == 0) {
+                throw new AuthorDeleteException("Aucun auteur trouvé avec l'ID : " + authorId);
+            }
+        }
+
+        // Si l'auteur existe, procéder à sa suppression
+        String deleteQuery = "DELETE FROM Author WHERE author_id = ?";
+        try (PreparedStatement stmtDelete = connection.prepareStatement(deleteQuery)) {
+            stmtDelete.setInt(1, authorId);
+            int rowsAffected = stmtDelete.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new AuthorDeleteException("Échec de la suppression de l'auteur avec l'ID : " + authorId);
             }
         }
     }

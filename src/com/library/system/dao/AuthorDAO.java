@@ -1,6 +1,7 @@
 package com.library.system.dao;
 
 import com.library.system.exception.authorException.AuthorAlreadyExistsException;
+import com.library.system.exception.authorException.AuthorDeleteException;
 import com.library.system.exception.authorException.AuthorNotFoundException;
 import com.library.system.model.Author;
 
@@ -14,7 +15,7 @@ public interface AuthorDAO {
     List<Author> displayAuthors() throws SQLException ,AuthorNotFoundException;
 
     // Supprimer un auteur par son ID
-    void deleteAuthor(int authorId) throws SQLException;
+    void deleteAuthor(int authorId) throws SQLException, AuthorDeleteException;
 
     // Trouver un auteur par son ID
     Author findAuthorById(int authorId) throws SQLException;
