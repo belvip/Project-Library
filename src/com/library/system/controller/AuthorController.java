@@ -2,65 +2,73 @@ package com.library.system.controller;
 
 import com.library.system.model.Author;
 import com.library.system.service.AuthorService;
+import com.library.system.service.impl.AuthorServiceImpl;
+import com.library.system.exception.authorException.AuthorAlreadyExistsException;
+import com.library.system.exception.authorException.AuthorNotFoundException;
+import com.library.system.exception.authorException.AuthorDeleteException;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
 
 public class AuthorController {
-    /*private final AuthorService authorService;
 
-    // Constructeur pour initialiser le service
-    /*public AuthorController(AuthorService authorService) {
-        this.authorService = authorService;
+    private AuthorService authorService;
+
+    public AuthorController() {
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/library_db", "postgres", "belvi");
+            this.authorService = new AuthorServiceImpl(connection);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-    // Méthode pour créer un nouvel auteur
-    public void createAuthor(Author author) throws AuthorAlreadyExistException {
+    public void addAuthor(Author author) {
         try {
             authorService.createAuthor(author);
-            System.out.println("Auteur créé avec succès : " + author.getFirst_name() + " " + author.getLast_name());
-        } catch (SQLException e) {
-            System.err.println("Erreur lors de la création de l'auteur : " + e.getMessage());
+            System.out.println("Auteur ajouté avec succès !");
+        } catch (AuthorAlreadyExistsException | SQLException e) {
+            e.printStackTrace();
         }
     }
 
-
-    /* Méthode pour afficher tous les auteurs
-    public void listAuthors() {
+    public void showAuthors() {
         try {
-            List<Author> authors = authorService.findAllAuthors();
-            if (authors.isEmpty()) {
-                System.out.println("Aucun auteur trouvé.");
-            } else {
-                authors.forEach(author -> System.out.println(author));
-            }
-        } catch (SQLException e) {
-            System.err.println("Erreur lors de la récupération des auteurs : " + e.getMessage());
+            List<Author> authors = authorService.displayAuthors();
+            authors.forEach(author -> System.out.println(author.getFirst_name() + " " + author.getLast_name()));
+        } catch (AuthorNotFoundException | SQLException e) {
+            e.printStackTrace();
         }
     }
 
-    // Méthode pour supprimer un auteur
-    public void deleteAuthor(int authorId) {
+    public void removeAuthor(int authorId) {
         try {
             authorService.deleteAuthor(authorId);
-            System.out.println("Auteur supprimé avec succès : ID = " + authorId);
-        } catch (SQLException e) {
-            System.err.println("Erreur lors de la suppression de l'auteur : " + e.getMessage());
-        } catch (RuntimeException e) { // Pour gérer une exception personnalisée comme AuthorNotFoundException
-            System.err.println(e.getMessage());
+            System.out.println("Auteur supprimé avec succès !");
+        } catch (AuthorDeleteException | SQLException e) {
+            e.printStackTrace();
         }
     }
 
-    // Méthode pour trouver un auteur par ID
+    // Méthode pour rechercher un auteur par ID
     public void findAuthorById(int authorId) {
         try {
             Author author = authorService.findAuthorById(authorId);
-            if (author != null) {
-                System.out.println("Auteur trouvé : " + author);
-            } else {
-                System.out.println("Auteur introuvable avec l'ID : " + authorId);
-            }
-        } catch (SQLException e) {
-            System.err.println("Erreur lors de la recherche de l'auteur : " + e.getMessage());
+            System.out.println("Auteur trouvé: " + author.getFirst_name() + " " + author.getLast_name());
+        } catch (AuthorNotFoundException | SQLException e) {
+            e.printStackTrace();
         }
-    } */
+    }
+
+    // Méthode pour rechercher un auteur par email
+    public void findAuthorByEmail(String email) {
+        try {
+            Author author = authorService.findByEmail(email);
+            System.out.println("Auteur trouvé: " + author.getFirst_name() + " " + author.getLast_name());
+        } catch (AuthorNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
