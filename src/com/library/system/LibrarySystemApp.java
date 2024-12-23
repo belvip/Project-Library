@@ -1,5 +1,9 @@
+
 package com.library.system;
 
+import com.library.system.controller.AuthorController;
+import com.library.system.handler.AuthorHandler;
+import com.library.system.service.impl.AuthorServiceImpl;
 import com.library.system.service.impl.CategoryServiceImpl;
 import com.library.system.controller.CategoryController;
 import com.library.system.handler.CategoryHandler;
@@ -31,6 +35,7 @@ public class LibrarySystemApp {
                 // Initialisation des composants nécessaires
                 CategoryServiceImpl categoryService = new CategoryServiceImpl(connection);
                 CategoryController categoryController = new CategoryController(connection);
+
 
                 // Initialisation de CategoryHandler
                 CategoryHandler categoryHandler = new CategoryHandler(categoryService, categoryController);

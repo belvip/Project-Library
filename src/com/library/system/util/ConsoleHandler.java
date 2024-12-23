@@ -1,6 +1,7 @@
 
 package com.library.system.util;
 
+import com.library.system.handler.AuthorHandler;
 import com.library.system.handler.CategoryHandler;
 
 import java.util.InputMismatchException;
@@ -12,6 +13,7 @@ public class ConsoleHandler {
 
     public ConsoleHandler(CategoryHandler categoryHandler) {
         this.categoryHandler = categoryHandler;
+
     }
 
     public void start() {
@@ -24,6 +26,7 @@ public class ConsoleHandler {
                 case 1:
                     categoryHandler.handleCategoryOperations();
                     break;
+
                 case 2:
                     running = false;
                     System.out.println("Quitter le système...");

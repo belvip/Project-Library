@@ -1,16 +1,15 @@
 package com.library.system.controller;
 
-import com.library.system.exception.authorException.AuthorAlreadyExistException;
 import com.library.system.model.Author;
 import com.library.system.service.AuthorService;
 
 import java.sql.SQLException;
 
 public class AuthorController {
-    private final AuthorService authorService;
+    /*private final AuthorService authorService;
 
     // Constructeur pour initialiser le service
-    public AuthorController(AuthorService authorService) {
+    /*public AuthorController(AuthorService authorService) {
         this.authorService = authorService;
     }
 

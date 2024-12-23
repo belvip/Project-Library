@@ -1,6 +1,5 @@
 package com.library.system.service.impl;
 
-import com.library.system.exception.authorException.AuthorAlreadyExistException;
 import com.library.system.model.Author;
 import com.library.system.repository.AuthorRepository;
 import com.library.system.repository.impl.AuthorRepositoryImpl;
@@ -9,8 +8,8 @@ import com.library.system.service.AuthorService;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class AuthorServiceImpl implements AuthorService {
-    private final AuthorRepository authorRepository;
+public class AuthorServiceImpl {
+    /*private final AuthorRepository authorRepository;
 
     public AuthorServiceImpl(Connection connection) {
         this.authorRepository = new AuthorRepositoryImpl(connection);
@@ -24,6 +23,6 @@ public class AuthorServiceImpl implements AuthorService {
         } else {
             authorRepository.createAuthor(author);
         }
-    }
+    }*/
 
 }

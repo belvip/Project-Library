@@ -47,8 +47,12 @@ public class Author {
      * @param author_id Identifiant de l'auteur.
      */
     public void setAuthor_id(int author_id) {
+        if (author_id <= 0) {
+            throw new IllegalArgumentException("L'identifiant de l'auteur doit être un entier positif.");
+        }
         this.author_id = author_id;
     }
+
 
     /**
      * Retourne le prénom de l'auteur.
@@ -120,9 +124,10 @@ public class Author {
             throw new IllegalArgumentException("L'email ne peut pas être vide.");
         }
         // Regex pour valider l'email
-        if (!author_email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+        if (!author_email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
             throw new IllegalArgumentException("L'email n'est pas valide.");
         }
+
         this.author_email = author_email;
     }
 }
