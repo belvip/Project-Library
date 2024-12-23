@@ -19,4 +19,7 @@ public interface AuthorDAO {
 
     // Trouver un auteur par son ID
     Author findAuthorById(int authorId) throws SQLException,  AuthorNotFoundException;
+
+    // Méthode pour récupérer un auteur par son email
+    Author findByEmail(String email) throws SQLException, AuthorNotFoundException;
 }

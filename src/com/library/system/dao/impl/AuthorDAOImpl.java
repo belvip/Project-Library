@@ -113,4 +113,24 @@ public class AuthorDAOImpl implements AuthorDAO {
             throw new SQLException("Erreur lors de la recherche de l'auteur.", e);
         }
     }
+
+    @Override
+    public Author findByEmail(String email) throws SQLException, AuthorNotFoundException {
+        String query = "SELECT * FROM Author WHERE author_email = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Author author = new Author();
+                author.setAuthor_id(rs.getInt("author_id"));
+                author.setFirst_name(rs.getString("first_name"));
+                author.setLast_name(rs.getString("last_name"));
+                author.setAuthor_email(rs.getString("author_email"));
+                return author;
+            }
+        }
+        // Si l'auteur n'est pas trouvé, nous lançons une exception
+        throw new AuthorNotFoundException("Aucun auteur trouvé avec l'email : " + email);
+    }
+
 }
