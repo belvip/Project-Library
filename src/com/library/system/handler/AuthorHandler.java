@@ -3,7 +3,6 @@ package com.library.system.handler;
 import com.library.system.controller.AuthorController;
 import com.library.system.model.Author;
 import com.library.system.service.impl.AuthorServiceImpl;
-import com.library.system.exception.authorException.AuthorAlreadyExistsException;
 import com.library.system.exception.authorException.AuthorNotFoundException;
 
 import java.sql.Connection;
@@ -21,7 +20,7 @@ public class AuthorHandler {
         this.authorService = authorService;
 
         // Connexion à la base de données
-        Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/library", "user", "password");
+        Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/library_db", "postgres", "belvi");
 
         // Initialisation des services et contrôleurs
         AuthorServiceImpl authorServiceImpl = new AuthorServiceImpl(connection);
@@ -35,7 +34,7 @@ public class AuthorHandler {
     }
 
 
-    public void authorOperation() {
+    public void handleAuthorOperations() {
         boolean running = true;
         while (running) {
             displayAuthorMenu();
