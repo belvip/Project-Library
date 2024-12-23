@@ -2,12 +2,15 @@ package com.library.system.dao.impl;
 
 import com.library.system.dao.AuthorDAO;
 import com.library.system.exception.authorException.AuthorAlreadyExistsException;
+import com.library.system.exception.authorException.AuthorNotFoundException;
 import com.library.system.model.Author;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AuthorDAOImpl implements AuthorDAO {
     private final Connection connection;
@@ -39,17 +42,27 @@ public class AuthorDAOImpl implements AuthorDAO {
     }
 
     @Override
-    public void displayAuthors() throws SQLException {
+    public List<Author> displayAuthors() throws SQLException, AuthorNotFoundException {
+        List<Author> authors = new ArrayList<>();
         String query = "SELECT * FROM Author";
-        try (PreparedStatement stmt = connection.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                System.out.println("ID: " + rs.getInt("author_id") +
-                        ", Prénom: " + rs.getString("first_name") +
-                        ", Nom: " + rs.getString("last_name") +
-                        ", Email: " + rs.getString("author_email"));
+                Author author = new Author();
+                author.setAuthor_id(rs.getInt("author_id"));
+                author.setFirst_name(rs.getString("first_name"));
+                author.setLast_name(rs.getString("last_name"));
+                author.setAuthor_email(rs.getString("author_email"));
+                authors.add(author);
             }
         }
+
+        // Si la liste des auteurs est vide, lancer l'exception
+        if (authors.isEmpty()) {
+            throw new AuthorNotFoundException("Aucun auteur trouvé dans la base de données.");
+        }
+
+        return authors;
     }
 
     @Override
