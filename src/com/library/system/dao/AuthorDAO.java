@@ -18,5 +18,5 @@ public interface AuthorDAO {
     void deleteAuthor(int authorId) throws SQLException, AuthorDeleteException;
 
     // Trouver un auteur par son ID
-    Author findAuthorById(int authorId) throws SQLException;
+    Author findAuthorById(int authorId) throws SQLException,  AuthorNotFoundException;
 }

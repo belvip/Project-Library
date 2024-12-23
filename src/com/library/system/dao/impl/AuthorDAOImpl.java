@@ -90,22 +90,27 @@ public class AuthorDAOImpl implements AuthorDAO {
     }
 
     @Override
-    public Author findAuthorById(int authorId) throws SQLException {
+    public Author findAuthorById(int authorId) throws SQLException, AuthorNotFoundException {
         String query = "SELECT * FROM Author WHERE author_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, authorId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return new Author(
-                            rs.getString("first_name"),
-                            rs.getString("last_name"),
-                            rs.getString("author_email")
-                    );
-                } else {
-                    System.out.println("Aucun auteur trouvé avec cet ID.");
-                    return null;
-                }
+            ResultSet rs = stmt.executeQuery();
+
+            // Si l'auteur n'est pas trouvé, lancer l'exception
+            if (!rs.next()) {
+                throw new AuthorNotFoundException("Aucun auteur trouvé avec l'ID : " + authorId);
             }
+
+            // Si l'auteur est trouvé, retourner l'objet Author
+            Author author = new Author();
+            author.setAuthor_id(rs.getInt("author_id"));
+            author.setFirst_name(rs.getString("first_name"));
+            author.setLast_name(rs.getString("last_name"));
+            author.setAuthor_email(rs.getString("author_email"));
+            return author;
+
+        } catch (SQLException e) {
+            throw new SQLException("Erreur lors de la recherche de l'auteur.", e);
         }
     }
 }
