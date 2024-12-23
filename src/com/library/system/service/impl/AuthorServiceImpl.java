@@ -21,6 +21,8 @@ public class AuthorServiceImpl implements AuthorService {
         this.authorRepository = new AuthorRepositoryImpl(connection);
     }
 
+
+
     @Override
     public void createAuthor(Author author) throws SQLException, AuthorAlreadyExistsException {
         try {
