@@ -58,4 +58,6 @@ public interface BookDAO {
      * @throws BookSearchByCategoryException Si la recherche échoue.
      */
     List<Book> searchBookByCategory(String categoryName) throws BookSearchByCategoryException;
+
+    boolean isAvailable(int bookId) throws BookAvailabilityException;
 }

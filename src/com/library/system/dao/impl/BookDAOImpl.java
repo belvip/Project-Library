@@ -105,4 +105,14 @@ public class BookDAOImpl implements BookDAO {
             throw new BookSearchByCategoryException("Erreur lors de la recherche du livre par catégorie : " + e.getMessage());
         }
     }
+
+    @Override
+    public boolean isAvailable(int bookId) {
+        for (Book book : books) {
+            if (book.getBook_id() == bookId) {
+                return book.getNumber_Of_Copies() > 0;
+            }
+        }
+        return false; // Retourne false si le livre n'est pas trouvé ou n'est pas disponible
+    }
 }
