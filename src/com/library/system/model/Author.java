@@ -1,9 +1,11 @@
 package com.library.system.model;
 
-
 import com.library.system.exception.authorException.InvalidAuthorEmailException;
 import com.library.system.exception.authorException.InvalidAuthorIdException;
 import com.library.system.exception.authorException.InvalidAuthorNameException;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Classe représentant un auteur dans le système de gestion de bibliothèque.
@@ -14,18 +16,21 @@ public class Author {
     private String last_name;
     private String author_email;
 
+    // Relation avec les livres : un auteur peut avoir plusieurs livres
+    private Set<Book> books = new HashSet<>();
+
     // ================== Constructeurs ==================
 
     public Author() {}
 
-    public Author(int author_id, String first_name, String last_name, String author_email) {
-        setAuthor_id(author_id);
+    public Author(String first_name, String last_name, String author_email) {
         setFirst_name(first_name);
         setLast_name(last_name);
         setAuthor_email(author_email);
     }
 
-    public Author(String first_name, String last_name, String author_email) {
+    public Author(int author_id, String first_name, String last_name, String author_email) {
+        setAuthor_id(author_id);
         setFirst_name(first_name);
         setLast_name(last_name);
         setAuthor_email(author_email);
@@ -84,7 +89,23 @@ public class Author {
             throw new InvalidAuthorEmailException("L'email n'est pas valide.");
         }
         this.author_email = author_email;
+    }
 
+    // Méthodes pour gérer les livres associés à l'auteur
+    public Set<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(Set<Book> books) {
+        this.books = books;
+    }
+
+    public void addBook(Book book) {
+        this.books.add(book);
+    }
+
+    public void removeBook(Book book) {
+        this.books.remove(book);
     }
 
     @Override
@@ -109,5 +130,4 @@ public class Author {
                 ", author_email='" + author_email + '\'' +
                 '}';
     }
-
 }
