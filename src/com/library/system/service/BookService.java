@@ -14,6 +14,7 @@ public interface BookService {
     void removeBook(int bookId); // Supprimer un livre
 
     boolean isAvailable(int bookId); // Vérifier la disponibilité d'un livre
+    boolean isReturned(int bookId); // Verifier si un livre est retourne
 
     List<Book> searchBookByTitle(String title); // Rechercher des livres par titre
 

@@ -41,6 +41,8 @@ public interface BookDAO {
      * @return True si le livre est disponible, false sinon.
      * @throws BookAvailabilityException Si la vérification échoue.
      */
+    //boolean isAvailable(Book book) throws BookAvailabilityException;
+
     boolean isAvailable(Book book) throws BookAvailabilityException;
 
     /**
@@ -60,4 +62,6 @@ public interface BookDAO {
     List<Book> searchBookByCategory(String categoryName) throws BookSearchByCategoryException;
 
     boolean isAvailable(int bookId) throws BookAvailabilityException;
+
+    boolean isReturned(int bookId) throws BookIsreturnedException;
 }

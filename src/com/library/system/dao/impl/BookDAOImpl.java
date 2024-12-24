@@ -115,4 +115,23 @@ public class BookDAOImpl implements BookDAO {
         }
         return false; // Retourne false si le livre n'est pas trouvé ou n'est pas disponible
     }
+
+    @Override
+    public boolean isReturned(int bookId) throws BookIsreturnedException {
+        try {
+            // Trouver le livre par son ID
+            Book book = books.stream()
+                    .filter(b -> b.getBook_id() == bookId)
+                    .findFirst()
+                    .orElseThrow(() -> new BookIsreturnedException("Livre non trouvé pour vérifier son retour."));
+
+            // Retourner l'état du livre (si il a été retourné ou non)
+            return book.isReturned(); // Retourne true si le livre a été retourné, sinon false
+        } catch (Exception e) {
+            throw new BookIsreturnedException("Erreur lors de la vérification du retour du livre : " + e.getMessage());
+        }
+    }
+
+
+
 }

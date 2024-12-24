@@ -1,5 +1,6 @@
 package com.library.system.model;
 
+import com.library.system.exception.bookDaoException.BookIsreturnedException;
 import com.library.system.exception.bookException.InvalidBookTitleException;
 import com.library.system.exception.bookException.InvalidNumberOfCopiesException;
 
@@ -10,6 +11,7 @@ public class Book {
     private int book_id;
     private String title;
     private int number_Of_Copies;
+    private boolean isReturned;
 
     // Relations
     private Set<Author> authors = new HashSet<>();  // Un livre peut avoir plusieurs auteurs
@@ -23,7 +25,16 @@ public class Book {
         this.book_id = book_id;
         setTitle(title); // Validation incluse
         setNumber_Of_Copies(number_Of_Copies); // Validation incluse
+        this.isReturned = false;
     }
+
+    // Nouveau constructeur
+    public Book(String title, int number_Of_Copies) {
+        this.title = title;
+        setNumber_Of_Copies(number_Of_Copies); // Validation incluse
+        this.isReturned = false;
+    }
+
 
     // Getters et Setters
     public int getBook_id() {
@@ -99,4 +110,19 @@ public class Book {
     public boolean isAvailable() {
         return number_Of_Copies > 0;
     }
+
+    // Getter et Setter pour isReturned
+    public boolean isReturned() {
+        return isReturned;
+    }
+
+    public void setReturned(boolean returned) {
+        if (returned && this.isReturned) {
+            throw new BookIsreturnedException("Le livre a déjà été retourné.");
+        }
+        isReturned = returned;
+    }
+
+
+
 }
