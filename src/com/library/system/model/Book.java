@@ -94,4 +94,9 @@ public class Book {
                 ", categories=" + categories +
                 '}';
     }
+
+
+    public boolean isAvailable() {
+        return number_Of_Copies > 0;
+    }
 }
