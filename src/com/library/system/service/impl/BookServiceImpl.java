@@ -6,16 +6,44 @@ import com.library.system.repository.BookRepository;
 import com.library.system.model.Book;
 import com.library.system.exception.bookDaoException.BookAddException;
 
+import java.util.Collections;
 import java.util.List;
 
 public class BookServiceImpl implements BookService {
 
-    private BookRepository bookRepository;
+    private final BookRepository bookRepository;
 
     // Constructor avec injection de BookRepository
     public BookServiceImpl(BookRepository bookRepository) {
         this.bookRepository = bookRepository;
     }
+
+    // Implémentation de la méthode displayAvailableBooks()
+    @Override
+    public List<Book> displayAvailableBooks() throws BookDisplayException {
+        try {
+            return bookRepository.displayAvailableBooks();
+        } catch (BookDisplayException e) {
+            System.err.println("Erreur: " + e.getMessage());
+            return Collections.emptyList();  // Retourner une liste vide en cas d'erreur
+        }
+    }
+
+    // Vous pouvez également garder votre méthode getAvailableBooks(), mais assurez-vous qu'elle soit cohérente
+    public List<Book> getAvailableBooks() {
+        try {
+            return displayAvailableBooks();  // Appel de displayAvailableBooks()
+        } catch (BookDisplayException e) {
+            System.err.println("Erreur: " + e.getMessage());
+            return Collections.emptyList();  // Retourner une liste vide en cas d'erreur
+        }
+    }
+
+    @Override
+    public Book displayBookById(int bookId) throws BookDisplayException {
+        return bookRepository.displayBookById(bookId); // Délégation au repository
+    }
+
 
     /* =========================== AJOUTER UN LIVRE ======================== */
     @Override
@@ -27,16 +55,6 @@ public class BookServiceImpl implements BookService {
         }
     }
 
-    /* =========================== AFFICHER UN LIVRE ======================== */
-    public List<Book> displayAvailableBooks() throws BookDisplayException {
-        try {
-            List<Book> books = bookRepository.findAll(); // Assurez-vous que findAll() fonctionne
-            return books;
-        } catch (Exception e) {
-            throw new BookDisplayException("Erreur lors de l'affichage des livres disponibles.");
-        }
-    }
-
     @Override
     public Book getBookById(int bookId) throws BookDisplayException {
         try {
@@ -45,4 +63,6 @@ public class BookServiceImpl implements BookService {
             throw new BookDisplayException("Erreur lors de la récupération du livre.", e);
         }
     }
+
+
 }

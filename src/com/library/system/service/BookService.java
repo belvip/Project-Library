@@ -11,4 +11,7 @@ public interface BookService {
     List<Book> displayAvailableBooks() throws BookDisplayException;
 
     Book getBookById(int bookId) throws BookDisplayException;
+    List<Book> getAvailableBooks();
+    Book displayBookById(int bookId) throws BookDisplayException;
+
 }

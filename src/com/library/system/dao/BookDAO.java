@@ -8,4 +8,5 @@ import java.util.List;
 public interface BookDAO {
     void addBook(Book book);  // Ajouter un livre
     List<Book> displayAvailableBooks() throws BookDisplayException;  // Afficher les livres
+    Book displayBookById(int bookId) throws BookDisplayException;
 }

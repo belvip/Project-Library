@@ -13,4 +13,7 @@ public interface BookRepository {
     Book getBookById(int bookId) throws Exception;
 
     List<Book> findAll();
+
+    Book displayBookById(int bookId) throws BookDisplayException;
+
 }

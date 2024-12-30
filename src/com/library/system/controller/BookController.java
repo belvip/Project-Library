@@ -31,21 +31,31 @@ public class BookController {
         }
     }
 
-    // Méthode pour afficher un livre spécifique par son ID
-    public Book displayAvailableBooks(int bookId) throws BookDisplayException {
-        return bookService.getBookById(bookId); // Appel au service pour obtenir un livre par ID
-    }
-
-    // Méthode pour afficher les livres disponibles
-
-    public List<Book> displayAvailableBooks() throws BookDisplayException {
+    public Book displayBookById(int bookId) {
         try {
-            return bookService.displayAvailableBooks();  // Appel au service pour obtenir tous les livres
+            // Appel au service pour obtenir le livre
+            return bookService.displayBookById(bookId);
         } catch (BookDisplayException e) {
-            throw new BookDisplayException("Erreur lors de l'affichage des livres disponibles.");
+            // Gestion de l'erreur
+            System.out.println("Erreur : " + e.getMessage());
+            return null;
         }
     }
 
+
+    // Méthode pour afficher les livres disponibles
+    public List<Book> displayAvailableBooks() {
+        List<Book> books = bookService.getAvailableBooks();  // Appel de la méthode du service
+        if (books.isEmpty()) {
+            System.out.println("Aucun livre disponible.");
+        } else {
+            // Afficher les livres disponibles
+            for (Book book : books) {
+                //System.out.println("Livre ID: " + book.getBook_id() + ", Titre: " + book.getTitle());
+            }
+        }
+        return books;
+    }
 
 
 }

@@ -82,6 +82,15 @@ public class BookRepositoryImpl implements BookRepository {
     }
 
     @Override
+    public Book displayBookById(int bookId) throws BookDisplayException {
+        try{
+            return bookDAO.displayBookById(bookId);
+        }catch (Exception e) {
+            throw new BookDisplayException("Erreur lors de l'affichage des livres disponibles.", e);
+        }
+    }
+
+    @Override
     public Book getBookById(int bookId) throws Exception {
         // Logique pour récupérer un livre par ID à partir de la base de données
         String query = "SELECT * FROM book WHERE book_id = ?";

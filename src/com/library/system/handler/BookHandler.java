@@ -1,12 +1,10 @@
 package com.library.system.handler;
 
-import com.library.system.controller.AuthorController;
 import com.library.system.controller.BookController;
 import com.library.system.exception.bookDaoException.BookDisplayException;
 import com.library.system.model.Author;
 import com.library.system.model.Book;
 import com.library.system.model.Category;
-import com.library.system.service.impl.AuthorServiceImpl;
 import com.library.system.service.impl.BookServiceImpl;
 
 import java.util.HashSet;
@@ -27,6 +25,7 @@ public class BookHandler {
     }
 
     // Méthode pour traiter les opérations sur les livres
+    // Méthode pour traiter les opérations sur les livres
     public void handleBookOperations() {
         boolean running = true;
         while (running) {
@@ -37,10 +36,10 @@ public class BookHandler {
                     addBook();
                     break;
                 case 2:
-                    displayAvailableBooks();
+                    displayBookById();  // Appeler la méthode pour afficher un livre
                     break;
                 case 3: // Afficher tous les livres
-                    displayAllAvailableBooks();
+                    displayAllAvailableBooks();  // Appeler la méthode pour afficher tous les livres
                     break;
                 case 4:
                     running = false;
@@ -114,16 +113,19 @@ public class BookHandler {
     }
 
     // Méthode pour afficher un livre
-    private void displayAvailableBooks() {
+    private void displayBookById() {
         System.out.print("Entrez l'ID du livre à afficher: ");
         int bookId = scanner.nextInt(); // Demander l'ID du livre à afficher
 
         try {
-            Book book = bookController.displayAvailableBooks(bookId); // Appel du contrôleur pour afficher le livre
+            // Appel du contrôleur pour obtenir le livre
+            Book book = bookController.displayBookById(bookId);
+
             if (book != null) {
                 System.out.println("\n\u001B[34m======== Détails du Livre ========\u001B[0m");
                 System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------------------+");
-                System.out.printf("| %-10s | %-30s | %-19s | %-25s | %-35s |\n", "ID", "Titre", "Nb Copies", "Catégorie", "Email Auteur");
+                System.out.printf("| %-10s | %-30s | %-19s | %-25s | %-35s | %-35s |\n",
+                        "ID", "Titre", "Nb Copies", "Catégorie", "Email Auteur", "Nom de l'Auteur");
                 System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------------------+");
 
                 // Récupérer les catégories du livre
@@ -132,19 +134,26 @@ public class BookHandler {
                         .reduce((cat1, cat2) -> cat1 + ", " + cat2)
                         .orElse("Aucune catégorie");
 
-                // Récupérer l'email de l'auteur
+                // Récupérer l'email et le nom de l'auteur
                 String authorEmail = book.getAuthors().stream()
-                        .findFirst()
+                        .findFirst() // On prend seulement le premier auteur
                         .map(Author::getAuthor_email)
                         .orElse("Email non disponible");
 
+                // Récupérer le nom complet de l'auteur (prénom et nom)
+                String authorName = book.getAuthors().stream()
+                        .findFirst() // On prend seulement le premier auteur
+                        .map(a -> a.getFirst_name() + " " + a.getLast_name())
+                        .orElse("Auteur inconnu");
+
                 // Afficher les informations du livre
-                System.out.printf("| %-10d | %-30s | %-19d | %-25s | %-35s |\n",
+                System.out.printf("| %-10d | %-30s | %-19d | %-25s | %-35s | %-35s |\n",
                         book.getBook_id(),
                         book.getTitle(),
                         book.getNumber_Of_Copies(),
                         categories,
-                        authorEmail);
+                        authorEmail,
+                        authorName);
 
                 System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------------------+");
             } else {
@@ -155,11 +164,15 @@ public class BookHandler {
         }
     }
 
+
+
     // Méthode pour afficher tous les livres
     private void displayAllAvailableBooks() {
         try {
-            List<Book> books = bookController.displayAvailableBooks(); // Appeler la méthode sans argument
+            // Appel du contrôleur pour récupérer tous les livres disponibles
+            List<Book> books = bookController.displayAvailableBooks(); // Appel de la méthode sans argument
 
+            // Vérification si la liste des livres est vide
             if (books.isEmpty()) {
                 System.out.println("Aucun livre disponible.");
             } else {
@@ -168,20 +181,25 @@ public class BookHandler {
                 System.out.printf("| %-10s | %-30s | %-19s | %-25s | %-35s |\n", "ID", "Titre", "Nb Copies", "Catégorie", "Email Auteur");
                 System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------------------+");
 
+                // Affichage des informations de chaque livre
                 for (Book book : books) {
-                    // Récupérer les catégories du livre
-                    String categories = book.getCategories().stream()
-                            .map(Category::getCategory_name)
-                            .reduce((cat1, cat2) -> cat1 + ", " + cat2)
-                            .orElse("Aucune catégorie");
+                    String categories = "Aucune catégorie";
+                    if (book.getCategories() != null && !book.getCategories().isEmpty()) {
+                        categories = book.getCategories().stream()
+                                .map(Category::getCategory_name)
+                                .reduce((cat1, cat2) -> cat1 + ", " + cat2)
+                                .orElse("Aucune catégorie");
+                    }
 
-                    // Récupérer l'email de l'auteur
-                    String authorEmail = book.getAuthors().stream()
-                            .findFirst()
-                            .map(Author::getAuthor_email)
-                            .orElse("Email non disponible");
+                    String authorEmail = "Email non disponible";
+                    if (book.getAuthors() != null && !book.getAuthors().isEmpty()) {
+                        authorEmail = book.getAuthors().stream()
+                                .findFirst()
+                                .map(Author::getAuthor_email)
+                                .orElse("Email non disponible");
+                    }
 
-                    // Afficher les informations du livre
+                    // Affichage des informations du livre
                     System.out.printf("| %-10d | %-30s | %-19d | %-25s | %-35s |\n",
                             book.getBook_id(),
                             book.getTitle(),
@@ -196,6 +214,7 @@ public class BookHandler {
             System.err.println("Erreur: " + e.getMessage());
         }
     }
+
 
 
 }
