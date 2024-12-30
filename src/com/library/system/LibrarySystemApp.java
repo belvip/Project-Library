@@ -3,6 +3,8 @@ package com.library.system;
 
 import com.library.system.controller.AuthorController;
 import com.library.system.controller.BookController;
+import com.library.system.dao.BookDAO;
+import com.library.system.dao.impl.BookDAOImpl;
 import com.library.system.handler.AuthorHandler;
 import com.library.system.handler.BookHandler;
 import com.library.system.repository.BookRepository;
@@ -45,8 +47,10 @@ public class LibrarySystemApp {
                 AuthorServiceImpl authorService = new AuthorServiceImpl(connection);
                 AuthorHandler authorHandler = new AuthorHandler(authorService, new AuthorController(connection));
 
+                BookDAO bookDAO = new BookDAOImpl(connection);
+
                 // Créer une instance de BookRepositoryImpl avec la connexion
-                BookRepository bookRepository = new BookRepositoryImpl(connection);
+                BookRepository bookRepository = new BookRepositoryImpl(connection, bookDAO);
 
                 // Initialisation des services et contrôleurs pour les livres
                 BookServiceImpl bookService = new BookServiceImpl(bookRepository); // Remplace avec ta propre implémentation de service

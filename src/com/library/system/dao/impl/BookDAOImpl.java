@@ -7,6 +7,10 @@ import com.library.system.model.Category;
 import com.library.system.model.Author;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class BookDAOImpl implements BookDAO {
 
@@ -148,4 +152,54 @@ public class BookDAOImpl implements BookDAO {
             throw new BookAddException("Erreur lors de la récupération de l'id de la catégorie : " + e.getMessage());
         }
     }
+
+    /* ========================== AFFICHER LES LIVRES ========================= */
+    @Override
+    public List<Book> displayAvailableBooks() throws BookDisplayException {
+        List<Book> availableBooks = new ArrayList<>();
+        String query = "SELECT b.book_id, b.title, b.number_of_copies, a.author_id, a.first_name, a.last_name, a.author_email, c.category_id, c.category_name " +
+                "FROM Book b " +
+                "LEFT JOIN Book_Author ba ON b.book_id = ba.book_id " +
+                "LEFT JOIN Author a ON ba.author_id = a.author_id " +
+                "LEFT JOIN Books_Category bc ON b.book_id = bc.book_id " +
+                "LEFT JOIN Category c ON bc.category_id = c.category_id " +
+                "WHERE b.number_of_copies > 0";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                int bookId = rs.getInt("book_id");
+                Book book = new Book();
+                book.setBook_id(bookId);
+                book.setTitle(rs.getString("title"));
+                book.setNumber_Of_Copies(rs.getInt("number_of_copies"));
+
+                // Récupérer les auteurs
+                Set<Author> authors = new HashSet<>();
+                Author author = new Author();
+                author.setAuthor_id(rs.getInt("author_id"));
+                author.setFirst_name(rs.getString("first_name"));
+                author.setLast_name(rs.getString("last_name"));
+                author.setAuthor_email(rs.getString("author_email"));
+                authors.add(author);
+                book.setAuthors(authors);
+
+                // Récupérer les catégories
+                Set<Category> categories = new HashSet<>();
+                Category category = new Category();
+                category.setCategory_id(rs.getInt("category_id"));
+                category.setCategory_name(rs.getString("category_name"));
+                categories.add(category);
+                book.setCategories(categories);
+
+                availableBooks.add(book);
+            }
+        } catch (SQLException e) {
+            throw new BookDisplayException("Erreur lors de l'affichage des livres disponibles : " + e.getMessage());
+        }
+
+        return availableBooks;
+    }
+
 }
