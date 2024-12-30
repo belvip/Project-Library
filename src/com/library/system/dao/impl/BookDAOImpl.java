@@ -3,146 +3,149 @@ package com.library.system.dao.impl;
 import com.library.system.dao.BookDAO;
 import com.library.system.model.Book;
 import com.library.system.exception.bookDaoException.*;
+import com.library.system.model.Category;
+import com.library.system.model.Author;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.sql.*;
 
 public class BookDAOImpl implements BookDAO {
 
-    private List<Book> books;
+    private Connection connection;
 
-    public BookDAOImpl() {
-        this.books = new ArrayList<>();
+    public BookDAOImpl(Connection connection) {
+        this.connection = connection;
     }
 
     @Override
-    public void addBook(Book book) throws BookAddException {
+    public void addBook(Book book) {
+        String bookQuery = "INSERT INTO Book (book_id, title, number_of_copies) VALUES (?, ?, ?)";
+        String authorQuery = "INSERT INTO Book_Author (book_id, author_id) VALUES (?, ?)";
+        String categoryQuery = "INSERT INTO Books_Category (book_id, category_id) VALUES (?, ?)";
+
         try {
-            books.add(book);
-        } catch (Exception e) {
-            throw new BookAddException("Erreur lors de l'ajout du livre : " + book.getTitle(), e);
-        }
-    }
+            // Start a transaction
+            connection.setAutoCommit(false);
 
-    @Override
-    public List<Book> displayAvailableBooks() throws BookDisplayException {
-        try {
-            return books.stream()
-                    .filter(Book::isAvailable)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new BookDisplayException("Erreur lors de l'affichage des livres disponibles.", e);
-        }
-    }
-
-    @Override
-    public void updateBook(Book book) throws BookUpdateException {
-        try {
-            Book existingBook = searchBookById(book.getBook_id());
-            existingBook.setTitle(book.getTitle());
-            existingBook.setAuthors(book.getAuthors());
-            existingBook.setCategories(book.getCategories());  // Changer de setCategory à setCategories
-        } catch (Exception e) {
-            throw new BookUpdateException("Erreur lors de la mise à jour du livre avec l'ID : ");
-        }
-    }
-
-
-    @Override
-    public void removeBook(int bookId) throws BookRemoveException {
-        try {
-            Book bookToRemove = searchBookById(bookId);
-            books.remove(bookToRemove);
-        } catch (Exception e) {
-            throw new BookRemoveException("Erreur lors de la suppression du livre avec l'ID : " + bookId, e);
-        }
-    }
-
-    public boolean isAvailable(Book book) throws BookAvailabilityException {
-        try {
-            return books.contains(book) && book.isAvailable();
-        } catch (Exception e) {
-            throw new BookAvailabilityException("Erreur lors de la vérification de la disponibilité du livre.", e);
-        }
-    }
-
-    @Override
-    public List<Book> searchBookByTitle(String title) throws BookSearchByTitleException {
-        try {
-            return books.stream()
-                    .filter(book -> book.getTitle().equalsIgnoreCase(title))
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new BookSearchByTitleException("Erreur lors de la recherche du livre avec le titre : " + title, e);
-        }
-    }
-
-    @Override
-    public List<Book> searchBookByCategory(String category_name) throws BookSearchByCategoryException {
-        try {
-            return books.stream()
-                    .filter(book -> book.getCategories().stream()
-                            .anyMatch(category -> category.getCategory_name().equalsIgnoreCase(category_name)))  // Comparaison du nom de la catégorie
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new BookSearchByCategoryException("Erreur lors de la recherche de livres dans la catégorie : " + category_name, e);
-        }
-    }
-
-
-    @Override
-    public Book searchBookById(int bookId) throws BookGetByIdException {
-        return books.stream()
-                .filter(book -> book.getBook_id() == bookId)
-                .findFirst()
-                .orElseThrow(() -> new BookGetByIdException("Livre avec l'ID " + bookId + " introuvable."));
-    }
-
-    @Override
-    public List<Book> getAllBooks() throws BookDisplayException {
-        try {
-            return new ArrayList<>(books);
-        } catch (Exception e) {
-            throw new BookDisplayException("Erreur lors de l'affichage de tous les livres.", e);
-        }
-    }
-
-    @Override
-    public void markAsBorrowed(int bookId) throws BookUpdateException {
-        try {
-            Book book = searchBookById(bookId);
-            if (!book.isAvailable()) {
-                throw new BookUpdateException("Le livre avec l'ID " + bookId + " est déjà emprunté.");
+            // 1. Ajouter le livre dans la table Book
+            try (PreparedStatement psBook = connection.prepareStatement(bookQuery)) {
+                psBook.setInt(1, book.getBook_id());  // Ensure the ID is generated if not auto-incremented
+                psBook.setString(2, book.getTitle());
+                psBook.setInt(3, book.getNumber_Of_Copies());
+                psBook.executeUpdate();
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new BookAddException("Erreur lors de l'ajout du livre : " + e.getMessage());
             }
-            book.setAvailable(false);
-        } catch (Exception e) {
-            throw new BookUpdateException("Erreur lors de la mise à jour de l'état du livre avec l'ID : " + bookId, e);
-        }
-    }
 
-    @Override
-    public void markAsReturned(int bookId) throws BookUpdateException {
-        try {
-            Book book = searchBookById(bookId);
-            if (book.isAvailable()) {
-                throw new BookUpdateException("Le livre avec l'ID " + bookId + " est déjà disponible.");
+            // 2. Ajouter les auteurs et les lier au livre
+            for (Author author : book.getAuthors()) {
+                addOrUpdateAuthor(author);
+                linkAuthorToBook(book.getBook_id(), author);
             }
-            book.setAvailable(true);
-        } catch (Exception e) {
-            throw new BookUpdateException("Erreur lors de la mise à jour de l'état du livre avec l'ID : " + bookId, e);
+
+            // 3. Ajouter les catégories et les lier au livre
+            for (Category category : book.getCategories()) {
+                addOrUpdateCategory(category);
+                linkCategoryToBook(book.getBook_id(), category);
+            }
+
+            // Commit the transaction
+            connection.commit();
+        } catch (SQLException e) {
+            try {
+                connection.rollback();  // Rollback in case of any error
+            } catch (SQLException rollbackEx) {
+                throw new BookAddException("Erreur lors du rollback : " + rollbackEx.getMessage());
+            }
+            throw new BookAddException("Erreur générale lors de l'ajout du livre : " + e.getMessage());
+        } finally {
+            try {
+                connection.setAutoCommit(true);  // Restore default auto-commit mode
+            } catch (SQLException e) {
+                throw new BookAddException("Erreur lors de la réinitialisation du mode auto-commit : " + e.getMessage());
+            }
         }
     }
 
-    @Override
-    public boolean isAvailable(int bookId) throws BookAvailabilityException {
-        try {
-            // Recherche le livre par son ID
-            Book book = searchBookById(bookId);
-            // Retourne l'état de disponibilité du livre
-            return book.isAvailable();
-        } catch (BookGetByIdException e) {
-            throw new BookAvailabilityException("Erreur lors de la vérification de la disponibilité du livre avec l'ID : " + bookId, e);
+    private void addOrUpdateAuthor(Author author) {
+        String checkAuthorQuery = "SELECT * FROM Author WHERE author_email = ?";
+        String insertAuthorQuery = "INSERT INTO Author (first_name, last_name, author_email) VALUES (?, ?, ?)";
+
+        try (PreparedStatement psCheckAuthor = connection.prepareStatement(checkAuthorQuery)) {
+            psCheckAuthor.setString(1, author.getAuthor_email());
+            ResultSet rsAuthor = psCheckAuthor.executeQuery();
+            if (!rsAuthor.next()) {
+                try (PreparedStatement psInsertAuthor = connection.prepareStatement(insertAuthorQuery)) {
+                    psInsertAuthor.setString(1, author.getFirst_name());
+                    psInsertAuthor.setString(2, author.getLast_name());
+                    psInsertAuthor.setString(3, author.getAuthor_email());
+                    psInsertAuthor.executeUpdate();
+                } catch (SQLException e) {
+                    throw new BookAddException("Erreur lors de l'ajout de l'auteur : " + e.getMessage());
+                }
+            }
+        } catch (SQLException e) {
+            throw new BookAddException("Erreur lors de la vérification de l'auteur : " + e.getMessage());
+        }
+    }
+
+    private void linkAuthorToBook(int bookId, Author author) {
+        String getAuthorIdQuery = "SELECT author_id FROM Author WHERE author_email = ?";
+        try (PreparedStatement psGetAuthorId = connection.prepareStatement(getAuthorIdQuery)) {
+            psGetAuthorId.setString(1, author.getAuthor_email());
+            ResultSet rsAuthorId = psGetAuthorId.executeQuery();
+            if (rsAuthorId.next()) {
+                int authorId = rsAuthorId.getInt("author_id");
+                try (PreparedStatement psAuthor = connection.prepareStatement("INSERT INTO Book_Author (book_id, author_id) VALUES (?, ?)")) {
+                    psAuthor.setInt(1, bookId);
+                    psAuthor.setInt(2, authorId);
+                    psAuthor.executeUpdate();
+                } catch (SQLException e) {
+                    throw new BookAddException("Erreur lors de l'ajout de l'auteur au livre : " + e.getMessage());
+                }
+            }
+        } catch (SQLException e) {
+            throw new BookAddException("Erreur lors de la récupération de l'id de l'auteur : " + e.getMessage());
+        }
+    }
+
+    private void addOrUpdateCategory(Category category) {
+        String checkCategoryQuery = "SELECT * FROM Category WHERE category_name = ?";
+        String insertCategoryQuery = "INSERT INTO Category (category_name) VALUES (?)";
+
+        try (PreparedStatement psCheckCategory = connection.prepareStatement(checkCategoryQuery)) {
+            psCheckCategory.setString(1, category.getCategory_name());
+            ResultSet rsCategory = psCheckCategory.executeQuery();
+            if (!rsCategory.next()) {
+                try (PreparedStatement psInsertCategory = connection.prepareStatement(insertCategoryQuery)) {
+                    psInsertCategory.setString(1, category.getCategory_name());
+                    psInsertCategory.executeUpdate();
+                } catch (SQLException e) {
+                    throw new BookAddException("Erreur lors de l'ajout de la catégorie : " + e.getMessage());
+                }
+            }
+        } catch (SQLException e) {
+            throw new BookAddException("Erreur lors de la vérification de la catégorie : " + e.getMessage());
+        }
+    }
+
+    private void linkCategoryToBook(int bookId, Category category) {
+        String getCategoryIdQuery = "SELECT category_id FROM Category WHERE category_name = ?";
+        try (PreparedStatement psGetCategoryId = connection.prepareStatement(getCategoryIdQuery)) {
+            psGetCategoryId.setString(1, category.getCategory_name());
+            ResultSet rsCategoryId = psGetCategoryId.executeQuery();
+            if (rsCategoryId.next()) {
+                int categoryId = rsCategoryId.getInt("category_id");
+                try (PreparedStatement psCategory = connection.prepareStatement("INSERT INTO Books_Category (book_id, category_id) VALUES (?, ?)")) {
+                    psCategory.setInt(1, bookId);
+                    psCategory.setInt(2, categoryId);
+                    psCategory.executeUpdate();
+                } catch (SQLException e) {
+                    throw new BookAddException("Erreur lors de l'ajout de la catégorie au livre : " + e.getMessage());
+                }
+            }
+        } catch (SQLException e) {
+            throw new BookAddException("Erreur lors de la récupération de l'id de la catégorie : " + e.getMessage());
         }
     }
 }

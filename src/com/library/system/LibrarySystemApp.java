@@ -2,8 +2,13 @@
 package com.library.system;
 
 import com.library.system.controller.AuthorController;
+import com.library.system.controller.BookController;
 import com.library.system.handler.AuthorHandler;
+import com.library.system.handler.BookHandler;
+import com.library.system.repository.BookRepository;
+import com.library.system.repository.impl.BookRepositoryImpl;
 import com.library.system.service.impl.AuthorServiceImpl;
+import com.library.system.service.impl.BookServiceImpl;
 import com.library.system.service.impl.CategoryServiceImpl;
 import com.library.system.controller.CategoryController;
 import com.library.system.handler.CategoryHandler;
@@ -40,8 +45,15 @@ public class LibrarySystemApp {
                 AuthorServiceImpl authorService = new AuthorServiceImpl(connection);
                 AuthorHandler authorHandler = new AuthorHandler(authorService, new AuthorController(connection));
 
+                // Créer une instance de BookRepositoryImpl avec la connexion
+                BookRepository bookRepository = new BookRepositoryImpl(connection);
+
+                // Initialisation des services et contrôleurs pour les livres
+                BookServiceImpl bookService = new BookServiceImpl(bookRepository); // Remplace avec ta propre implémentation de service
+                BookHandler bookHandler = new BookHandler(bookService, new BookController(connection)); // Remplace avec ta propre implémentation de contrôleur
+
                 // Initialisation de ConsoleHandler avec CategoryHandler et AuthorHandler
-                ConsoleHandler consoleHandler = new ConsoleHandler(categoryHandler, authorHandler);
+                ConsoleHandler consoleHandler = new ConsoleHandler(categoryHandler, authorHandler, bookHandler);
 
                 // Lancer l'interaction avec l'utilisateur via ConsoleHandler
                 consoleHandler.start();

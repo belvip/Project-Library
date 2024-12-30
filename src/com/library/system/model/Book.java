@@ -25,6 +25,7 @@ public class Book {
         setNumber_Of_Copies(number_Of_Copies); // Validation incluse
     }
 
+
     // Getters et Setters
     public int getBook_id() {
         return book_id;

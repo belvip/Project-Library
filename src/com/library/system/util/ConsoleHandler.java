@@ -3,6 +3,7 @@ package com.library.system.util;
 import com.library.system.exception.authorException.AuthorNotFoundException;
 import com.library.system.handler.AuthorHandler;
 import com.library.system.handler.CategoryHandler;
+import com.library.system.handler.BookHandler; // Importer BookHandler
 
 import java.sql.SQLException;
 import java.util.InputMismatchException;
@@ -11,12 +12,14 @@ import java.util.Scanner;
 public class ConsoleHandler {
     private final Scanner scanner = new Scanner(System.in);
     private final CategoryHandler categoryHandler;
-    private final AuthorHandler authorHandler;  // Ajoutez ce champ pour AuthorHandler
+    private final AuthorHandler authorHandler;
+    private final BookHandler bookHandler; // Ajout du champ BookHandler
 
-    // Modifiez le constructeur pour accepter AuthorHandler en plus de CategoryHandler
-    public ConsoleHandler(CategoryHandler categoryHandler, AuthorHandler authorHandler) {
+    // Modifie le constructeur pour accepter BookHandler en plus de CategoryHandler et AuthorHandler
+    public ConsoleHandler(CategoryHandler categoryHandler, AuthorHandler authorHandler, BookHandler bookHandler) {
         this.categoryHandler = categoryHandler;
         this.authorHandler = authorHandler;
+        this.bookHandler = bookHandler; // Initialisation de BookHandler
     }
 
     public void start() throws AuthorNotFoundException, SQLException {
@@ -35,6 +38,10 @@ public class ConsoleHandler {
                     break;
 
                 case 3:
+                    bookHandler.handleBookOperations(); // Appelle les opérations sur les livres
+                    break;
+
+                case 4:
                     running = false;
                     System.out.println("Quitter le système...");
                     break;
@@ -61,7 +68,8 @@ public class ConsoleHandler {
         System.out.println("--------------------------------------------------------------");
         System.out.printf("%-5s %-40s\n", "\u001B[34m1\u001B[0m", "Opérations sur les catégories");
         System.out.printf("%-5s %-40s\n", "\u001B[35m2\u001B[0m", "Opérations sur les auteurs");
-        System.out.printf("%-5s %-40s\n", "\u001B[33m3\u001B[0m", "Quitter le système");
+        System.out.printf("%-5s %-40s\n", "\u001B[33m3\u001B[0m", "Opérations sur les livres");
+        System.out.printf("%-5s %-40s\n", "\u001B[31m4\u001B[0m", "Quitter le système");
         System.out.println("--------------------------------------------------------------");
         System.out.print("\u001B[37mEntrez votre choix: \u001B[0m");
     }

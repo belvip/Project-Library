@@ -1,92 +1,25 @@
 package com.library.system.service.impl;
 
-import com.library.system.model.Book;
-import com.library.system.repository.BookRepository;
 import com.library.system.service.BookService;
-import com.library.system.exception.bookDaoException.*;
-
-import java.util.List;
+import com.library.system.repository.BookRepository;
+import com.library.system.model.Book;
+import com.library.system.exception.bookDaoException.BookAddException;
 
 public class BookServiceImpl implements BookService {
 
-    private final BookRepository bookRepository;
+    private BookRepository bookRepository;
 
-    // Constructeur pour injecter le référentiel
+    // Constructor avec injection de BookRepository
     public BookServiceImpl(BookRepository bookRepository) {
         this.bookRepository = bookRepository;
     }
 
     @Override
-    public void addBook(Book book) throws BookAddException {
-        if (book == null) {
-            throw new BookAddException("Le livre à ajouter ne peut pas être null.");
+    public void addBook(Book book) {
+        try {
+            bookRepository.addBook(book);  // Délégation à BookRepositoryImpl
+        } catch (BookAddException e) {
+            throw new BookAddException("Erreur lors de l'ajout du livre dans le service : " + e.getMessage());
         }
-        bookRepository.addBook(book);
-    }
-
-    @Override
-    public void updateBook(Book book) throws BookUpdateException {
-        if (book == null) {
-            throw new BookUpdateException("Le livre à mettre à jour ne peut pas être null.");
-        }
-        bookRepository.updateBook(book);
-    }
-
-    @Override
-    public void removeBook(int bookId) throws BookRemoveException {
-        if (bookId <= 0) {
-            throw new BookRemoveException("L'ID du livre à supprimer doit être supérieur à zéro.");
-        }
-        bookRepository.removeBook(bookId);
-    }
-
-    @Override
-    public Book getBookById(int bookId) throws BookGetByIdServiceException {
-        if (bookId <= 0) {
-            throw new BookGetByIdServiceException("L'ID du livre doit être supérieur à zéro.");
-        }
-        return bookRepository.getBookById(bookId);
-    }
-
-    @Override
-    public List<Book> displayAvailableBooks() throws BookDisplayException {
-        List<Book> books = bookRepository.displayAvailableBooks();
-        if (books == null || books.isEmpty()) {
-            throw new BookDisplayException("Aucun livre disponible trouvé.");
-        }
-        return books;
-    }
-
-    @Override
-    public List<Book> searchBookByTitle(String title) throws BookSearchByTitleException {
-        if (title == null || title.trim().isEmpty()) {
-            throw new BookSearchByTitleException("Le titre à rechercher ne peut pas être vide.");
-        }
-        List<Book> books = bookRepository.searchBookByTitle(title);
-        if (books == null || books.isEmpty()) {
-            throw new BookSearchByTitleException("Aucun livre trouvé pour le titre : " + title);
-        }
-        return books;
-    }
-
-    @Override
-    public List<Book> searchBookByCategory(String category) throws BookSearchByCategoryException {
-        if (category == null || category.trim().isEmpty()) {
-            throw new BookSearchByCategoryException("La catégorie à rechercher ne peut pas être vide.", null);
-        }
-        List<Book> books = bookRepository.searchBookByCategory(category);
-        if (books == null || books.isEmpty()) {
-            throw new BookSearchByCategoryException("Aucun livre trouvé pour la catégorie : " + category, null);
-        }
-        return books;
-    }
-
-
-    @Override
-    public boolean isAvailable(int bookId) throws BookAvailabilityException {
-        if (bookId <= 0) {
-            throw new BookAvailabilityException("L'ID du livre doit être supérieur à zéro.");
-        }
-        return bookRepository.isAvailable(bookId);
     }
 }
