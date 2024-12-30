@@ -1,80 +1,92 @@
 package com.library.system.service.impl;
 
-import com.library.system.exception.bookDaoException.*;
 import com.library.system.model.Book;
 import com.library.system.repository.BookRepository;
-import com.library.system.repository.impl.BookRepositoryImpl;
 import com.library.system.service.BookService;
+import com.library.system.exception.bookDaoException.*;
 
 import java.util.List;
 
 public class BookServiceImpl implements BookService {
+
     private final BookRepository bookRepository;
 
-    // Constructeur
-    public BookServiceImpl() {
-        this.bookRepository = new BookRepositoryImpl(); // Instanciation du repository
+    // Constructeur pour injecter le référentiel
+    public BookServiceImpl(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
     }
 
     @Override
-    public void addBook(Book book) {
-        try {
-            // Appelle la méthode du repository pour ajouter le livre
-            bookRepository.addBook(book);
-        } catch (BookAlreadyExistsException e) {
-            // Gère l'exception si le livre existe déjà
-            throw new BookAlreadyExistsException("Le livre existe déjà : " + e.getMessage());
-        } catch (Exception e) {
-            // Gère toute autre exception
-            throw new RuntimeException("Erreur lors de l'ajout du livre : " + e.getMessage());
+    public void addBook(Book book) throws BookAddException {
+        if (book == null) {
+            throw new BookAddException("Le livre à ajouter ne peut pas être null.");
         }
-    }
-
-
-    @Override
-    public List<Book> displayAvailableBooks() throws BookDisplayException {
-        return bookRepository.displayAvailableBooks();
+        bookRepository.addBook(book);
     }
 
     @Override
     public void updateBook(Book book) throws BookUpdateException {
+        if (book == null) {
+            throw new BookUpdateException("Le livre à mettre à jour ne peut pas être null.");
+        }
         bookRepository.updateBook(book);
     }
 
     @Override
     public void removeBook(int bookId) throws BookRemoveException {
+        if (bookId <= 0) {
+            throw new BookRemoveException("L'ID du livre à supprimer doit être supérieur à zéro.");
+        }
         bookRepository.removeBook(bookId);
     }
 
     @Override
-    public boolean isAvailable(int bookId) throws BookAvailabilityException {
-        return bookRepository.isAvailable(bookId);
+    public Book getBookById(int bookId) throws BookGetByIdServiceException {
+        if (bookId <= 0) {
+            throw new BookGetByIdServiceException("L'ID du livre doit être supérieur à zéro.");
+        }
+        return bookRepository.getBookById(bookId);
     }
 
     @Override
-    public boolean isReturned(int bookId) throws BookIsreturnedException {
-        try {
-            // Chercher le livre par son ID à partir du BookRepository
-            Book book = bookRepository.getBookById(bookId); // Suppose que vous avez une méthode getBookById dans BookRepository
-
-            // Vérifier si le livre existe et retourner l'état isReturned
-            if (book != null) {
-                return book.isReturned(); // Retourner si le livre a été retourné ou non
-            } else {
-                throw new BookIsreturnedException("Le livre avec l'ID " + bookId + " n'a pas été trouvé.");
-            }
-        } catch (Exception e) {
-            throw new BookIsreturnedException("Erreur lors de la vérification du retour du livre : " + e.getMessage());
+    public List<Book> displayAvailableBooks() throws BookDisplayException {
+        List<Book> books = bookRepository.displayAvailableBooks();
+        if (books == null || books.isEmpty()) {
+            throw new BookDisplayException("Aucun livre disponible trouvé.");
         }
+        return books;
     }
 
     @Override
     public List<Book> searchBookByTitle(String title) throws BookSearchByTitleException {
-        return bookRepository.searchBookByTitle(title);
+        if (title == null || title.trim().isEmpty()) {
+            throw new BookSearchByTitleException("Le titre à rechercher ne peut pas être vide.");
+        }
+        List<Book> books = bookRepository.searchBookByTitle(title);
+        if (books == null || books.isEmpty()) {
+            throw new BookSearchByTitleException("Aucun livre trouvé pour le titre : " + title);
+        }
+        return books;
     }
 
     @Override
-    public List<Book> searchBookByCategory(String category) throws BookSearchByCategoryException  {
-        return bookRepository.searchBookByCategory(category);
+    public List<Book> searchBookByCategory(String category) throws BookSearchByCategoryException {
+        if (category == null || category.trim().isEmpty()) {
+            throw new BookSearchByCategoryException("La catégorie à rechercher ne peut pas être vide.", null);
+        }
+        List<Book> books = bookRepository.searchBookByCategory(category);
+        if (books == null || books.isEmpty()) {
+            throw new BookSearchByCategoryException("Aucun livre trouvé pour la catégorie : " + category, null);
+        }
+        return books;
+    }
+
+
+    @Override
+    public boolean isAvailable(int bookId) throws BookAvailabilityException {
+        if (bookId <= 0) {
+            throw new BookAvailabilityException("L'ID du livre doit être supérieur à zéro.");
+        }
+        return bookRepository.isAvailable(bookId);
     }
 }

@@ -1,10 +1,13 @@
 package com.library.system.exception.bookDaoException;
 
-/**
- * Exception levée lorsqu'une erreur se produit lors de la mise à jour d'un livre.
- */
 public class BookUpdateException extends RuntimeException {
+    // Constructeur qui prend un message et une exception
+    public BookUpdateException(String message, Exception cause) {
+        super(message, cause); // Passe le message et la cause à la classe parente RuntimeException
+    }
+
+    // Constructeur qui prend uniquement un message
     public BookUpdateException(String message) {
-        super(message);
+        super(message); // Passe uniquement le message à la classe parente RuntimeException
     }
 }

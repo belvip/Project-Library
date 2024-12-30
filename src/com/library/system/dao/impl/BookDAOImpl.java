@@ -10,128 +10,139 @@ import java.util.stream.Collectors;
 
 public class BookDAOImpl implements BookDAO {
 
-    // Une simple liste en mémoire pour simuler une base de données (remplacer par un DAO avec JDBC ou JPA dans un cas réel)
-    private List<Book> books = new ArrayList<>();
+    private List<Book> books;
+
+    public BookDAOImpl() {
+        this.books = new ArrayList<>();
+    }
 
     @Override
     public void addBook(Book book) throws BookAddException {
         try {
-            // Vérifier si le livre existe déjà avant de l'ajouter (par exemple, selon l'ID ou le titre)
-            if (books.stream().anyMatch(b -> b.getTitle().equals(book.getTitle()))) {
-                throw new BookAddException("Le livre avec ce titre existe déjà.");
-            }
             books.add(book);
         } catch (Exception e) {
-            throw new BookAddException("Erreur lors de l'ajout du livre : " + e.getMessage());
+            throw new BookAddException("Erreur lors de l'ajout du livre : " + book.getTitle(), e);
         }
     }
 
     @Override
     public List<Book> displayAvailableBooks() throws BookDisplayException {
         try {
-            // Filtrer les livres qui sont disponibles (par exemple, en fonction d'un attribut isAvailable)
             return books.stream()
-                    .filter(Book::isAvailable) // Suppose qu'un livre a un attribut isAvailable
+                    .filter(Book::isAvailable)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            throw new BookDisplayException("Erreur lors de l'affichage des livres disponibles : " + e.getMessage());
+            throw new BookDisplayException("Erreur lors de l'affichage des livres disponibles.", e);
         }
     }
 
     @Override
     public void updateBook(Book book) throws BookUpdateException {
         try {
-            // Vérifier si le livre existe déjà dans la liste
-            Book existingBook = books.stream()
-                    .filter(b -> b.getBook_id() == book.getBook_id())
-                    .findFirst()
-                    .orElseThrow(() -> new BookUpdateException("Le livre avec cet ID n'existe pas."));
-
-            // Mettre à jour les informations du livre
+            Book existingBook = searchBookById(book.getBook_id());
             existingBook.setTitle(book.getTitle());
-            existingBook.setNumber_Of_Copies(book.getNumber_Of_Copies());
+            existingBook.setAuthors(book.getAuthors());
+            existingBook.setCategories(book.getCategories());  // Changer de setCategory à setCategories
         } catch (Exception e) {
-            throw new BookUpdateException("Erreur lors de la mise à jour du livre : " + e.getMessage());
+            throw new BookUpdateException("Erreur lors de la mise à jour du livre avec l'ID : ");
         }
     }
+
 
     @Override
     public void removeBook(int bookId) throws BookRemoveException {
         try {
-            // Chercher le livre par son ID
-            Book bookToRemove = books.stream()
-                    .filter(b -> b.getBook_id() == bookId)
-                    .findFirst()
-                    .orElseThrow(() -> new BookRemoveException("Livre non trouvé pour la suppression."));
-
-            // Supprimer le livre
+            Book bookToRemove = searchBookById(bookId);
             books.remove(bookToRemove);
         } catch (Exception e) {
-            throw new BookRemoveException("Erreur lors de la suppression du livre : " + e.getMessage());
+            throw new BookRemoveException("Erreur lors de la suppression du livre avec l'ID : " + bookId, e);
         }
     }
 
-    @Override
     public boolean isAvailable(Book book) throws BookAvailabilityException {
         try {
-            // Vérifier la disponibilité du livre (par exemple, en utilisant un attribut isAvailable)
-            return book.getNumber_Of_Copies() > 0; // Si le nombre de copies est supérieur à 0, le livre est disponible
+            return books.contains(book) && book.isAvailable();
         } catch (Exception e) {
-            throw new BookAvailabilityException("Erreur lors de la vérification de la disponibilité du livre : " + e.getMessage());
+            throw new BookAvailabilityException("Erreur lors de la vérification de la disponibilité du livre.", e);
         }
     }
 
     @Override
     public List<Book> searchBookByTitle(String title) throws BookSearchByTitleException {
         try {
-            // Rechercher les livres dont le titre correspond à la recherche
             return books.stream()
-                    .filter(book -> book.getTitle().contains(title))
+                    .filter(book -> book.getTitle().equalsIgnoreCase(title))
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            throw new BookSearchByTitleException("Erreur lors de la recherche du livre par titre : " + e.getMessage());
+            throw new BookSearchByTitleException("Erreur lors de la recherche du livre avec le titre : " + title, e);
         }
     }
 
     @Override
-    public List<Book> searchBookByCategory(String categoryName) throws BookSearchByCategoryException {
+    public List<Book> searchBookByCategory(String category_name) throws BookSearchByCategoryException {
         try {
-            // Rechercher les livres selon la catégorie (en supposant que la relation entre Book et Category est gérée)
             return books.stream()
                     .filter(book -> book.getCategories().stream()
-                            .anyMatch(category -> category.getCategory_name().equals(categoryName)))
+                            .anyMatch(category -> category.getCategory_name().equalsIgnoreCase(category_name)))  // Comparaison du nom de la catégorie
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            throw new BookSearchByCategoryException("Erreur lors de la recherche du livre par catégorie : " + e.getMessage());
+            throw new BookSearchByCategoryException("Erreur lors de la recherche de livres dans la catégorie : " + category_name, e);
         }
     }
 
+
     @Override
-    public boolean isAvailable(int bookId) {
-        for (Book book : books) {
-            if (book.getBook_id() == bookId) {
-                return book.getNumber_Of_Copies() > 0;
-            }
-        }
-        return false; // Retourne false si le livre n'est pas trouvé ou n'est pas disponible
+    public Book searchBookById(int bookId) throws BookGetByIdException {
+        return books.stream()
+                .filter(book -> book.getBook_id() == bookId)
+                .findFirst()
+                .orElseThrow(() -> new BookGetByIdException("Livre avec l'ID " + bookId + " introuvable."));
     }
 
     @Override
-    public boolean isReturned(int bookId) throws BookIsreturnedException {
+    public List<Book> getAllBooks() throws BookDisplayException {
         try {
-            // Trouver le livre par son ID
-            Book book = books.stream()
-                    .filter(b -> b.getBook_id() == bookId)
-                    .findFirst()
-                    .orElseThrow(() -> new BookIsreturnedException("Livre non trouvé pour vérifier son retour."));
-
-            // Retourner l'état du livre (si il a été retourné ou non)
-            return book.isReturned(); // Retourne true si le livre a été retourné, sinon false
+            return new ArrayList<>(books);
         } catch (Exception e) {
-            throw new BookIsreturnedException("Erreur lors de la vérification du retour du livre : " + e.getMessage());
+            throw new BookDisplayException("Erreur lors de l'affichage de tous les livres.", e);
         }
     }
 
+    @Override
+    public void markAsBorrowed(int bookId) throws BookUpdateException {
+        try {
+            Book book = searchBookById(bookId);
+            if (!book.isAvailable()) {
+                throw new BookUpdateException("Le livre avec l'ID " + bookId + " est déjà emprunté.");
+            }
+            book.setAvailable(false);
+        } catch (Exception e) {
+            throw new BookUpdateException("Erreur lors de la mise à jour de l'état du livre avec l'ID : " + bookId, e);
+        }
+    }
 
+    @Override
+    public void markAsReturned(int bookId) throws BookUpdateException {
+        try {
+            Book book = searchBookById(bookId);
+            if (book.isAvailable()) {
+                throw new BookUpdateException("Le livre avec l'ID " + bookId + " est déjà disponible.");
+            }
+            book.setAvailable(true);
+        } catch (Exception e) {
+            throw new BookUpdateException("Erreur lors de la mise à jour de l'état du livre avec l'ID : " + bookId, e);
+        }
+    }
 
+    @Override
+    public boolean isAvailable(int bookId) throws BookAvailabilityException {
+        try {
+            // Recherche le livre par son ID
+            Book book = searchBookById(bookId);
+            // Retourne l'état de disponibilité du livre
+            return book.isAvailable();
+        } catch (BookGetByIdException e) {
+            throw new BookAvailabilityException("Erreur lors de la vérification de la disponibilité du livre avec l'ID : " + bookId, e);
+        }
+    }
 }

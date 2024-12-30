@@ -1,22 +1,25 @@
 package com.library.system.service;
 
+import com.library.system.exception.bookDaoException.*;
 import com.library.system.model.Book;
-
+//import com.library.system.exception.bookServiceException.*;
 import java.util.List;
 
 public interface BookService {
-    void addBook(Book book); // Ajouter un livre
 
-    List<Book> displayAvailableBooks(); // Afficher les livres disponibles
+    void addBook(Book book) throws BookAddException;
 
-    void updateBook(Book book); // Mettre à jour un livre
+    void updateBook(Book book) throws BookUpdateException;
 
-    void removeBook(int bookId); // Supprimer un livre
+    void removeBook(int bookId) throws BookRemoveException;
 
-    boolean isAvailable(int bookId); // Vérifier la disponibilité d'un livre
-    boolean isReturned(int bookId); // Verifier si un livre est retourne
+    Book getBookById(int bookId) throws BookGetByIdServiceException;
 
-    List<Book> searchBookByTitle(String title); // Rechercher des livres par titre
+    List<Book> displayAvailableBooks() throws BookDisplayException;
 
-    List<Book> searchBookByCategory(String category); // Rechercher des livres par catégorie
+    List<Book> searchBookByTitle(String title) throws BookSearchByTitleException;
+
+    List<Book> searchBookByCategory(String category) throws BookSearchByCategoryException;
+
+    boolean isAvailable(int bookId) throws BookAvailabilityException;
 }

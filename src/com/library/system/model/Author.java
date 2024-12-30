@@ -121,6 +121,11 @@ public class Author {
         return author_email != null ? author_email.hashCode() : 0;
     }
 
+    public String getName() {
+        return first_name + " " + last_name;
+    }
+
+
     @Override
     public String toString() {
         return "Author{" +

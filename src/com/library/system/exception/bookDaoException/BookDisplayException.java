@@ -7,4 +7,8 @@ public class BookDisplayException extends RuntimeException {
     public BookDisplayException(String message) {
         super(message);
     }
+
+    public BookDisplayException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
