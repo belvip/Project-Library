@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BookDAOImpl implements BookDAO {
 
@@ -187,6 +188,12 @@ public class BookDAOImpl implements BookDAO {
                 }
                 book.setAuthors(authors);
 
+                // Ajouter le nom complet de l'auteur dans l'objet Book, si nécessaire
+                String authorFullName = authors.stream()
+                        .map(author -> author.getFirst_name() + " " + author.getLast_name())
+                        .collect(Collectors.joining(", "));
+                book.setAuthorFullName(authorFullName);  // Assurez-vous que vous avez cette méthode dans Book
+
                 // Récupérer les catégories (vérifier si la catégorie est NULL)
                 Set<Category> categories = new HashSet<>();
                 if (rs.getInt("category_id") != 0) {  // Vérifiez que l'ID de la catégorie est valide
@@ -205,6 +212,7 @@ public class BookDAOImpl implements BookDAO {
 
         return availableBooks;
     }
+
 
 
     // Afficher un livre par son ID;

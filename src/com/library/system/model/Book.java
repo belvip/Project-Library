@@ -10,6 +10,7 @@ public class Book {
     private int book_id;
     private String title;
     private int number_Of_Copies;
+    private String authorFullName;
 
     // Relations
     private Set<Author> authors = new HashSet<>();  // Un livre peut avoir plusieurs auteurs
@@ -23,6 +24,15 @@ public class Book {
         this.book_id = book_id;
         setTitle(title); // Validation incluse
         setNumber_Of_Copies(number_Of_Copies); // Validation incluse
+    }
+
+    // Getter et setter pour le nom complet de l'auteur
+    public String getAuthorFullName() {
+        return authorFullName;
+    }
+
+    public void setAuthorFullName(String authorFullName) {
+        this.authorFullName = authorFullName;
     }
 
 

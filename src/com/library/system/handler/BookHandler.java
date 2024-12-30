@@ -177,12 +177,14 @@ public class BookHandler {
                 System.out.println("Aucun livre disponible.");
             } else {
                 System.out.println("\n\u001B[34m======== Liste des Livres ========\u001B[0m");
-                System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------------------+");
-                System.out.printf("| %-10s | %-30s | %-19s | %-25s | %-35s |\n", "ID", "Titre", "Nb Copies", "Catégorie", "Email Auteur");
-                System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------------------+");
+                System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------------------+-----------------------+");
+                System.out.printf("| %-10s | %-30s | %-19s | %-25s | %-35s | %-30s |\n",
+                        "ID", "Titre", "Nb Copies", "Catégorie", "Email Auteur", "Nom de l'Auteur");
+                System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------------------+-----------------------+");
 
                 // Affichage des informations de chaque livre
                 for (Book book : books) {
+                    // Récupérer les catégories du livre
                     String categories = "Aucune catégorie";
                     if (book.getCategories() != null && !book.getCategories().isEmpty()) {
                         categories = book.getCategories().stream()
@@ -191,6 +193,7 @@ public class BookHandler {
                                 .orElse("Aucune catégorie");
                     }
 
+                    // Récupérer l'email de l'auteur
                     String authorEmail = "Email non disponible";
                     if (book.getAuthors() != null && !book.getAuthors().isEmpty()) {
                         authorEmail = book.getAuthors().stream()
@@ -199,21 +202,32 @@ public class BookHandler {
                                 .orElse("Email non disponible");
                     }
 
+                    // Récupérer le nom complet de l'auteur
+                    String authorFullName = "Auteur non disponible";
+                    if (book.getAuthors() != null && !book.getAuthors().isEmpty()) {
+                        authorFullName = book.getAuthors().stream()
+                                .map(author -> author.getFirst_name() + " " + author.getLast_name())
+                                .reduce((name1, name2) -> name1 + ", " + name2)
+                                .orElse("Auteur inconnu");
+                    }
+
                     // Affichage des informations du livre
-                    System.out.printf("| %-10d | %-30s | %-19d | %-25s | %-35s |\n",
+                    System.out.printf("| %-10d | %-30s | %-19d | %-25s | %-35s | %-30s |\n",
                             book.getBook_id(),
                             book.getTitle(),
                             book.getNumber_Of_Copies(),
                             categories,
-                            authorEmail);
+                            authorEmail,
+                            authorFullName); // Affichage du nom complet de l'auteur
                 }
 
-                System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------------------+");
+                System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------------------+-----------------------+");
             }
         } catch (BookDisplayException e) {
             System.err.println("Erreur: " + e.getMessage());
         }
     }
+
 
 
 
