@@ -3,6 +3,7 @@ package com.library.system.handler;
 import com.library.system.controller.BookController;
 import com.library.system.exception.bookDaoException.BookDisplayException;
 import com.library.system.exception.bookDaoException.BookRemoveException;
+import com.library.system.exception.bookDaoException.BookSearchByCategoryException;
 import com.library.system.exception.bookDaoException.BookUpdateException;
 import com.library.system.model.Author;
 import com.library.system.model.Book;
@@ -48,8 +49,12 @@ public class BookHandler {
                     updateBook();  // Méthode pour mettre à jour un livre
                     break;
                 case 5:
-                    removeBook();
+                    searchBookByCategory();
+                    break;
                 case 6:
+                    removeBook();
+                    break;
+                case 7:
                     running = false;
                     break;
                 default:
@@ -66,8 +71,9 @@ public class BookHandler {
         System.out.printf("| %-2s | %-40s |\n", "2", "\u001B[33mAfficher un livre\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "3", "\u001B[36mAfficher tous les livres\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "4", "\u001B[36mMettre a jour un livre\u001B[0m");
-        System.out.printf("| %-2s | %-40s |\n", "5", "\u001B[36mSupprimer un livre\u001B[0m");
-        System.out.printf("| %-2s | %-40s |\n", "6", "\u001B[31mQuitter\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "5", "\u001B[36mRechercher un livre par categorie\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "6", "\u001B[36mSupprimer un livre\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "7", "\u001B[31mQuitter\u001B[0m");
         System.out.println("+--------------------------------------------+");
         System.out.print("\u001B[33mEntrez votre choix: \u001B[0m");
     }
@@ -323,6 +329,23 @@ public class BookHandler {
         // Message de succès
         System.out.println(GREEN + "Le livre avec l'ID " + bookId + " a été supprimé avec succès." + RESET);
     }
+
+    public void searchBookByCategory() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Entrez le nom de la catégorie : ");
+        String categoryName = scanner.nextLine();
+
+        List<Book> books = bookController.searchBookByCategory(categoryName);
+        if (books.isEmpty()) {
+            System.out.println("Aucun livre trouvé pour la catégorie : " + categoryName);
+        } else {
+            System.out.println("Livres trouvés :");
+            for (Book book : books) {
+                System.out.println("- " + book.getTitle() + " par " + book.getAuthorFullName());
+            }
+        }
+    }
+
 
 
 

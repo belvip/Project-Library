@@ -6,12 +6,14 @@ import com.library.system.exception.bookException.InvalidNumberOfCopiesException
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Book {
     private int book_id;
     private String title;
     private int number_Of_Copies;
     private String authorFullName;
+    private String categoryName;
 
     // Relations
     private Set<Author> authors = new HashSet<>();  // Un livre peut avoir plusieurs auteurs
@@ -32,9 +34,20 @@ public class Book {
         return authorFullName;
     }
 
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+
     public void setAuthorFullName(String authorFullName) {
         this.authorFullName = authorFullName;
     }
+
 
 
     // Getters et Setters
@@ -103,9 +116,12 @@ public class Book {
                 ", title='" + title + '\'' +
                 ", numberOfCopies=" + number_Of_Copies +
                 ", authors=" + authors +
-                ", categories=" + categories +
+                ", categories=" + categories.stream()
+                .map(Category::getCategory_name)
+                .collect(Collectors.joining(", ")) +
                 '}';
     }
+
 
     public boolean isAvailable() {
         return number_Of_Copies > 0;
@@ -132,5 +148,6 @@ public class Book {
             }
         }
     }
+
 
 }

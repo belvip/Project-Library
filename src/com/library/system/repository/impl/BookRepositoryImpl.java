@@ -1,10 +1,7 @@
 package com.library.system.repository.impl;
 
 import com.library.system.dao.BookDAO;
-import com.library.system.exception.bookDaoException.BookAddException;
-import com.library.system.exception.bookDaoException.BookDisplayException;
-import com.library.system.exception.bookDaoException.BookRemoveException;
-import com.library.system.exception.bookDaoException.BookUpdateException;
+import com.library.system.exception.bookDaoException.*;
 import com.library.system.model.Author;
 import com.library.system.model.Book;
 import com.library.system.model.Category;
@@ -111,6 +108,18 @@ public class BookRepositoryImpl implements BookRepository {
             throw new BookRemoveException("Erreur lors de la suppression du livre.", e);
         }
     }
+
+    @Override
+    public List<Book> searchBookByCategory(String categoryName) throws BookSearchByCategoryException {
+        try {
+            // Appel de la méthode du DAO et capture du résultat
+            return bookDAO.searchBookByCategory(categoryName);
+        } catch (Exception e) {
+            // Lancer une exception personnalisée en cas d'erreur
+            throw new BookSearchByCategoryException(e.getMessage());
+        }
+    }
+
 
 
     @Override

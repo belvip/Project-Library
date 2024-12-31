@@ -3,6 +3,7 @@ package com.library.system.controller;
 import com.library.system.dao.BookDAO;
 import com.library.system.dao.impl.BookDAOImpl;
 import com.library.system.exception.bookDaoException.BookDisplayException;
+import com.library.system.exception.bookDaoException.BookSearchByCategoryException;
 import com.library.system.repository.impl.BookRepositoryImpl;
 import com.library.system.service.BookService;
 import com.library.system.service.impl.BookServiceImpl;
@@ -51,6 +52,20 @@ public class BookController {
             System.out.println("Erreur lors de la suppression du livre : " + e.getMessage());
         }
     }
+
+    // Rechercher un livre par categorie
+    public List<Book> searchBookByCategory(String categoryName){
+        try {
+            // Appel au service pour obtenir le livre
+            return bookService.searchBookByCategory(categoryName);
+        } catch (BookSearchByCategoryException e) {
+            // Gestion de l'erreur
+            System.out.println("Erreur : " + e.getMessage());
+            return null;
+        }
+
+    }
+
 
     public Book displayBookById(int bookId) {
         try {

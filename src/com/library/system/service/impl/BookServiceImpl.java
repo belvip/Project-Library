@@ -1,12 +1,9 @@
 package com.library.system.service.impl;
 
-import com.library.system.exception.bookDaoException.BookDisplayException;
-import com.library.system.exception.bookDaoException.BookRemoveException;
-import com.library.system.exception.bookDaoException.BookUpdateException;
+import com.library.system.exception.bookDaoException.*;
 import com.library.system.service.BookService;
 import com.library.system.repository.BookRepository;
 import com.library.system.model.Book;
-import com.library.system.exception.bookDaoException.BookAddException;
 
 import java.util.Collections;
 import java.util.List;
@@ -64,6 +61,17 @@ public class BookServiceImpl implements BookService {
             bookRepository.removeBook(bookId);
         }catch (Exception e) {
             throw new BookRemoveException("Erreur lors de la suppression du livre.", e);
+        }
+    }
+
+    @Override
+    public List<Book> searchBookByCategory(String categoryName) throws BookSearchByCategoryException {
+        try {
+            // Appel de la méthode du DAO et capture du résultat
+            return bookRepository.searchBookByCategory(categoryName);
+        } catch (Exception e) {
+            // Lancer une exception personnalisée en cas d'erreur
+            throw new BookSearchByCategoryException(e.getMessage());
         }
     }
 

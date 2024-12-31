@@ -407,8 +407,70 @@ public class BookDAOImpl implements BookDAO {
 
     @Override
     public List<Book> searchBookByCategory(String categoryName) throws BookSearchByCategoryException {
-        return List.of();
+        String query = "SELECT b.book_id, b.title, b.number_of_copies, a.first_name, a.last_name, a.author_email, c.category_name " +
+                "FROM Book b " +
+                "LEFT JOIN Book_Author ba ON b.book_id = ba.book_id " +
+                "LEFT JOIN Author a ON ba.author_id = a.author_id " +
+                "LEFT JOIN Books_Category bc ON b.book_id = bc.book_id " +
+                "LEFT JOIN Category c ON bc.category_id = c.category_id " +
+                "WHERE c.category_name = ?";
+
+        List<Book> books = new ArrayList<>();
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, categoryName);  // Paramétrer la catégorie
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    // Débogage : Affichez les valeurs récupérées
+                    System.out.println("Book ID: " + rs.getInt("book_id"));
+                    System.out.println("Title: " + rs.getString("title"));
+                    System.out.println("Number of Copies: " + rs.getInt("number_of_copies"));
+                    System.out.println("Author First Name: " + rs.getString("first_name"));
+                    System.out.println("Author Last Name: " + rs.getString("last_name"));
+                    System.out.println("Author Email: " + rs.getString("author_email"));
+                    System.out.println("Category Name: " + rs.getString("category_name"));
+
+                    // Créer un objet Book
+                    Book book = new Book();
+                    book.setBook_id(rs.getInt("book_id"));
+                    book.setTitle(rs.getString("title"));
+                    book.setNumber_Of_Copies(rs.getInt("number_of_copies"));
+
+                    // Si les informations sur l'auteur sont présentes dans le résultat
+                    String firstName = rs.getString("first_name");
+                    String lastName = rs.getString("last_name");
+                    String authorEmail = rs.getString("author_email");
+
+                    if (firstName != null && lastName != null) {
+                        Author author = new Author();
+                        author.setFirst_name(firstName);
+                        author.setLast_name(lastName);
+                        author.setAuthor_email(authorEmail);
+                        book.addAuthor(author);  // Ajouter l'auteur au livre
+                    }
+
+                    // Ajouter la catégorie au livre
+                    String categoryNameFromDb = rs.getString("category_name");
+                    if (categoryNameFromDb != null) {
+                        Category category = new Category();
+                        category.setCategory_name(categoryNameFromDb);
+                        book.addCategory(category);  // Ajouter la catégorie au livre
+                    }
+
+                    books.add(book);  // Ajouter le livre à la liste
+                }
+            }
+        } catch (SQLException e) {
+            throw new BookSearchByCategoryException("Erreur lors de la recherche des livres pour la catégorie : " + categoryName, e);
+        }
+
+        if (books.isEmpty()) {
+            throw new BookSearchByCategoryException("Aucun livre trouvé pour la catégorie : " + categoryName);
+        }
+
+        return books;
     }
+
 
 
 }
