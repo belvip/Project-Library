@@ -1,6 +1,7 @@
 package com.library.system.repository;
 
 import com.library.system.exception.bookDaoException.BookDisplayException;
+import com.library.system.exception.bookDaoException.BookUpdateException;
 import com.library.system.model.Book;
 
 import java.util.List;
@@ -15,5 +16,7 @@ public interface BookRepository {
     List<Book> findAll();
 
     Book displayBookById(int bookId) throws BookDisplayException;
+
+    void updateBook(Book book) throws BookUpdateException;
 
 }

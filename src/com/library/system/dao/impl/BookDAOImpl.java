@@ -271,8 +271,100 @@ public class BookDAOImpl implements BookDAO {
         return book;
     }
 
+    @Override
+    public void updateBook(Book book) throws BookUpdateException {
+        // Requête SQL pour mettre à jour les informations du livre
+        String updateBookQuery = "UPDATE book SET title = ?, number_of_copies = ? WHERE book_id = ?";
 
+        // Requête SQL pour supprimer les relations existantes entre le livre et l'auteur dans la table book_author
+        String deleteBookAuthorQuery = "DELETE FROM book_author WHERE book_id = ?";
 
+        // Requête SQL pour supprimer les relations existantes entre le livre et la catégorie dans la table books_category
+        String deleteBookCategoryQuery = "DELETE FROM books_category WHERE book_id = ?";
+
+        // Requête SQL pour insérer une nouvelle relation entre le livre et l'auteur dans la table book_author
+        String insertBookAuthorQuery = "INSERT INTO book_author (book_id, author_id) VALUES (?, ?)";
+
+        // Requête SQL pour insérer une nouvelle relation entre le livre et la catégorie dans la table books_category
+        String insertBookCategoryQuery = "INSERT INTO books_category (book_id, category_id) VALUES (?, ?)";
+
+        try {
+            // Démarre la transaction
+            connection.setAutoCommit(false);
+
+            // Mise à jour du livre
+            try (PreparedStatement updateBookStmt = connection.prepareStatement(updateBookQuery)) {
+                updateBookStmt.setString(1, book.getTitle()); // Titre du livre
+                updateBookStmt.setInt(2, book.getNumber_Of_Copies()); // Nombre d'exemplaires
+                updateBookStmt.setInt(3, book.getBook_id()); // ID du livre
+
+                int rowsUpdatedBook = updateBookStmt.executeUpdate();
+                if (rowsUpdatedBook == 0) {
+                    throw new BookUpdateException("Aucun livre trouvé avec l'ID : " + book.getBook_id());
+                }
+            }
+
+            // Suppression des relations existantes (auteurs et catégories)
+            try (PreparedStatement deleteBookAuthorStmt = connection.prepareStatement(deleteBookAuthorQuery);
+                 PreparedStatement deleteBookCategoryStmt = connection.prepareStatement(deleteBookCategoryQuery)) {
+
+                deleteBookAuthorStmt.setInt(1, book.getBook_id());
+                deleteBookCategoryStmt.setInt(1, book.getBook_id());
+
+                deleteBookAuthorStmt.executeUpdate();
+                deleteBookCategoryStmt.executeUpdate();
+            }
+
+            // Mise à jour des auteurs
+            if (book.getAuthors() != null && !book.getAuthors().isEmpty()) {
+                try (PreparedStatement insertBookAuthorStmt = connection.prepareStatement(insertBookAuthorQuery)) {
+                    int authorId = book.getAuthors().stream()
+                            .findFirst()
+                            .map(Author::getAuthor_id)
+                            .orElseThrow(() -> new BookUpdateException("Aucun auteur trouvé pour le livre ID : " + book.getBook_id()));
+
+                    insertBookAuthorStmt.setInt(1, book.getBook_id());
+                    insertBookAuthorStmt.setInt(2, authorId);
+
+                    insertBookAuthorStmt.executeUpdate();
+                }
+            }
+
+            // Mise à jour des catégories
+            if (book.getCategories() != null && !book.getCategories().isEmpty()) {
+                try (PreparedStatement insertBookCategoryStmt = connection.prepareStatement(insertBookCategoryQuery)) {
+                    int categoryId = book.getCategories().stream()
+                            .findFirst()
+                            .map(Category::getCategory_id)
+                            .orElseThrow(() -> new BookUpdateException("Aucune catégorie trouvée pour le livre ID : " + book.getBook_id()));
+
+                    insertBookCategoryStmt.setInt(1, book.getBook_id());
+                    insertBookCategoryStmt.setInt(2, categoryId);
+
+                    insertBookCategoryStmt.executeUpdate();
+                }
+            }
+
+            // Valide la transaction
+            connection.commit();
+        } catch (SQLException e) {
+            try {
+                connection.rollback(); // Annule les modifications en cas d'erreur
+            } catch (SQLException rollbackEx) {
+                // Gestion des erreurs de rollback si nécessaire
+                throw new BookUpdateException("Erreur lors du rollback après la mise à jour du livre avec l'ID : " + book.getBook_id(), rollbackEx);
+            }
+            // Gestion des exceptions SQL
+            throw new BookUpdateException("Erreur lors de la mise à jour du livre avec l'ID : " + book.getBook_id(), e);
+        } finally {
+            try {
+                connection.setAutoCommit(true); // Restaure le mode par défaut
+            } catch (SQLException e) {
+                // Gestion des erreurs liées à la restauration du mode auto-commit
+                throw new BookUpdateException("Erreur lors de la restauration du mode auto-commit.", e);
+            }
+        }
+    }
 
 
 

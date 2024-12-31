@@ -1,6 +1,7 @@
 package com.library.system.service.impl;
 
 import com.library.system.exception.bookDaoException.BookDisplayException;
+import com.library.system.exception.bookDaoException.BookUpdateException;
 import com.library.system.service.BookService;
 import com.library.system.repository.BookRepository;
 import com.library.system.model.Book;
@@ -44,6 +45,17 @@ public class BookServiceImpl implements BookService {
         return bookRepository.displayBookById(bookId); // Délégation au repository
     }
 
+    // Implémentation de la méthode updateBook
+    @Override
+    public void updateBook(Book book) throws BookUpdateException {
+        try {
+            // Appeler la méthode updateBook du repository
+            bookRepository.updateBook(book);
+        } catch (BookUpdateException e) {
+            // Si une exception survient, la relancer avec un message plus spécifique
+            throw new BookUpdateException("Erreur lors de la mise à jour du livre avec l'ID : " + book.getBook_id(), e);
+        }
+    }
 
     /* =========================== AJOUTER UN LIVRE ======================== */
     @Override

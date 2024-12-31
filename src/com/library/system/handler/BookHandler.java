@@ -2,15 +2,13 @@ package com.library.system.handler;
 
 import com.library.system.controller.BookController;
 import com.library.system.exception.bookDaoException.BookDisplayException;
+import com.library.system.exception.bookDaoException.BookUpdateException;
 import com.library.system.model.Author;
 import com.library.system.model.Book;
 import com.library.system.model.Category;
 import com.library.system.service.impl.BookServiceImpl;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 public class BookHandler {
 
@@ -24,7 +22,6 @@ public class BookHandler {
         this.bookController = bookController;
     }
 
-    // Méthode pour traiter les opérations sur les livres
     // Méthode pour traiter les opérations sur les livres
     public void handleBookOperations() {
         boolean running = true;
@@ -42,6 +39,9 @@ public class BookHandler {
                     displayAllAvailableBooks();  // Appeler la méthode pour afficher tous les livres
                     break;
                 case 4:
+                    updateBook();  // Méthode pour mettre à jour un livre
+                    break;
+                case 5:
                     running = false;
                     break;
                 default:
@@ -57,11 +57,11 @@ public class BookHandler {
         System.out.printf("| %-2s | %-40s |\n", "1", "\u001B[32mAjouter un livre\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "2", "\u001B[33mAfficher un livre\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "3", "\u001B[36mAfficher tous les livres\u001B[0m");
-        System.out.printf("| %-2s | %-40s |\n", "4", "\u001B[31mQuitter\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "4", "\u001B[36mMettre a jour un livre\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "5", "\u001B[31mQuitter\u001B[0m");
         System.out.println("+--------------------------------------------+");
         System.out.print("\u001B[33mEntrez votre choix: \u001B[0m");
     }
-
 
     // Méthode pour obtenir l'entrée de l'utilisateur
     private int getChoiceInput() {
@@ -79,8 +79,23 @@ public class BookHandler {
         // Demander les informations du livre
         System.out.print("Entrez le titre du livre : ");
         String title = scanner.nextLine();
-        System.out.print("Entrez le nombre d'exemplaires : ");
-        int numberOfCopies = scanner.nextInt();
+
+        int numberOfCopies = -1;  // Initialiser à une valeur invalide
+
+        // Demander le nombre d'exemplaires jusqu'à ce qu'une valeur valide soit entrée
+        while (numberOfCopies < 0) {
+            System.out.print("Entrez le nombre d'exemplaires : ");
+            try {
+                numberOfCopies = scanner.nextInt();  // Essayer de lire un int
+                if (numberOfCopies < 0) {
+                    System.out.println("Le nombre d'exemplaires ne peut pas être négatif. Veuillez réessayer.");
+                }
+            } catch (InputMismatchException e) {
+                // Si une exception se produit (par exemple, si ce n'est pas un nombre), on la gère
+                System.out.println("Entrée invalide. Veuillez entrer un nombre entier.");
+                scanner.nextLine(); // Nettoyer le buffer du scanner pour éviter une boucle infinie
+            }
+        }
 
         // Créer le set des auteurs
         Set<Author> authors = new HashSet<>();
@@ -164,8 +179,6 @@ public class BookHandler {
         }
     }
 
-
-
     // Méthode pour afficher tous les livres
     private void displayAllAvailableBooks() {
         try {
@@ -225,6 +238,58 @@ public class BookHandler {
             }
         } catch (BookDisplayException e) {
             System.err.println("Erreur: " + e.getMessage());
+        }
+    }
+
+
+    // Méthode pour mettre à jour un livre
+    public void updateBook() {
+        Scanner scanner = new Scanner(System.in);
+
+        // Demander l'ID du livre à mettre à jour
+        System.out.print("Entrez l'ID du livre à mettre à jour : ");
+        int bookId = scanner.nextInt();
+        scanner.nextLine();  // Consommer la ligne restante
+
+        // Demander le nouveau titre
+        System.out.print("Entrez le nouveau titre du livre : ");
+        String title = scanner.nextLine();
+
+        // Demander le nouveau nombre d'exemplaires
+        System.out.print("Entrez le nouveau nombre d'exemplaires : ");
+        int numberOfCopies = scanner.nextInt();
+
+        // Demander les nouveaux IDs des auteurs
+        Set<Author> authors = new HashSet<>();
+        System.out.print("Entrez l'ID de l'auteur : ");
+        int authorId = scanner.nextInt();
+        Author author = new Author();
+        author.setAuthor_id(authorId);  // Définir l'ID de l'auteur
+        authors.add(author);  // Ajouter l'auteur au set
+
+        // Demander les nouveaux IDs des catégories
+        Set<Category> categories = new HashSet<>();
+        System.out.print("Entrez l'ID de la catégorie : ");
+        int categoryId = scanner.nextInt();
+        Category category = new Category();
+        category.setCategory_id(categoryId);  // Définir l'ID de la catégorie
+        categories.add(category);  // Ajouter la catégorie au set
+
+        // Créer un objet Book avec les nouvelles données
+        Book bookToUpdate = new Book();
+        bookToUpdate.setBook_id(bookId);  // Définir l'ID du livre
+        bookToUpdate.setTitle(title);     // Définir le titre
+        bookToUpdate.setNumber_Of_Copies(numberOfCopies);  // Définir le nombre d'exemplaires
+        bookToUpdate.setAuthors(authors);  // Définir les auteurs
+        bookToUpdate.setCategories(categories);  // Définir les catégories
+
+        // Appeler la méthode de BookController pour mettre à jour le livre
+        try {
+            bookController.updateBook(bookToUpdate);
+            System.out.println("Livre mis à jour avec succès.");
+        } catch (BookUpdateException e) {
+            // Gérer les erreurs si la mise à jour échoue
+            System.err.println("Erreur lors de la mise à jour du livre : " + e.getMessage());
         }
     }
 

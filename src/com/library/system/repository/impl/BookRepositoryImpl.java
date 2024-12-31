@@ -3,6 +3,7 @@ package com.library.system.repository.impl;
 import com.library.system.dao.BookDAO;
 import com.library.system.exception.bookDaoException.BookAddException;
 import com.library.system.exception.bookDaoException.BookDisplayException;
+import com.library.system.exception.bookDaoException.BookUpdateException;
 import com.library.system.model.Author;
 import com.library.system.model.Book;
 import com.library.system.model.Category;
@@ -89,6 +90,18 @@ public class BookRepositoryImpl implements BookRepository {
             throw new BookDisplayException("Erreur lors de l'affichage des livres disponibles.", e);
         }
     }
+
+    @Override
+    public void updateBook(Book book) throws BookUpdateException {
+        try {
+            // Appeler la méthode updateBook du DAO sans retourner de valeur
+            bookDAO.updateBook(book);
+        } catch (Exception e) {
+            // Gérer les erreurs et lancer une exception personnalisée
+            throw new BookUpdateException("Erreur lors de la mise à jour du livre.", e);
+        }
+    }
+
 
     @Override
     public Book getBookById(int bookId) throws Exception {

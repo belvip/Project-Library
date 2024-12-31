@@ -9,6 +9,7 @@ import com.library.system.service.impl.BookServiceImpl;
 import com.library.system.model.Book;
 import com.library.system.exception.bookDaoException.BookAddException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 public class BookController {
@@ -28,6 +29,18 @@ public class BookController {
             bookService.addBook(book);
         } catch (BookAddException e) {
             System.out.println("Erreur lors de l'ajout du livre : " + e.getMessage());
+        }
+    }
+
+    // Méthode pour mettre à jour un livre
+    // Méthode pour mettre à jour un livre
+    public void updateBook(Book book) {
+        try {
+            // Utiliser bookRepository pour effectuer la mise à jour
+            bookService.updateBook(book);
+            System.out.println("Livre mis à jour avec succès.");
+        } catch (Exception e) {
+            System.out.println("Erreur lors de la mise à jour du livre : " + e.getMessage());
         }
     }
 

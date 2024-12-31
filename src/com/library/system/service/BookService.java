@@ -1,6 +1,7 @@
 package com.library.system.service;
 
 import com.library.system.exception.bookDaoException.BookDisplayException;
+import com.library.system.exception.bookDaoException.BookUpdateException;
 import com.library.system.model.Book;
 
 import java.util.List;
@@ -13,5 +14,6 @@ public interface BookService {
     Book getBookById(int bookId) throws BookDisplayException;
     List<Book> getAvailableBooks();
     Book displayBookById(int bookId) throws BookDisplayException;
+    void updateBook(Book book) throws BookUpdateException;
 
 }
