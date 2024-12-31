@@ -366,6 +366,49 @@ public class BookDAOImpl implements BookDAO {
         }
     }
 
+    @Override
+    public void removeBook(int bookId) throws BookRemoveException {
+        String checkBookExistsQuery = "SELECT 1 FROM book WHERE book_id = ?";
+        try (PreparedStatement checkStmt = connection.prepareStatement(checkBookExistsQuery)) {
+            checkStmt.setInt(1, bookId);
+            try (ResultSet resultSet = checkStmt.executeQuery()) {
+                if (!resultSet.next()) {
+                    throw new BookRemoveException("Aucun livre trouvé avec l'ID : " + bookId);
+                }
+            }
+        } catch (SQLException e) {
+            throw new BookRemoveException("Erreur lors de la vérification de l'existence du livre avec l'ID : " + bookId, e);
+        }
+
+        // Suppression des relations et du livre
+        String deleteBookAuthorQuery = "DELETE FROM book_author WHERE book_id = ?";
+        String deleteBookCategoryQuery = "DELETE FROM books_category WHERE book_id = ?";
+        String deleteBookQuery = "DELETE FROM book WHERE book_id = ?";
+
+        try (PreparedStatement deleteBookAuthorStmt = connection.prepareStatement(deleteBookAuthorQuery);
+             PreparedStatement deleteBookCategoryStmt = connection.prepareStatement(deleteBookCategoryQuery);
+             PreparedStatement deleteBookStmt = connection.prepareStatement(deleteBookQuery)) {
+
+            deleteBookAuthorStmt.setInt(1, bookId);
+            int rowsDeletedAuthor = deleteBookAuthorStmt.executeUpdate();
+            deleteBookCategoryStmt.setInt(1, bookId);
+            int rowsDeletedCategory = deleteBookCategoryStmt.executeUpdate();
+            deleteBookStmt.setInt(1, bookId);
+            int rowsDeletedBook = deleteBookStmt.executeUpdate();
+
+            if (rowsDeletedBook == 0) {
+                throw new BookRemoveException("Aucun livre supprimé. ID introuvable : " + bookId);
+            }
+
+        } catch (SQLException e) {
+            throw new BookRemoveException("Erreur lors de la suppression du livre avec l'ID : " + bookId, e);
+        }
+    }
+
+    @Override
+    public List<Book> searchBookByCategory(String categoryName) throws BookSearchByCategoryException {
+        return List.of();
+    }
 
 
 }

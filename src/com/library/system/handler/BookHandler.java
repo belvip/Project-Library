@@ -2,6 +2,7 @@ package com.library.system.handler;
 
 import com.library.system.controller.BookController;
 import com.library.system.exception.bookDaoException.BookDisplayException;
+import com.library.system.exception.bookDaoException.BookRemoveException;
 import com.library.system.exception.bookDaoException.BookUpdateException;
 import com.library.system.model.Author;
 import com.library.system.model.Book;
@@ -11,6 +12,11 @@ import com.library.system.service.impl.BookServiceImpl;
 import java.util.*;
 
 public class BookHandler {
+    // Codes ANSI pour les couleurs
+    public static final String RESET = "\u001B[0m";   // Réinitialiser la couleur
+    public static final String GREEN = "\u001B[32m";  // Vert pour le succès
+    public static final String RED = "\u001B[31m";    // Rouge pour l'erreur
+
 
     private final Scanner scanner = new Scanner(System.in);
     private final BookServiceImpl bookService; // Service pour gérer les livres
@@ -42,6 +48,8 @@ public class BookHandler {
                     updateBook();  // Méthode pour mettre à jour un livre
                     break;
                 case 5:
+                    removeBook();
+                case 6:
                     running = false;
                     break;
                 default:
@@ -58,7 +66,8 @@ public class BookHandler {
         System.out.printf("| %-2s | %-40s |\n", "2", "\u001B[33mAfficher un livre\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "3", "\u001B[36mAfficher tous les livres\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "4", "\u001B[36mMettre a jour un livre\u001B[0m");
-        System.out.printf("| %-2s | %-40s |\n", "5", "\u001B[31mQuitter\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "5", "\u001B[36mSupprimer un livre\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "6", "\u001B[31mQuitter\u001B[0m");
         System.out.println("+--------------------------------------------+");
         System.out.print("\u001B[33mEntrez votre choix: \u001B[0m");
     }
@@ -92,7 +101,7 @@ public class BookHandler {
                 }
             } catch (InputMismatchException e) {
                 // Si une exception se produit (par exemple, si ce n'est pas un nombre), on la gère
-                System.out.println("Entrée invalide. Veuillez entrer un nombre entier.");
+                System.out.println(RED + "Entrée invalide. Veuillez entrer un nombre entier.");
                 scanner.nextLine(); // Nettoyer le buffer du scanner pour éviter une boucle infinie
             }
         }
@@ -175,7 +184,7 @@ public class BookHandler {
                 System.out.println("Livre non trouvé.");
             }
         } catch (BookDisplayException e) {
-            System.err.println("Erreur: " + e.getMessage());
+            System.err.println(RED + "Erreur: " + e.getMessage());
         }
     }
 
@@ -237,7 +246,7 @@ public class BookHandler {
                 System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------------------+-----------------------+");
             }
         } catch (BookDisplayException e) {
-            System.err.println("Erreur: " + e.getMessage());
+            System.err.println(RED + "Erreur: " + e.getMessage());
         }
     }
 
@@ -286,12 +295,37 @@ public class BookHandler {
         // Appeler la méthode de BookController pour mettre à jour le livre
         try {
             bookController.updateBook(bookToUpdate);
-            System.out.println("Livre mis à jour avec succès.");
+            System.out.println(GREEN + "Livre mis à jour avec succès." + RESET);
         } catch (BookUpdateException e) {
             // Gérer les erreurs si la mise à jour échoue
-            System.err.println("Erreur lors de la mise à jour du livre : " + e.getMessage());
+            System.err.println(RED + "Erreur lors de la mise à jour du livre : " + e.getMessage() + RESET);
         }
     }
+
+    // Methode pour supprimer un livre
+    public void removeBook() {
+        Scanner scanner = new Scanner(System.in);
+
+        // Demander l'ID du livre à supprimer
+        System.out.print("Entrez l'ID du livre à supprimer : ");
+        int bookId = scanner.nextInt();
+        scanner.nextLine();  // Consommer la ligne restante
+
+        try {
+            bookController.removeBook(bookId);  // Appel de la méthode pour supprimer le livre
+        } catch (BookRemoveException e) {
+            // Gestion des erreurs si le livre ne peut pas être supprimé
+            System.err.println(RED + "Erreur lors de la suppression du livre : " + e.getMessage() + RESET);
+            return; // Ne pas afficher le message de succès en cas d'erreur
+        }
+
+
+        // Message de succès
+        System.out.println(GREEN + "Le livre avec l'ID " + bookId + " a été supprimé avec succès." + RESET);
+    }
+
+
+
 
 
 

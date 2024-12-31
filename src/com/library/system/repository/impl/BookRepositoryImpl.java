@@ -3,6 +3,7 @@ package com.library.system.repository.impl;
 import com.library.system.dao.BookDAO;
 import com.library.system.exception.bookDaoException.BookAddException;
 import com.library.system.exception.bookDaoException.BookDisplayException;
+import com.library.system.exception.bookDaoException.BookRemoveException;
 import com.library.system.exception.bookDaoException.BookUpdateException;
 import com.library.system.model.Author;
 import com.library.system.model.Book;
@@ -99,6 +100,15 @@ public class BookRepositoryImpl implements BookRepository {
         } catch (Exception e) {
             // Gérer les erreurs et lancer une exception personnalisée
             throw new BookUpdateException("Erreur lors de la mise à jour du livre.", e);
+        }
+    }
+
+    @Override
+    public void removeBook(int bookId) throws BookRemoveException {
+        try{
+            bookDAO.removeBook(bookId);
+        }catch (Exception e) {
+            throw new BookRemoveException("Erreur lors de la suppression du livre.", e);
         }
     }
 

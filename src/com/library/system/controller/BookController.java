@@ -33,7 +33,6 @@ public class BookController {
     }
 
     // Méthode pour mettre à jour un livre
-    // Méthode pour mettre à jour un livre
     public void updateBook(Book book) {
         try {
             // Utiliser bookRepository pour effectuer la mise à jour
@@ -41,6 +40,15 @@ public class BookController {
             System.out.println("Livre mis à jour avec succès.");
         } catch (Exception e) {
             System.out.println("Erreur lors de la mise à jour du livre : " + e.getMessage());
+        }
+    }
+
+    // Supprimer un livre
+    public void removeBook(int bookId){
+        try{
+            bookService.removeBook(bookId);
+        }catch (Exception e) {
+            System.out.println("Erreur lors de la suppression du livre : " + e.getMessage());
         }
     }
 

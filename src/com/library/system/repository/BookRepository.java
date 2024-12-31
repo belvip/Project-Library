@@ -1,6 +1,7 @@
 package com.library.system.repository;
 
 import com.library.system.exception.bookDaoException.BookDisplayException;
+import com.library.system.exception.bookDaoException.BookRemoveException;
 import com.library.system.exception.bookDaoException.BookUpdateException;
 import com.library.system.model.Book;
 
@@ -18,5 +19,7 @@ public interface BookRepository {
     Book displayBookById(int bookId) throws BookDisplayException;
 
     void updateBook(Book book) throws BookUpdateException;
+
+    void removeBook(int bookId) throws BookRemoveException;
 
 }

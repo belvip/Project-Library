@@ -1,6 +1,8 @@
 package com.library.system.dao;
 
 import com.library.system.exception.bookDaoException.BookDisplayException;
+import com.library.system.exception.bookDaoException.BookRemoveException;
+import com.library.system.exception.bookDaoException.BookSearchByCategoryException;
 import com.library.system.exception.bookDaoException.BookUpdateException;
 import com.library.system.model.Book;
 
@@ -11,4 +13,7 @@ public interface BookDAO {
     List<Book> displayAvailableBooks() throws BookDisplayException;  // Afficher les livres
     Book displayBookById(int bookId) throws BookDisplayException;
     void updateBook(Book book) throws BookUpdateException;
+
+    void removeBook(int bookId) throws BookRemoveException;
+    List<Book> searchBookByCategory(String categoryName) throws BookSearchByCategoryException;
 }

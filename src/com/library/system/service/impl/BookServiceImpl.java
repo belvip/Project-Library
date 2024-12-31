@@ -1,6 +1,7 @@
 package com.library.system.service.impl;
 
 import com.library.system.exception.bookDaoException.BookDisplayException;
+import com.library.system.exception.bookDaoException.BookRemoveException;
 import com.library.system.exception.bookDaoException.BookUpdateException;
 import com.library.system.service.BookService;
 import com.library.system.repository.BookRepository;
@@ -54,6 +55,15 @@ public class BookServiceImpl implements BookService {
         } catch (BookUpdateException e) {
             // Si une exception survient, la relancer avec un message plus spécifique
             throw new BookUpdateException("Erreur lors de la mise à jour du livre avec l'ID : " + book.getBook_id(), e);
+        }
+    }
+
+    @Override
+    public void removeBook(int bookId) throws BookRemoveException {
+        try{
+            bookRepository.removeBook(bookId);
+        }catch (Exception e) {
+            throw new BookRemoveException("Erreur lors de la suppression du livre.", e);
         }
     }
 
