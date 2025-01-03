@@ -1,6 +1,7 @@
 package com.library.system.dao.impl;
 
 import com.library.system.dao.MemberDAO;
+import com.library.system.exception.memberException.FindMemberByNameException;
 import com.library.system.exception.memberException.MemberDeleteException;
 import com.library.system.exception.memberException.MemberRegistrationException;
 import com.library.system.model.Member;
@@ -9,6 +10,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MemberDAOImpl implements MemberDAO {
 
@@ -73,6 +76,35 @@ public class MemberDAOImpl implements MemberDAO {
             // En cas d'erreur SQL, on lance l'exception personnalisée
             throw new MemberDeleteException("Erreur lors de la suppression du membre : " + e.getMessage());
         }
+    }
+
+    // Implémentation de la méthode findMemberByName
+    @Override
+    public List<Member> findMemberByName(String memberName) throws FindMemberByNameException {
+        List<Member> members = new ArrayList<>();
+        String query = "SELECT * FROM member WHERE first_name LIKE ? OR last_name LIKE ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            String searchPattern = "%" + memberName + "%"; // Utilisation de % pour la recherche partielle
+            stmt.setString(1, searchPattern);
+            stmt.setString(2, searchPattern);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    // Création d'un objet Member à partir du ResultSet
+                    Member member = new Member(
+                            rs.getString("first_name"),
+                            rs.getString("last_name"),
+                            rs.getString("email"),
+                            rs.getDate("adhesion_date")
+                    );
+                    members.add(member);
+                }
+            }
+        } catch (SQLException e) {
+            throw new FindMemberByNameException("Erreur lors de la recherche des membres par nom : " + e.getMessage());
+        }
+        return members;
     }
 
 

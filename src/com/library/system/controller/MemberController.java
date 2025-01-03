@@ -1,9 +1,12 @@
 package com.library.system.controller;
 
+import com.library.system.exception.memberException.FindMemberByNameException;
 import com.library.system.exception.memberException.MemberDeleteException;
 import com.library.system.exception.memberException.MemberRegistrationException;
 import com.library.system.model.Member;
 import com.library.system.service.MemberService;
+
+import java.util.List;
 
 public class MemberController {
 
@@ -33,5 +36,10 @@ public class MemberController {
             // Gestion de l'exception et affichage de l'erreur
             System.out.println("❌ Erreur : " + e.getMessage());
         }
+    }
+
+    // Méthode pour rechercher un membre par son nom
+    public List<Member> findMemberByName(String memberName) throws FindMemberByNameException {
+        return memberService.findMemberByName(memberName);  // Appel à la méthode du service qui retourne la liste des membres
     }
 }

@@ -1,10 +1,13 @@
 package com.library.system.service.impl;
 
+import com.library.system.exception.memberException.FindMemberByNameException;
 import com.library.system.exception.memberException.MemberDeleteException;
 import com.library.system.exception.memberException.MemberRegistrationException;
 import com.library.system.model.Member;
 import com.library.system.repository.MemberRepository;
 import com.library.system.service.MemberService;
+
+import java.util.List;
 
 public class MemberServiceImpl implements MemberService {
 
@@ -38,6 +41,11 @@ public class MemberServiceImpl implements MemberService {
             // En cas d'erreur, relancer l'exception
             throw new MemberDeleteException("Erreur lors de la suppression du membre");
         }
+    }
+
+    // Méthode pour rechercher un membre par son nom dans la base de données
+    public List<Member> findMemberByName(String memberName) throws FindMemberByNameException {
+        return memberRepository.findMemberByName(memberName);  // Appel à la méthode de repository
     }
 
     // Méthode de validation des données du membre

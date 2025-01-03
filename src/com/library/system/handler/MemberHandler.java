@@ -1,11 +1,13 @@
 package com.library.system.handler;
 
+import com.library.system.exception.memberException.FindMemberByNameException;
 import com.library.system.model.Member;
 import com.library.system.service.impl.MemberServiceImpl;
 import com.library.system.controller.MemberController; // Ajout de l'importation
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Scanner;
 
 public class MemberHandler {
@@ -33,10 +35,13 @@ public class MemberHandler {
                 case 1:
                     registerMember();
                     break;
-                 case 2:
-                     deleteMember();
-                     break;
+                case 2:
+                    deleteMember();
+                    break;
                 case 3:
+                    searchMember();
+                    break;
+                case 4:
                     running = false;
                     break;
                 default:
@@ -61,7 +66,8 @@ public class MemberHandler {
         System.out.println("+--------------------------------------------+");
         System.out.printf("| %-2s | %-40s |\n", "1", "\u001B[32mEnregister un membre\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "2", "\u001B[32mSupprimer un membre\u001B[0m");
-        System.out.printf("| %-2s | %-40s |\n", "3", "\u001B[31mQuitter\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "3", "\u001B[32mRechercher un membre par nom\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "4", "\u001B[31mQuitter\u001B[0m");
         System.out.println("+--------------------------------------------+");
         System.out.print("\u001B[33mEntrez votre choix: \u001B[0m");
     }
@@ -115,6 +121,44 @@ public class MemberHandler {
         System.out.print("Entrez l'ID du membre à supprimer : ");
         int memberID = scanner.nextInt();
         memberController.deleteMember(memberID);  // Utiliser MemberController pour supprimer le membre
+    }
+
+    // Méthode pour rechercher un membre
+    private void searchMember() {
+        System.out.print("Entrez le nom du membre à rechercher : ");
+        scanner.nextLine();  // Consommer le newline restant
+        String memberName = scanner.nextLine();
+
+        try {
+            List<Member> members = memberController.findMemberByName(memberName);  // Appel de la méthode dans MemberController
+
+            if (members.isEmpty()) {
+                System.out.println("Aucun membre trouvé avec ce nom.");
+            } else {
+                // Afficher les membres trouvés sous forme de tableau
+                displayMemberTable(members);
+            }
+        } catch (FindMemberByNameException e) {
+            System.out.println("Erreur lors de la recherche du membre : " + e.getMessage());
+        }
+    }
+
+
+    // Méthode pour afficher les informations d'un membre sous forme de tableau
+    private void displayMemberTable(List<Member> members) {
+        // En-tête du tableau
+        System.out.println("\n╔════════════╦════════════════════╦════════════════════╦════════════════════════════╦══════════════════╗");
+        System.out.println("║   ID       ║   Prénom           ║   Nom             ║   Email                  ║   Date d'adhésion ║");
+        System.out.println("╠════════════╬════════════════════╬════════════════════╬════════════════════════════╬══════════════════╣");
+
+        // Affichage des données de chaque membre
+        for (Member member : members) {
+            System.out.printf("║ %-10d ║ %-18s ║ %-18s ║ %-24s ║ %-16s ║\n",
+                    member.getId(), member.getFirstName(), member.getLastName(), member.getEmail(), member.getAdhesionDate());
+        }
+
+        // Footer du tableau
+        System.out.println("╚════════════╩════════════════════╩════════════════════╩════════════════════════════╩══════════════════╝");
     }
 
     // Méthode pour récupérer l'entrée de l'utilisateur

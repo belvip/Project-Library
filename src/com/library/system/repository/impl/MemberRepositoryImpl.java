@@ -1,6 +1,7 @@
 package com.library.system.repository.impl;
 
 import com.library.system.dao.MemberDAO;
+import com.library.system.exception.memberException.FindMemberByNameException;
 import com.library.system.exception.memberException.MemberDeleteException;
 import com.library.system.exception.memberException.MemberRegistrationException;
 import com.library.system.model.Member;
@@ -8,6 +9,7 @@ import com.library.system.repository.MemberRepository;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 public class MemberRepositoryImpl implements MemberRepository {
 
@@ -28,6 +30,16 @@ public class MemberRepositoryImpl implements MemberRepository {
     @Override
     public void deleteMember(int memberID) throws MemberDeleteException {
         memberDAO.deleteMember(memberID);
+    }
+
+
+    @Override
+    public List<Member> findMemberByName(String memberName) throws FindMemberByNameException {
+        try {
+            return memberDAO.findMemberByName(memberName);  // Retourner la liste des membres trouvés par le DAO
+        } catch (Exception e) {
+            throw new FindMemberByNameException("Erreur lors de la recherche du membre");
+        }
     }
 
     @Override
