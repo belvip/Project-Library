@@ -6,9 +6,12 @@ import com.library.system.service.impl.MemberServiceImpl;
 import com.library.system.controller.MemberController; // Ajout de l'importation
 
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
+
+import static java.awt.Color.red;
 
 public class MemberHandler {
 
@@ -66,7 +69,7 @@ public class MemberHandler {
         System.out.println("+--------------------------------------------+");
         System.out.printf("| %-2s | %-40s |\n", "1", "\u001B[32mEnregister un membre\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "2", "\u001B[32mSupprimer un membre\u001B[0m");
-        System.out.printf("| %-2s | %-40s |\n", "3", "\u001B[32mRechercher un membre par nom\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "3", "\u001B[32mRechercher les membres par mot clé\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "4", "\u001B[31mQuitter\u001B[0m");
         System.out.println("+--------------------------------------------+");
         System.out.print("\u001B[33mEntrez votre choix: \u001B[0m");
@@ -133,28 +136,38 @@ public class MemberHandler {
             List<Member> members = memberController.findMemberByName(memberName);  // Appel de la méthode dans MemberController
 
             if (members.isEmpty()) {
-                System.out.println("Aucun membre trouvé avec ce nom.");
+                System.out.println("❌ Aucun membre trouvé avec ce nom.");
             } else {
                 // Afficher les membres trouvés sous forme de tableau
                 displayMemberTable(members);
             }
         } catch (FindMemberByNameException e) {
-            System.out.println("Erreur lors de la recherche du membre : " + e.getMessage());
+            System.out.println("❌ Erreur : " + e.getMessage());
         }
     }
 
 
-    // Méthode pour afficher les informations d'un membre sous forme de tableau
     private void displayMemberTable(List<Member> members) {
-        // En-tête du tableau
-        System.out.println("\n╔════════════╦════════════════════╦════════════════════╦════════════════════════════╦══════════════════╗");
-        System.out.println("║   ID       ║   Prénom           ║   Nom             ║   Email                  ║   Date d'adhésion ║");
-        System.out.println("╠════════════╬════════════════════╬════════════════════╬════════════════════════════╬══════════════════╣");
+        // Code ANSI pour la couleur bleue
+        String blue = "\u001B[34m";
+        String reset = "\u001B[0m";
+
+        // En-tête du tableau avec couleur bleue
+        System.out.println(blue + "\n╔════════════╦════════════════════╦════════════════════╦════════════════════════════╦══════════════════╗" + reset);
+        System.out.println(blue + "║   ID       ║   Prénom           ║   Nom             ║   Email                  ║   Date d'adhésion ║" + reset);
+        System.out.println(blue + "╠════════════╬════════════════════╬════════════════════╬════════════════════════════╬══════════════════╣" + reset);
+
+        // Création du format pour la date et l'heure
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         // Affichage des données de chaque membre
         for (Member member : members) {
+            // Formater la date d'adhésion pour inclure l'heure
+            String formattedAdhesionDate = sdf.format(member.getAdhesionDate());
+
+            // Affichage du membre avec la date formatée
             System.out.printf("║ %-10d ║ %-18s ║ %-18s ║ %-24s ║ %-16s ║\n",
-                    member.getId(), member.getFirstName(), member.getLastName(), member.getEmail(), member.getAdhesionDate());
+                    member.getId(), member.getFirstName(), member.getLastName(), member.getEmail(), formattedAdhesionDate);
         }
 
         // Footer du tableau
