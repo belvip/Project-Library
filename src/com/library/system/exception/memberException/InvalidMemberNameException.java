@@ -1,4 +1,4 @@
-package com.library.system.exception.member;
+package com.library.system.exception.memberException;
 
 // Exception for invalid member name (first or last name)
 public class InvalidMemberNameException extends RuntimeException {

@@ -1,6 +1,7 @@
 package com.library.system.service.impl;
 
-import com.library.system.exception.member.MemberRegistrationException;
+import com.library.system.exception.memberException.MemberDeleteException;
+import com.library.system.exception.memberException.MemberRegistrationException;
 import com.library.system.model.Member;
 import com.library.system.repository.MemberRepository;
 import com.library.system.service.MemberService;
@@ -26,6 +27,17 @@ public class MemberServiceImpl implements MemberService {
 
         // Enregistrement du membre
         memberRepository.registerMember(member);
+    }
+
+    @Override
+    public void deleteMember(int memberID) throws MemberDeleteException {
+        try {
+            // Appel à MemberDAOImpl pour supprimer le membre
+            memberRepository.deleteMember(memberID);
+        } catch (MemberDeleteException e) {
+            // En cas d'erreur, relancer l'exception
+            throw new MemberDeleteException("Erreur lors de la suppression du membre");
+        }
     }
 
     // Méthode de validation des données du membre

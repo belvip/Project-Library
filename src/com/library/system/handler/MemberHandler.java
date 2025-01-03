@@ -33,7 +33,10 @@ public class MemberHandler {
                 case 1:
                     registerMember();
                     break;
-                case 2:
+                 case 2:
+                     deleteMember();
+                     break;
+                case 3:
                     running = false;
                     break;
                 default:
@@ -57,7 +60,8 @@ public class MemberHandler {
         System.out.println("\n\u001B[34m======== Opérations sur les livres ========\u001B[0m");
         System.out.println("+--------------------------------------------+");
         System.out.printf("| %-2s | %-40s |\n", "1", "\u001B[32mEnregister un membre\u001B[0m");
-        System.out.printf("| %-2s | %-40s |\n", "2", "\u001B[31mQuitter\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "2", "\u001B[32mSupprimer un membre\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "3", "\u001B[31mQuitter\u001B[0m");
         System.out.println("+--------------------------------------------+");
         System.out.print("\u001B[33mEntrez votre choix: \u001B[0m");
     }
@@ -107,11 +111,19 @@ public class MemberHandler {
         }
     }
 
+    private void deleteMember() {
+        System.out.print("Entrez l'ID du membre à supprimer : ");
+        int memberID = scanner.nextInt();
+        memberController.deleteMember(memberID);  // Utiliser MemberController pour supprimer le membre
+    }
+
     // Méthode pour récupérer l'entrée de l'utilisateur
     private String getInput(String prompt) {
         System.out.print(prompt);
         return scanner.nextLine().trim();
     }
+
+
 
 
 

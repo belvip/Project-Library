@@ -1,7 +1,8 @@
 package com.library.system.dao.impl;
 
 import com.library.system.dao.MemberDAO;
-import com.library.system.exception.member.MemberRegistrationException;
+import com.library.system.exception.memberException.MemberDeleteException;
+import com.library.system.exception.memberException.MemberRegistrationException;
 import com.library.system.model.Member;
 
 import java.sql.Connection;
@@ -54,4 +55,25 @@ public class MemberDAOImpl implements MemberDAO {
             throw new MemberRegistrationException("Erreur SQL lors de l'enregistrement du membre : " + e.getMessage(), e);
         }
     }
+
+
+    @Override
+    public void deleteMember(int memberID) throws MemberDeleteException {
+        String query = "DELETE FROM member WHERE member_id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, memberID);  // On définit le memberID pour la requête SQL
+
+            int rowsAffected = stmt.executeUpdate();  // Exécution de la requête de suppression
+            if (rowsAffected == 0) {
+                throw new MemberDeleteException("Aucun membre trouvé avec l'ID : " + memberID);
+            }
+            System.out.println("Membre avec ID " + memberID + " supprimé avec succès.");
+        } catch (SQLException e) {
+            // En cas d'erreur SQL, on lance l'exception personnalisée
+            throw new MemberDeleteException("Erreur lors de la suppression du membre : " + e.getMessage());
+        }
+    }
+
+
 }

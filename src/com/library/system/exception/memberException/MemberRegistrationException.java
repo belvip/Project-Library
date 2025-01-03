@@ -1,4 +1,4 @@
-package com.library.system.exception.member;
+package com.library.system.exception.memberException;
 
 public class MemberRegistrationException extends RuntimeException {
     public MemberRegistrationException(String message) {

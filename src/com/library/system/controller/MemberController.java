@@ -1,6 +1,7 @@
 package com.library.system.controller;
 
-import com.library.system.exception.member.MemberRegistrationException;
+import com.library.system.exception.memberException.MemberDeleteException;
+import com.library.system.exception.memberException.MemberRegistrationException;
 import com.library.system.model.Member;
 import com.library.system.service.MemberService;
 
@@ -19,6 +20,18 @@ public class MemberController {
             System.out.println("✅ Membre ajouté avec succès : " + member.getEmail());
         } catch (MemberRegistrationException e) {
             System.out.println("❌ Erreur lors de l'ajout du membre : " + e.getMessage());
+        }
+    }
+
+    // Méthode pour supprimer un membre
+    public void deleteMember(int memberID) throws MemberDeleteException {
+        try {
+            // Appel au service pour supprimer le membre
+            memberService.deleteMember(memberID);
+            System.out.println("✅ Le membre a été supprimé avec succès.");
+        } catch (MemberDeleteException e) {
+            // Gestion de l'exception et affichage de l'erreur
+            System.out.println("❌ Erreur : " + e.getMessage());
         }
     }
 }

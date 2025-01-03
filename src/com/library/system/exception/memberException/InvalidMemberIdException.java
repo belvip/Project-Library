@@ -1,4 +1,4 @@
-package com.library.system.exception.member;
+package com.library.system.exception.memberException;
 
 // Exception for invalid member ID
 public class InvalidMemberIdException extends RuntimeException {

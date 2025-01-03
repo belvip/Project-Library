@@ -1,6 +1,6 @@
 package com.library.system.model;
 
-import com.library.system.exception.member.*;
+import com.library.system.exception.memberException.*;
 
 import java.util.Date;
 import java.util.Objects;

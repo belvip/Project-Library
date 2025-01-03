@@ -1,11 +1,13 @@
 package com.library.system.repository.impl;
 
 import com.library.system.dao.MemberDAO;
-import com.library.system.exception.member.MemberRegistrationException;
+import com.library.system.exception.memberException.MemberDeleteException;
+import com.library.system.exception.memberException.MemberRegistrationException;
 import com.library.system.model.Member;
 import com.library.system.repository.MemberRepository;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class MemberRepositoryImpl implements MemberRepository {
 
@@ -21,6 +23,11 @@ public class MemberRepositoryImpl implements MemberRepository {
     @Override
     public boolean isEmailTaken(String email) {
         return memberDAO.isEmailTaken(email); // Délégation au DAO
+    }
+
+    @Override
+    public void deleteMember(int memberID) throws MemberDeleteException {
+        memberDAO.deleteMember(memberID);
     }
 
     @Override

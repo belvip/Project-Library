@@ -1,6 +1,7 @@
 package com.library.system.dao;
 
-import com.library.system.exception.member.MemberRegistrationException;
+import com.library.system.exception.memberException.MemberDeleteException;
+import com.library.system.exception.memberException.MemberRegistrationException;
 import com.library.system.model.Member;
 
 public interface MemberDAO {
@@ -14,4 +15,5 @@ public interface MemberDAO {
      * @throws MemberRegistrationException Si l'enregistrement échoue.
      */
     void registerMember(Member member) throws MemberRegistrationException;
+    void deleteMember(int memberID) throws MemberDeleteException;
 }
