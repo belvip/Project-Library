@@ -3,7 +3,6 @@ package com.library.system.handler;
 import com.library.system.controller.BookController;
 import com.library.system.exception.bookDaoException.BookDisplayException;
 import com.library.system.exception.bookDaoException.BookRemoveException;
-import com.library.system.exception.bookDaoException.BookSearchByCategoryException;
 import com.library.system.exception.bookDaoException.BookUpdateException;
 import com.library.system.model.Author;
 import com.library.system.model.Book;

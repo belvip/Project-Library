@@ -6,7 +6,9 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DatabaseConnection {
+public class
+
+DatabaseConnection {
 
     // URL de la base de données PostgreSQL
     private static final String URL = "jdbc:postgresql://localhost:5432/library_db";

@@ -54,6 +54,17 @@ public class DatabaseTableCreator {
                     ");";
             statement.executeUpdate(createBookTable);
 
+            // Création de la table Member
+            String createMemberTable = "CREATE TABLE IF NOT EXISTS Member (" +
+                    "member_id SERIAL PRIMARY KEY, " +
+                    "first_name VARCHAR(50) NOT NULL, " +
+                    "last_name VARCHAR(50) NOT NULL, " +
+                    "email VARCHAR(100) NOT NULL UNIQUE, " +
+                    "adhesion_date DATE NOT NULL, " +
+                    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                    ");";
+            statement.executeUpdate(createMemberTable);
+
             // Création de la table de jointure Book_Author
             String createBookAuthorTable = "CREATE TABLE IF NOT EXISTS Book_Author (" +
                     "book_id INT NOT NULL, " +
