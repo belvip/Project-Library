@@ -1,28 +1,24 @@
 package com.library.system.controller;
 
-import com.library.system.dao.impl.MemberDAOImpl;
+import com.library.system.exception.member.MemberRegistrationException;
 import com.library.system.model.Member;
-import com.library.system.repository.impl.MemberRepositoryImpl;
 import com.library.system.service.MemberService;
-import com.library.system.service.impl.MemberServiceImpl;
-
-import java.sql.Connection;
 
 public class MemberController {
 
-    private MemberService memberService;
+    private final MemberService memberService;
 
-    public MemberController(Connection connection) {
-        // Création de MemberDAOImpl pour le passer à MemberRepositoryImpl
-        MemberDAOImpl memberDAO = new MemberDAOImpl(connection);
-        this.memberService = new MemberServiceImpl(new MemberRepositoryImpl(connection, memberDAO));
+    // Injection de dépendance : on passe un service au lieu de le créer en dur
+    public MemberController(MemberService memberService) {
+        this.memberService = memberService;
     }
 
     public void registerMember(Member member) {
         try {
             memberService.registerMember(member);
-        } catch (Exception e) {
-            System.out.println("Erreur lors de l'ajout du membre : " + e.getMessage());
+            System.out.println("✅ Membre ajouté avec succès : " + member.getEmail());
+        } catch (MemberRegistrationException e) {
+            System.out.println("❌ Erreur lors de l'ajout du membre : " + e.getMessage());
         }
     }
 }

@@ -19,25 +19,16 @@ public class MemberServiceImpl implements MemberService {
         // Validation des données avant l'enregistrement
         validateMemberData(member);
 
-        try {
-            // Enregistrement du membre dans la base de données
-            memberRepository.registerMember(member);
-        } catch (MemberRegistrationException e) {
-            // Relancer l'exception avec des informations détaillées
-            throw new MemberRegistrationException("Erreur lors de l'enregistrement du membre : " + e.getMessage(), e);
-        } catch (Exception e) {
-            // En cas d'erreur générale, lancer une exception spécifique
-            throw new MemberRegistrationException("Erreur imprévue lors de l'enregistrement du membre.", e);
+        // Vérification si l'email existe déjà
+        if (memberRepository.isEmailTaken(member.getEmail())) {
+            throw new MemberRegistrationException("L'email " + member.getEmail() + " est déjà utilisé.");
         }
+
+        // Enregistrement du membre
+        memberRepository.registerMember(member);
     }
 
-    // Ajout de la méthode addMember
-    public void addMember(Member member) throws MemberRegistrationException {
-        // Appel de la méthode registerMember pour enregistrer un membre
-        registerMember(member);
-    }
-
-    // Méthode de validation des données du membre (si nécessaire)
+    // Méthode de validation des données du membre
     private void validateMemberData(Member member) throws MemberRegistrationException {
         if (member.getFirstName() == null || member.getFirstName().trim().isEmpty()) {
             throw new MemberRegistrationException("Le prénom du membre est obligatoire.");
@@ -47,8 +38,17 @@ public class MemberServiceImpl implements MemberService {
             throw new MemberRegistrationException("Le nom du membre est obligatoire.");
         }
 
-        if (member.getEmail() == null || member.getEmail().trim().isEmpty()) {
-            throw new MemberRegistrationException("L'email du membre est obligatoire.");
+        if (member.getEmail() == null || member.getEmail().trim().isEmpty() ||
+                !member.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+            throw new MemberRegistrationException("L'email du membre est invalide.");
         }
     }
+
+    // Ajout de la méthode addMember
+    public void addMember(Member member) throws MemberRegistrationException {
+        // Appel de la méthode registerMember pour enregistrer un membre
+        registerMember(member);
+    }
+
+
 }

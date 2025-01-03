@@ -1,14 +1,15 @@
-
 package com.library.system;
 
 import com.library.system.controller.AuthorController;
 import com.library.system.controller.BookController;
+import com.library.system.controller.CategoryController;
 import com.library.system.controller.MemberController;
 import com.library.system.dao.BookDAO;
 import com.library.system.dao.impl.BookDAOImpl;
 import com.library.system.dao.impl.MemberDAOImpl;
 import com.library.system.handler.AuthorHandler;
 import com.library.system.handler.BookHandler;
+import com.library.system.handler.CategoryHandler;
 import com.library.system.handler.MemberHandler;
 import com.library.system.repository.BookRepository;
 import com.library.system.repository.impl.BookRepositoryImpl;
@@ -16,8 +17,6 @@ import com.library.system.repository.impl.MemberRepositoryImpl;
 import com.library.system.service.impl.AuthorServiceImpl;
 import com.library.system.service.impl.BookServiceImpl;
 import com.library.system.service.impl.CategoryServiceImpl;
-import com.library.system.controller.CategoryController;
-import com.library.system.handler.CategoryHandler;
 import com.library.system.service.impl.MemberServiceImpl;
 import com.library.system.util.ConsoleHandler;
 import com.library.system.util.DatabaseConnection;
@@ -66,14 +65,11 @@ public class LibrarySystemApp {
                 MemberRepositoryImpl memberRepository = new MemberRepositoryImpl(connection, memberDAO);
                 MemberServiceImpl memberService = new MemberServiceImpl(memberRepository);
 
-                // Initialisation de MemberController avec la connexion
-                MemberController memberController = new MemberController(connection);
+                // Initialisation de MemberController avec le bon service
+                MemberController memberController = new MemberController(memberService);
 
                 // Création du MemberHandler avec le memberService et memberController
                 MemberHandler memberHandler = new MemberHandler(memberService, memberController);
-
-                // Démarrer la gestion des membres
-                //memberHandler.handleMemberOperations();
 
                 // Initialisation de ConsoleHandler avec CategoryHandler, AuthorHandler, BookHandler, et MemberHandler
                 ConsoleHandler consoleHandler = new ConsoleHandler(categoryHandler, authorHandler, bookHandler, memberHandler);

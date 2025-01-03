@@ -12,10 +12,12 @@ public class MemberHandler {
 
     private final Scanner scanner = new Scanner(System.in);
     private final MemberServiceImpl memberService;
+    private final MemberController memberController;  // Ajout du controller
 
-    // Si tu veux utiliser MemberController, tu peux l'ajouter ici
+    // Modification du constructeur pour accepter MemberController en plus de MemberService
     public MemberHandler(MemberServiceImpl memberService, MemberController memberController) {
         this.memberService = memberService;
+        this.memberController = memberController;  // Initialisation du controller
     }
 
     // Méthode pour traiter les opérations sur les membres
@@ -60,24 +62,30 @@ public class MemberHandler {
         System.out.print("\u001B[33mEntrez votre choix: \u001B[0m");
     }
 
-
+    // Méthode pour enregistrer un nouveau membre
     // Méthode pour enregistrer un nouveau membre
     private void registerMember() {
         // Affichage pour séparer les étapes
         System.out.println("\n\u001B[34m===== Enregistrement d'un Membre =====\u001B[0m");
 
         // Demander le prénom
-        System.out.print("Entrez le prénom du membre : ");
-        String firstName = scanner.nextLine().trim();  // Utilisation de nextLine pour lire le prénom
+        String firstName = getInput("Entrez le prénom du membre : ");
+        // Validation du prénom (lettres uniquement)
+        if (!firstName.matches("^[A-Za-z]+$")) {
+            System.out.println("⚠️ Le prénom ne doit contenir que des lettres.");
+            return;
+        }
 
         // Demander le nom
-        System.out.print("Entrez le nom du membre : ");
-        String lastName = scanner.nextLine().trim();  // Utilisation de nextLine pour lire le nom
+        String lastName = getInput("Entrez le nom du membre : ");
+        // Validation du nom (lettres uniquement)
+        if (!lastName.matches("^[A-Za-z]+$")) {
+            System.out.println("⚠️ Le nom ne doit contenir que des lettres.");
+            return;
+        }
 
         // Demander l'email
-        System.out.print("Entrez l'email du membre : ");
-        String email = scanner.nextLine().trim();  // Utilisation de nextLine pour lire l'email
-
+        String email = getInput("Entrez l'email du membre : ");
         // Validation de l'email
         if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
             System.out.println("⚠️ Email invalide. Veuillez entrer un email valide.");
@@ -98,5 +106,13 @@ public class MemberHandler {
             System.out.println("\u001B[31m❌ Erreur lors de l'ajout du membre : " + e.getMessage() + "\u001B[0m");
         }
     }
+
+    // Méthode pour récupérer l'entrée de l'utilisateur
+    private String getInput(String prompt) {
+        System.out.print(prompt);
+        return scanner.nextLine().trim();
+    }
+
+
 
 }
