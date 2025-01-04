@@ -1,9 +1,6 @@
 package com.library.system.service.impl;
 
-import com.library.system.exception.memberException.FindMemberByIdException;
-import com.library.system.exception.memberException.FindMemberByNameException;
-import com.library.system.exception.memberException.MemberDeleteException;
-import com.library.system.exception.memberException.MemberRegistrationException;
+import com.library.system.exception.memberException.*;
 import com.library.system.model.Member;
 import com.library.system.repository.MemberRepository;
 import com.library.system.service.MemberService;
@@ -52,6 +49,11 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Member findMemberById(int memberID) throws FindMemberByIdException {
         return memberRepository.findMemberById(memberID);
+    }
+
+    @Override
+    public List<Member> getLoanHistory() throws MemberLoanHistoryException {
+        return memberRepository.getLoanHistory();
     }
 
     // Méthode de validation des données du membre

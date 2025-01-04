@@ -1,9 +1,6 @@
 package com.library.system.controller;
 
-import com.library.system.exception.memberException.FindMemberByIdException;
-import com.library.system.exception.memberException.FindMemberByNameException;
-import com.library.system.exception.memberException.MemberDeleteException;
-import com.library.system.exception.memberException.MemberRegistrationException;
+import com.library.system.exception.memberException.*;
 import com.library.system.model.Member;
 import com.library.system.service.MemberService;
 
@@ -46,5 +43,9 @@ public class MemberController {
 
     public Member findMemberById(int memberID) throws FindMemberByIdException {
         return memberService.findMemberById(memberID);
+    }
+
+    public List<Member> getLoanHistory() throws MemberLoanHistoryException {
+        return memberService.getLoanHistory();
     }
 }

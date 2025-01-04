@@ -1,10 +1,7 @@
 package com.library.system.repository.impl;
 
 import com.library.system.dao.MemberDAO;
-import com.library.system.exception.memberException.FindMemberByIdException;
-import com.library.system.exception.memberException.FindMemberByNameException;
-import com.library.system.exception.memberException.MemberDeleteException;
-import com.library.system.exception.memberException.MemberRegistrationException;
+import com.library.system.exception.memberException.*;
 import com.library.system.model.Member;
 import com.library.system.repository.MemberRepository;
 
@@ -46,6 +43,15 @@ public class MemberRepositoryImpl implements MemberRepository {
     @Override
     public Member findMemberById(int memberID) throws FindMemberByIdException {
         return memberDAO.findMemberById(memberID);
+    }
+
+    @Override
+    public List<Member> getLoanHistory() throws MemberLoanHistoryException {
+        try{
+            return memberDAO.getLoanHistory();
+        }catch (Exception e){
+            throw new MemberLoanHistoryException("L'historique est vide " + e.getMessage());
+        }
     }
 
     @Override

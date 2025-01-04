@@ -1,9 +1,6 @@
 package com.library.system.dao;
 
-import com.library.system.exception.memberException.FindMemberByIdException;
-import com.library.system.exception.memberException.FindMemberByNameException;
-import com.library.system.exception.memberException.MemberDeleteException;
-import com.library.system.exception.memberException.MemberRegistrationException;
+import com.library.system.exception.memberException.*;
 import com.library.system.model.Member;
 
 import java.util.List;
@@ -24,4 +21,6 @@ public interface MemberDAO {
     List<Member> findMemberByName(String memberName) throws FindMemberByNameException;
 
     Member findMemberById(int memberID) throws FindMemberByIdException;
+
+    List<Member> getLoanHistory() throws MemberLoanHistoryException;
 }

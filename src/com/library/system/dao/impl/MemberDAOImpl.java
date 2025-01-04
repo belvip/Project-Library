@@ -1,10 +1,7 @@
 package com.library.system.dao.impl;
 
 import com.library.system.dao.MemberDAO;
-import com.library.system.exception.memberException.FindMemberByIdException;
-import com.library.system.exception.memberException.FindMemberByNameException;
-import com.library.system.exception.memberException.MemberDeleteException;
-import com.library.system.exception.memberException.MemberRegistrationException;
+import com.library.system.exception.memberException.*;
 import com.library.system.model.Member;
 
 import java.sql.*;
@@ -140,5 +137,34 @@ public class MemberDAOImpl implements MemberDAO {
             throw new FindMemberByIdException("Erreur SQL lors de la récupération du membre : " + e.getMessage());
         }
     }
+
+    @Override
+    public List<Member> getLoanHistory() throws MemberLoanHistoryException {
+        List<Member> loanHistory = new ArrayList<>();
+        String query = "SELECT DISTINCT m.member_id, m.first_name, m.last_name, m.email, m.adhesion_date " +
+                "FROM member m " +
+                "JOIN loan l ON m.member_id = l.member_id " +
+                "ORDER BY l.loan_date DESC"; // Tri par date d'emprunt
+
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet resultSet = stmt.executeQuery()) {
+
+            while (resultSet.next()) {
+                Member member = new Member(
+                        resultSet.getInt("member_id"),
+                        resultSet.getString("first_name"),
+                        resultSet.getString("last_name"),
+                        resultSet.getString("email"),
+                        resultSet.getTimestamp("adhesion_date") // Assure-toi que le type de date est bien géré
+                );
+                loanHistory.add(member);
+            }
+        } catch (SQLException e) {
+            throw new MemberLoanHistoryException("Erreur lors de la récupération de l'historique des emprunts : " + e.getMessage(), e);
+        }
+
+        return loanHistory;
+    }
+
 
 }

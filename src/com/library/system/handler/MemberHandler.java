@@ -2,6 +2,7 @@ package com.library.system.handler;
 
 import com.library.system.exception.memberException.FindMemberByIdException;
 import com.library.system.exception.memberException.FindMemberByNameException;
+import com.library.system.exception.memberException.MemberLoanHistoryException;
 import com.library.system.model.Member;
 import com.library.system.service.impl.MemberServiceImpl;
 import com.library.system.controller.MemberController; // Ajout de l'importation
@@ -50,6 +51,9 @@ public class MemberHandler {
                     searchMemberById();
                     break;
                 case 5:
+                    dislayLoanHistoryp();
+                    break;
+                case 6:
                     running = false;
                     break;
                 default:
@@ -76,6 +80,7 @@ public class MemberHandler {
         System.out.printf("| %-2s | %-40s |\n", "2", "\u001B[32mSupprimer un membre\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "3", "\u001B[32mRechercher les membres par mot clé\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "4", "\u001B[32mREchercher un membre par ID\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "4", "\u001B[32mAfficher l'historique des emprunts\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "5", "\u001B[31mQuitter\u001B[0m");
         System.out.println("+--------------------------------------------+");
         System.out.print("\u001B[33mEntrez votre choix: \u001B[0m");
@@ -202,6 +207,16 @@ public class MemberHandler {
             System.out.println("Erreur : " + e.getMessage());
         }
     }
+
+    public void dislayLoanHistoryp() {
+        try {
+            List<Member> loanHistory = memberController.getLoanHistory();
+            displayMemberTable(loanHistory);
+        } catch (MemberLoanHistoryException e) {
+            System.out.println("Erreur : " + e.getMessage());
+        }
+    }
+
 
 
 
