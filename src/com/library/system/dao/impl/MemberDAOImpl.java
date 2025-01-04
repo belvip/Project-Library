@@ -144,7 +144,7 @@ public class MemberDAOImpl implements MemberDAO {
         String query = "SELECT DISTINCT m.member_id, m.first_name, m.last_name, m.email, m.adhesion_date " +
                 "FROM member m " +
                 "JOIN loan l ON m.member_id = l.member_id " +
-                "ORDER BY l.loan_date DESC"; // Tri par date d'emprunt
+                "ORDER BY l.loandate DESC"; // Tri par date d'emprunt
 
         try (PreparedStatement stmt = connection.prepareStatement(query);
              ResultSet resultSet = stmt.executeQuery()) {

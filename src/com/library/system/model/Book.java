@@ -18,6 +18,7 @@ public class Book {
     // Relations
     private Set<Author> authors = new HashSet<>();  // Un livre peut avoir plusieurs auteurs
     private Set<Category> categories = new HashSet<>(); // Un livre peut appartenir à plusieurs catégories
+    private Set<Loan> loans = new HashSet<>(); // Un livre peut avoir plusieurs prets
 
     // Constructeurs
     public Book() {
@@ -150,4 +151,11 @@ public class Book {
     }
 
 
+    public Set<Loan> getLoans() {
+        return loans;
+    }
+
+    public void setLoans(Set<Loan> loans) {
+        this.loans = loans;
+    }
 }

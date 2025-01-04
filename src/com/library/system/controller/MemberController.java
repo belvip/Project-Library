@@ -48,4 +48,6 @@ public class MemberController {
     public List<Member> getLoanHistory() throws MemberLoanHistoryException {
         return memberService.getLoanHistory();
     }
+
+
 }

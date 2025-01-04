@@ -60,10 +60,43 @@ public class DatabaseTableCreator {
                     "first_name VARCHAR(50) NOT NULL, " +
                     "last_name VARCHAR(50) NOT NULL, " +
                     "email VARCHAR(100) NOT NULL , " +
-                    "adhesion_date DATE NOT NULL, " +
-                    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                    "adhesion_date TIMESTAMP WITH TIME ZONE NOT NULL, " +
+                    "created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP " +
                     ");";
             statement.executeUpdate(createMemberTable);
+
+            // Création de la table Loan
+            String createLoanTable = "CREATE TABLE IF NOT EXISTS Loan (" +
+                    "loan_id SERIAL PRIMARY KEY, " +
+                    "member_id INT NOT NULL, " +  // Clé étrangère vers Member
+                    "loanDate TIMESTAMP WITH TIME ZONE NOT NULL, " +
+                    "dueDate TIMESTAMP WITH TIME ZONE NOT NULL, " +
+                    "returnDate TIMESTAMP WITH TIME ZONE, " +
+                    "created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, " +
+                    "FOREIGN KEY (member_id) REFERENCES Member(member_id) ON DELETE CASCADE" +
+                    ");";
+            statement.executeUpdate(createLoanTable);
+
+            // Création de la table de jointure Book_Loan
+            String createBookLoanTable = "CREATE TABLE IF NOT EXISTS Book_Loan (" +
+                    "book_id INT NOT NULL, " +
+                    "loan_id INT NOT NULL, " +
+                    "created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, " +
+                    "PRIMARY KEY (book_id, loan_id), " +
+                    "FOREIGN KEY (book_id) REFERENCES Book(book_id) ON DELETE CASCADE, " +
+                    "FOREIGN KEY (loan_id) REFERENCES Loan(loan_id) ON DELETE CASCADE" +
+                    ");";
+            statement.executeUpdate(createBookLoanTable);
+
+            String createLoanPenaltiesTable = "CREATE TABLE IF NOT EXISTS Loan_Penalties (" +
+                    "penalty_id SERIAL PRIMARY KEY,\n" +
+                    "loan_id INT NOT NULL,\n" +
+                    "penalty_amount INT NOT NULL,\n" +
+                    "penalty_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n" +
+                    "FOREIGN KEY (loan_id) REFERENCES Loan(loan_id) ON DELETE CASCADE" +
+                    ")";
+            statement.executeUpdate(createLoanPenaltiesTable);
+
 
             // Création de la table de jointure Book_Author
             String createBookAuthorTable = "CREATE TABLE IF NOT EXISTS Book_Author (" +

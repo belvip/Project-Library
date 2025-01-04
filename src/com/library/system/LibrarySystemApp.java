@@ -1,23 +1,15 @@
 package com.library.system;
 
-import com.library.system.controller.AuthorController;
-import com.library.system.controller.BookController;
-import com.library.system.controller.CategoryController;
-import com.library.system.controller.MemberController;
+import com.library.system.controller.*;
 import com.library.system.dao.BookDAO;
 import com.library.system.dao.impl.BookDAOImpl;
 import com.library.system.dao.impl.MemberDAOImpl;
-import com.library.system.handler.AuthorHandler;
-import com.library.system.handler.BookHandler;
-import com.library.system.handler.CategoryHandler;
-import com.library.system.handler.MemberHandler;
+import com.library.system.handler.*;
 import com.library.system.repository.BookRepository;
 import com.library.system.repository.impl.BookRepositoryImpl;
+import com.library.system.repository.impl.LoanRepositoryImpl;
 import com.library.system.repository.impl.MemberRepositoryImpl;
-import com.library.system.service.impl.AuthorServiceImpl;
-import com.library.system.service.impl.BookServiceImpl;
-import com.library.system.service.impl.CategoryServiceImpl;
-import com.library.system.service.impl.MemberServiceImpl;
+import com.library.system.service.impl.*;
 import com.library.system.util.ConsoleHandler;
 import com.library.system.util.DatabaseConnection;
 import com.library.system.util.DatabaseTableCreator;
@@ -71,8 +63,15 @@ public class LibrarySystemApp {
                 // Création du MemberHandler avec le memberService et memberController
                 MemberHandler memberHandler = new MemberHandler(memberService, memberController);
 
+                // ✅ Initialisation du LoanRepository, LoanService et LoanController
+                LoanRepositoryImpl loanRepository = new LoanRepositoryImpl(connection);
+                LoanServiceImpl loanService = new LoanServiceImpl(loanRepository);
+                LoanController loanController = new LoanController(loanService, memberService, bookService);  // ✅ Passer les 3 arguments
+                LoanHandler loanHandler = new LoanHandler(loanService, loanController);
+
+
                 // Initialisation de ConsoleHandler avec CategoryHandler, AuthorHandler, BookHandler, et MemberHandler
-                ConsoleHandler consoleHandler = new ConsoleHandler(categoryHandler, authorHandler, bookHandler, memberHandler);
+                ConsoleHandler consoleHandler = new ConsoleHandler(categoryHandler, authorHandler, bookHandler, memberHandler, loanHandler);
 
                 // Lancer l'interaction avec l'utilisateur via ConsoleHandler
                 consoleHandler.start();

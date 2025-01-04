@@ -1,10 +1,7 @@
 package com.library.system.util;
 
 import com.library.system.exception.authorException.AuthorNotFoundException;
-import com.library.system.handler.AuthorHandler;
-import com.library.system.handler.CategoryHandler;
-import com.library.system.handler.BookHandler;
-import com.library.system.handler.MemberHandler;
+import com.library.system.handler.*;
 
 import java.sql.SQLException;
 import java.util.InputMismatchException;
@@ -16,15 +13,16 @@ public class ConsoleHandler {
     private final AuthorHandler authorHandler;
     private final BookHandler bookHandler;
     private final MemberHandler memberHandler;
+    private final LoanHandler loanHandler;
 
 
     // Modifie le constructeur pour accepter BookHandler en plus de CategoryHandler et AuthorHandler
-    public ConsoleHandler(CategoryHandler categoryHandler, AuthorHandler authorHandler, BookHandler bookHandler, MemberHandler memberHandler) {
+    public ConsoleHandler(CategoryHandler categoryHandler, AuthorHandler authorHandler, BookHandler bookHandler, MemberHandler memberHandler, LoanHandler loanHandler) {
         this.categoryHandler = categoryHandler;
         this.authorHandler = authorHandler;
         this.bookHandler = bookHandler;
-
         this.memberHandler = memberHandler;
+        this.loanHandler = loanHandler;
     }
 
     public void start() throws AuthorNotFoundException, SQLException {
@@ -49,6 +47,9 @@ public class ConsoleHandler {
                     memberHandler.handleMemberOperations();
                     break;
                 case 5:
+                    loanHandler.handleLoanOperations();
+                    break;
+                case 6:
                     running = false;
                     System.out.println("Quitter le système...");
                     break;
@@ -77,7 +78,8 @@ public class ConsoleHandler {
         System.out.printf("%-5s %-40s\n", "\u001B[35m2\u001B[0m", "Opérations sur les auteurs");
         System.out.printf("%-5s %-40s\n", "\u001B[33m3\u001B[0m", "Opérations sur les livres");
         System.out.printf("%-5s %-40s\n", "\u001B[33m4\u001B[0m", "Opérations sur les membres");
-        System.out.printf("%-5s %-40s\n", "\u001B[31m5\u001B[0m", "Quitter le système");
+        System.out.printf("%-5s %-40s\n", "\u001B[33m5\u001B[0m", "Opérations sur les emprunts");
+        System.out.printf("%-5s %-40s\n", "\u001B[31m6\u001B[0m", "Quitter le système");
         System.out.println("--------------------------------------------------------------");
         System.out.print("\u001B[37mEntrez votre choix: \u001B[0m");
     }
