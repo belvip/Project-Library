@@ -1,6 +1,7 @@
 package com.library.system.dao.impl;
 
 import com.library.system.dao.MemberDAO;
+import com.library.system.exception.memberException.FindMemberByIdException;
 import com.library.system.exception.memberException.FindMemberByNameException;
 import com.library.system.exception.memberException.MemberDeleteException;
 import com.library.system.exception.memberException.MemberRegistrationException;
@@ -116,5 +117,28 @@ public class MemberDAOImpl implements MemberDAO {
         return members;
     }
 
+    @Override
+    public Member findMemberById(int memberID) throws FindMemberByIdException {
+        String sql = "SELECT member_id, first_name, last_name, email, adhesion_date FROM member WHERE member_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, memberID);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return new Member(
+                        resultSet.getInt("member_id"),
+                        resultSet.getString("first_name"),
+                        resultSet.getString("last_name"),
+                        resultSet.getString("email"),
+                        resultSet.getTimestamp("adhesion_date") // Prend en compte l'heure
+                );
+            } else {
+                throw new FindMemberByIdException("Aucun membre trouvé avec l'ID : " + memberID);
+            }
+        } catch (SQLException e) {
+            throw new FindMemberByIdException("Erreur SQL lors de la récupération du membre : " + e.getMessage());
+        }
+    }
 
 }

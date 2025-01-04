@@ -1,5 +1,6 @@
 package com.library.system.service.impl;
 
+import com.library.system.exception.memberException.FindMemberByIdException;
 import com.library.system.exception.memberException.FindMemberByNameException;
 import com.library.system.exception.memberException.MemberDeleteException;
 import com.library.system.exception.memberException.MemberRegistrationException;
@@ -46,6 +47,11 @@ public class MemberServiceImpl implements MemberService {
     // Méthode pour rechercher un membre par son nom dans la base de données
     public List<Member> findMemberByName(String memberName) throws FindMemberByNameException {
         return memberRepository.findMemberByName(memberName);  // Appel à la méthode de repository
+    }
+
+    @Override
+    public Member findMemberById(int memberID) throws FindMemberByIdException {
+        return memberRepository.findMemberById(memberID);
     }
 
     // Méthode de validation des données du membre

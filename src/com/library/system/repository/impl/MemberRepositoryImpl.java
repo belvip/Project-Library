@@ -1,6 +1,7 @@
 package com.library.system.repository.impl;
 
 import com.library.system.dao.MemberDAO;
+import com.library.system.exception.memberException.FindMemberByIdException;
 import com.library.system.exception.memberException.FindMemberByNameException;
 import com.library.system.exception.memberException.MemberDeleteException;
 import com.library.system.exception.memberException.MemberRegistrationException;
@@ -40,6 +41,11 @@ public class MemberRepositoryImpl implements MemberRepository {
         } catch (Exception e) {
             throw new FindMemberByNameException("Erreur lors de la recherche du membre");
         }
+    }
+
+    @Override
+    public Member findMemberById(int memberID) throws FindMemberByIdException {
+        return memberDAO.findMemberById(memberID);
     }
 
     @Override

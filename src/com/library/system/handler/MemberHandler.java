@@ -1,5 +1,6 @@
 package com.library.system.handler;
 
+import com.library.system.exception.memberException.FindMemberByIdException;
 import com.library.system.exception.memberException.FindMemberByNameException;
 import com.library.system.model.Member;
 import com.library.system.service.impl.MemberServiceImpl;
@@ -8,6 +9,7 @@ import com.library.system.controller.MemberController; // Ajout de l'importation
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -45,6 +47,9 @@ public class MemberHandler {
                     searchMember();
                     break;
                 case 4:
+                    searchMemberById();
+                    break;
+                case 5:
                     running = false;
                     break;
                 default:
@@ -70,12 +75,12 @@ public class MemberHandler {
         System.out.printf("| %-2s | %-40s |\n", "1", "\u001B[32mEnregister un membre\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "2", "\u001B[32mSupprimer un membre\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "3", "\u001B[32mRechercher les membres par mot clé\u001B[0m");
-        System.out.printf("| %-2s | %-40s |\n", "4", "\u001B[31mQuitter\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "4", "\u001B[32mREchercher un membre par ID\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "5", "\u001B[31mQuitter\u001B[0m");
         System.out.println("+--------------------------------------------+");
         System.out.print("\u001B[33mEntrez votre choix: \u001B[0m");
     }
 
-    // Méthode pour enregistrer un nouveau membre
     // Méthode pour enregistrer un nouveau membre
     private void registerMember() {
         // Affichage pour séparer les étapes
@@ -178,6 +183,24 @@ public class MemberHandler {
     private String getInput(String prompt) {
         System.out.print(prompt);
         return scanner.nextLine().trim();
+    }
+
+    public void searchMemberById() {
+        System.out.print("Entrez l'ID du membre à rechercher : ");
+        int memberID = scanner.nextInt();
+
+        try {
+            Member member = memberController.findMemberById(memberID);
+
+            // Créer une liste contenant un seul élément
+            List<Member> memberList = new ArrayList<>();
+            memberList.add(member);
+
+            // Afficher le membre sous forme de tableau
+            displayMemberTable(memberList);
+        } catch (FindMemberByIdException e) {
+            System.out.println("Erreur : " + e.getMessage());
+        }
     }
 
 
