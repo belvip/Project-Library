@@ -1,7 +1,6 @@
 package com.library.system.dao.impl;
 
 import com.library.system.dao.LoanDAO;
-
 import com.library.system.exception.loanException.RegisterLoanException;
 import com.library.system.model.Book;
 import com.library.system.model.Loan;
@@ -13,11 +12,15 @@ import java.util.List;
 
 public class LoanDAOImpl implements LoanDAO {
 
-    private Connection connection;  // Connection à la base de données
+    private Connection connection;
 
     // Constructeur pour initialiser la connexion à la base de données
     public LoanDAOImpl(Connection connection) {
         this.connection = connection;
+    }
+
+    public Connection getConnection() {
+        return this.connection;
     }
 
     @Override
@@ -44,7 +47,7 @@ public class LoanDAOImpl implements LoanDAO {
             try (PreparedStatement loanStatement = connection.prepareStatement(loanQuery, Statement.RETURN_GENERATED_KEYS)) {
                 loanStatement.setTimestamp(1, Timestamp.from(loanDate.toInstant()));
                 loanStatement.setTimestamp(2, Timestamp.from(dueDate.toInstant()));
-                loanStatement.setInt(3, member.getId());
+                loanStatement.setInt(3, member.getMember_id());
 
                 int affectedRows = loanStatement.executeUpdate();
                 if (affectedRows > 0) {
@@ -66,6 +69,14 @@ public class LoanDAOImpl implements LoanDAO {
                 bookLoanStatement.executeBatch();  // Exécuter toutes les insertions en une seule fois
             }
 
+            // Mettre à jour le nombre de copies des livres
+            for (Book book : books) {
+                if (!isBookAvailable(book.getBook_id())) {
+                    throw new RegisterLoanException("Le livre " + book.getBook_id() + " n'est plus disponible.");
+                }
+                updateBookCopies(book.getBook_id());
+            }
+
             // Commit de la transaction
             connection.commit();
 
@@ -83,6 +94,33 @@ public class LoanDAOImpl implements LoanDAO {
                 connection.setAutoCommit(true);  // Réinitialiser l'autocommit à true
             } catch (SQLException e) {
                 throw new RegisterLoanException("Erreur lors de la réinitialisation de l'autocommit");
+            }
+        }
+    }
+
+    // Vérifie la disponibilité du livre avant l'emprunt
+    private boolean isBookAvailable(int bookId) throws SQLException {
+        String checkQuery = "SELECT number_of_copies FROM Book WHERE book_id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(checkQuery)) {
+            pstmt.setInt(1, bookId);
+            ResultSet resultSet = pstmt.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("number_of_copies") > 0;
+            }
+        }
+        return false;
+    }
+
+    // Méthode pour mettre à jour le nombre de copies d'un livre
+    private void updateBookCopies(int bookId) throws SQLException {
+        String updateQuery = "UPDATE Book SET number_of_copies = number_of_copies - 1 WHERE book_id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(updateQuery)) {
+            pstmt.setInt(1, bookId);
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Impossible de mettre à jour le nombre de copies du livre avec l'ID " + bookId);
+            } else {
+                System.out.println("📌 Nombre de copies du livre " + bookId + " mis à jour !");
             }
         }
     }

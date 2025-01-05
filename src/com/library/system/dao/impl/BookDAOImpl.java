@@ -1,3 +1,4 @@
+
 package com.library.system.dao.impl;
 
 import com.library.system.dao.BookDAO;
@@ -19,6 +20,31 @@ public class BookDAOImpl implements BookDAO {
 
     public BookDAOImpl(Connection connection) {
         this.connection = connection;
+    }
+
+    @Override
+    public Book findBookById(int bookId) throws BookDisplayException {
+        Book book = null;
+        String query = "SELECT * FROM book WHERE book_id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, bookId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String title = rs.getString("title");
+                int numberOfCopies = rs.getInt("number_of_copies");
+                // ... récupérer d'autres champs si nécessaire
+
+                book = new Book(bookId, title, numberOfCopies);
+                // Initialisation des autres champs si nécessaire
+            } else {
+                throw new BookDisplayException("Livre introuvable avec l'ID : " + bookId);
+            }
+        } catch (SQLException e) {
+            throw new BookDisplayException("Erreur lors de la récupération du livre : " + e.getMessage());
+        }
+        return book;
     }
 
     @Override
@@ -470,6 +496,23 @@ public class BookDAOImpl implements BookDAO {
 
         return books;
     }
+
+    @Override
+    public void borrowBook(int bookId) throws BookUpdateException {
+        String query = "UPDATE book SET number_of_copies = number_of_copies - 1 WHERE book_id = ? AND number_of_copies > 0";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, bookId);
+            int rowsAffected = stmt.executeUpdate();
+
+            if (rowsAffected == 0) {
+                throw new BookUpdateException("Impossible d'emprunter le livre (ID: " + bookId + "). Vérifiez le stock.");
+            }
+        } catch (SQLException e) {
+            throw new BookUpdateException("Erreur lors de l'emprunt du livre (ID: " + bookId + ")", e);
+        }
+    }
+
 
 
 

@@ -7,22 +7,22 @@ import java.util.Date;
 import java.util.Objects;
 
 public class Member {
-    private int id;
+    private int member_id;
     private String firstName;
     private String lastName;
     private String email;
     private Date adhesionDate; // Utilisation de java.util.Date
 
     // Constructeurs
-    public Member(int id, String firstName, String lastName, String email, Date adhesionDate) {
-        if (id < 0) throw new InvalidMemberIdException("L'ID doit être positif.");
+    public Member(int member_id, String firstName, String lastName, String email, Date adhesionDate) {
+        if (member_id < 0) throw new InvalidMemberIdException("L'ID doit être positif.");
         if (firstName == null || firstName.trim().isEmpty()) throw new InvalidMemberNameException("Le prénom ne peut pas être vide.");
         if (lastName == null || lastName.trim().isEmpty()) throw new InvalidMemberNameException("Le nom ne peut pas être vide.");
         if (!com.library.system.util.EmailValidator.isValid(email)) throw new InvalidMemberEmailException("Email invalide.");
         if (adhesionDate == null || adhesionDate.after(new Date()))
             throw new InvalidMemberAdhesionDateException("La date d'adhésion ne peut pas être dans le futur.");
 
-        this.id = id;
+        this.member_id = member_id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -37,14 +37,13 @@ public class Member {
         this(firstName, lastName, email, new Date()); // Date actuelle par défaut
     }
 
-    // Getters et Setters
-    public int getId() {
-        return id;
+    public int getMember_id() {
+        return member_id;
     }
 
-    public void setId(int id) {
-        if (id < 0) throw new InvalidMemberIdException("L'ID doit être positif.");
-        this.id = id;
+    public void setId(int member_id) {
+        if (member_id < 0) throw new InvalidMemberIdException("L'ID doit être positif.");
+        this.member_id = member_id;
     }
 
     public String getFirstName() {
@@ -122,7 +121,7 @@ public class Member {
     @Override
     public String toString() {
         return "Member{" +
-                "id=" + id +
+                "id=" + member_id +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +

@@ -9,6 +9,7 @@ import com.library.system.repository.BookRepository;
 import com.library.system.repository.impl.BookRepositoryImpl;
 import com.library.system.repository.impl.LoanRepositoryImpl;
 import com.library.system.repository.impl.MemberRepositoryImpl;
+import com.library.system.service.LoanService;
 import com.library.system.service.impl.*;
 import com.library.system.util.ConsoleHandler;
 import com.library.system.util.DatabaseConnection;
@@ -43,9 +44,8 @@ public class LibrarySystemApp {
                 AuthorServiceImpl authorService = new AuthorServiceImpl(connection);
                 AuthorHandler authorHandler = new AuthorHandler(authorService, new AuthorController(connection));
 
+                // Créer une instance de BookDAO et BookRepositoryImpl
                 BookDAO bookDAO = new BookDAOImpl(connection);
-
-                // Créer une instance de BookRepositoryImpl avec la connexion
                 BookRepository bookRepository = new BookRepositoryImpl(connection, bookDAO);
 
                 // Initialisation des services et contrôleurs pour les livres
@@ -63,14 +63,17 @@ public class LibrarySystemApp {
                 // Création du MemberHandler avec le memberService et memberController
                 MemberHandler memberHandler = new MemberHandler(memberService, memberController);
 
-                // ✅ Initialisation du LoanRepository, LoanService et LoanController
+                // ✅ Initialisation du LoanRepositoryImpl avec uniquement la connection
                 LoanRepositoryImpl loanRepository = new LoanRepositoryImpl(connection);
+
+                // ✅ Initialisation de LoanService avec loanRepository
                 LoanServiceImpl loanService = new LoanServiceImpl(loanRepository);
-                LoanController loanController = new LoanController(loanService, memberService, bookService);  // ✅ Passer les 3 arguments
+
+                // Création du LoanController avec les bons services : LoanService, BookService et MemberService
+                LoanController loanController = new LoanController(loanService, bookService, memberService);
                 LoanHandler loanHandler = new LoanHandler(loanService, loanController);
 
-
-                // Initialisation de ConsoleHandler avec CategoryHandler, AuthorHandler, BookHandler, et MemberHandler
+                // Initialisation de ConsoleHandler avec CategoryHandler, AuthorHandler, BookHandler, MemberHandler et LoanHandler
                 ConsoleHandler consoleHandler = new ConsoleHandler(categoryHandler, authorHandler, bookHandler, memberHandler, loanHandler);
 
                 // Lancer l'interaction avec l'utilisateur via ConsoleHandler
@@ -82,4 +85,5 @@ public class LibrarySystemApp {
             e.printStackTrace();
         }
     }
+
 }

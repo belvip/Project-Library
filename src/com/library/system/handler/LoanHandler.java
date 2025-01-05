@@ -1,3 +1,4 @@
+
 package com.library.system.handler;
 
 import com.library.system.exception.loanException.RegisterLoanException;
@@ -64,7 +65,7 @@ public class LoanHandler {
         System.out.print("\u001B[33mEntrez votre choix: \u001B[0m");
     }
 
-    // Méthode pour enregistrer un emprunt
+    // Méthode pour enregistrer un emprunt via LoanController
     public void registerLoan() {
         // Étape 1 : Obtenir les informations du membre
         System.out.print("Entrez l'ID du membre qui souhaite emprunter des livres : ");
@@ -112,13 +113,9 @@ public class LoanHandler {
             return;
         }
 
-        // Étape 3 : Enregistrer l'emprunt via le LoanService
-        try {
-            loanService.registerLoan(member, books);  // Appeler le service pour enregistrer l'emprunt
-            System.out.println("\u001B[32m✅ Emprunt enregistré avec succès !\u001B[0m");
-        } catch (RegisterLoanException e) {
-            System.out.println("❌ Erreur lors de l'enregistrement du prêt : " + e.getMessage());
-        }
+        // Étape 3 : Enregistrer l'emprunt via le LoanController
+        loanController.registerLoan(member, books);  // Appeler la méthode de LoanController
     }
+
 
 }

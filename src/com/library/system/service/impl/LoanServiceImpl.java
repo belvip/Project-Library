@@ -1,24 +1,29 @@
 package com.library.system.service.impl;
 
+import com.library.system.model.Book;
+import com.library.system.model.Member;
+import com.library.system.exception.loanException.RegisterLoanException;
 import com.library.system.repository.LoanRepository;
 import com.library.system.service.LoanService;
-import com.library.system.exception.loanException.RegisterLoanException;
-import com.library.system.model.Member;
-import com.library.system.model.Book;
+
 import java.util.List;
 
 public class LoanServiceImpl implements LoanService {
 
-    private LoanRepository loanRepository;  // Dépendance à LoanRepository
+    private LoanRepository loanRepository;
 
-    // Constructeur pour initialiser LoanRepository
     public LoanServiceImpl(LoanRepository loanRepository) {
-        this.loanRepository = loanRepository;  // Injection de LoanRepository
+        this.loanRepository = loanRepository;
     }
 
     @Override
     public void registerLoan(Member member, List<Book> books) throws RegisterLoanException {
-        // Appeler la méthode registerLoan de LoanRepository
-        loanRepository.registerLoan(member, books);
+        try {
+            // Utiliser l'ID du membre (member.getMember_id()) et passer la liste de livres
+            loanRepository.registerLoan(member.getMember_id(), books);
+        } catch (Exception e) {
+            throw new RegisterLoanException("Erreur lors de l'emprunt : " + e.getMessage());
+        }
     }
+
 }

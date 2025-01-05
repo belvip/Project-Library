@@ -175,7 +175,7 @@ public class MemberHandler {
 
             // Affichage du membre avec la date formatée
             System.out.printf("║ %-10d ║ %-18s ║ %-18s ║ %-24s ║ %-16s ║\n",
-                    member.getId(), member.getFirstName(), member.getLastName(), member.getEmail(), formattedAdhesionDate);
+                    member.getMember_id(), member.getFirstName(), member.getLastName(), member.getEmail(), formattedAdhesionDate);
         }
 
         // Footer du tableau

@@ -16,12 +16,14 @@ public class ConsoleHandler {
     private final LoanHandler loanHandler;
 
 
+
     // Modifie le constructeur pour accepter BookHandler en plus de CategoryHandler et AuthorHandler
     public ConsoleHandler(CategoryHandler categoryHandler, AuthorHandler authorHandler, BookHandler bookHandler, MemberHandler memberHandler, LoanHandler loanHandler) {
         this.categoryHandler = categoryHandler;
         this.authorHandler = authorHandler;
         this.bookHandler = bookHandler;
         this.memberHandler = memberHandler;
+
         this.loanHandler = loanHandler;
     }
 

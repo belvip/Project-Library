@@ -1,3 +1,4 @@
+
 package com.library.system.repository;
 
 import com.library.system.exception.bookDaoException.BookDisplayException;
@@ -24,5 +25,7 @@ public interface BookRepository {
     void removeBook(int bookId) throws BookRemoveException;
 
     List<Book> searchBookByCategory(String categoryName) throws BookSearchByCategoryException;
+
+    //void borrowBook(int bookId) throws BookUpdateException;
 
 }

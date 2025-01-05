@@ -150,6 +150,17 @@ public class Book {
         }
     }
 
+    // Dans la classe Book
+
+    public void borrowBook() {
+        if (this.number_Of_Copies > 0) {
+            this.number_Of_Copies--;  // Diminue le nombre de copies disponibles
+        } else {
+            System.out.println("Le livre \"" + title + "\" est épuisé et ne peut pas être emprunté.");
+        }
+    }
+
+
 
     public Set<Loan> getLoans() {
         return loans;
