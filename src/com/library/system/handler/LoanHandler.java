@@ -8,6 +8,7 @@ import com.library.system.model.Member;
 import com.library.system.service.impl.LoanServiceImpl;
 import com.library.system.controller.LoanController;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -36,7 +37,10 @@ public class LoanHandler {
                 case 1:
                     registerLoan();  // Appel de la méthode pour enregistrer un emprunt
                     break;
-                case 6:
+                case 2:
+                    returnBook();  // Appel de la méthode pour retourner un livre
+                    break;
+                case 3:
                     running = false;
                     break;
                 default:
@@ -60,7 +64,8 @@ public class LoanHandler {
         System.out.println("\n\u001B[34m======== Opérations sur les emprunts ========\u001B[0m");
         System.out.println("+--------------------------------------------+");
         System.out.printf("| %-2s | %-40s |\n", "1", "\u001B[32mEnregister un emprunt\u001B[0m");
-        System.out.printf("| %-2s | %-40s |\n", "6", "\u001B[31mQuitter\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "2", "\u001B[32mRetouner un emprunt\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "3", "\u001B[31mQuitter\u001B[0m");
         System.out.println("+--------------------------------------------+");
         System.out.print("\u001B[33mEntrez votre choix: \u001B[0m");
     }
@@ -116,6 +121,19 @@ public class LoanHandler {
         // Étape 3 : Enregistrer l'emprunt via le LoanController
         loanController.registerLoan(member, books);  // Appeler la méthode de LoanController
     }
+
+    public void returnBook() {
+        System.out.print("Entrez l'ID du prêt à retourner : ");
+        int loanId = scanner.nextInt();
+
+        try {
+            loanController.returnBook(loanId);  // Appel de la méthode returnBook dans LoanController
+            System.out.println("✅ Le livre a été retourné avec succès !");
+        } catch (SQLException e) {
+            System.out.println("❌ Erreur lors du retour du livre : " + e.getMessage());
+        }
+    }
+
 
 
 }

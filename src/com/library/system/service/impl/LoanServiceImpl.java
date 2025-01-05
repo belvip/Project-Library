@@ -6,6 +6,7 @@ import com.library.system.exception.loanException.RegisterLoanException;
 import com.library.system.repository.LoanRepository;
 import com.library.system.service.LoanService;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class LoanServiceImpl implements LoanService {
@@ -23,6 +24,15 @@ public class LoanServiceImpl implements LoanService {
             loanRepository.registerLoan(member.getMember_id(), books);
         } catch (Exception e) {
             throw new RegisterLoanException("Erreur lors de l'emprunt : " + e.getMessage());
+        }
+    }
+
+    public void returnBook(int loanId) {
+        try {
+            loanRepository.returnBook(loanId);  // Appeler la méthode returnBook de LoanRepository
+            System.out.println("📚 Le livre a été retourné avec succès.");
+        } catch (SQLException e) {
+            System.out.println("❌ Erreur lors du retour du livre : " + e.getMessage());
         }
     }
 

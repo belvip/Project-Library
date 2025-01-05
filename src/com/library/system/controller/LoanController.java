@@ -7,6 +7,7 @@ import com.library.system.service.BookService;
 import com.library.system.service.LoanService;
 import com.library.system.service.MemberService;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class LoanController {
@@ -41,5 +42,14 @@ public class LoanController {
 
     public Member getMemberById(int memberId) {
         return memberService.findMemberById(memberId); // Utiliser le service pour obtenir le membre
+    }
+
+    public void returnBook(int loanId)throws SQLException {
+        try {
+            loanService.returnBook(loanId);  // Appel au service pour retourner le livre
+            System.out.println("✅ Livre retourné avec succès !");
+        } catch (SQLException e) {
+            System.err.println("❌ Erreur lors du retour du livre : " + e.getMessage());
+        }
     }
 }

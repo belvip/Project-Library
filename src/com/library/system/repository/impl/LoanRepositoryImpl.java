@@ -12,6 +12,7 @@ import com.library.system.model.Member;
 import com.library.system.repository.LoanRepository;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 public class LoanRepositoryImpl implements LoanRepository {
@@ -50,4 +51,9 @@ public class LoanRepositoryImpl implements LoanRepository {
         }
     }
 
+    @Override
+    public void returnBook(int loanId) throws SQLException {
+        // Appeler la méthode de LoanDAOImpl pour mettre à jour la date de retour
+        loanDAO.returnBook(loanId);
+    }
 }

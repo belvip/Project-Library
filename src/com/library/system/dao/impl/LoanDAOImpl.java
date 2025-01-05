@@ -98,6 +98,19 @@ public class LoanDAOImpl implements LoanDAO {
         }
     }
 
+    @Override
+    public void returnBook(int loanId) throws SQLException {
+        String updateQuery = "UPDATE Loan SET returndate = ? WHERE loan_id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(updateQuery)) {
+            pstmt.setTimestamp(1, Timestamp.from(ZonedDateTime.now().toInstant()));  // Utilise la date actuelle pour returnedDate
+            pstmt.setInt(2, loanId);  // Le prêt à mettre à jour
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Impossible de mettre à jour la date de retour pour le prêt avec l'ID " + loanId);
+            }
+        }
+    }
+
     // Vérifie la disponibilité du livre avant l'emprunt
     private boolean isBookAvailable(int bookId) throws SQLException {
         String checkQuery = "SELECT number_of_copies FROM Book WHERE book_id = ?";
