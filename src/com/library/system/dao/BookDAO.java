@@ -9,6 +9,7 @@ import com.library.system.model.Book;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
 public interface BookDAO {
     Book findBookById(int bookId) throws BookDisplayException;
@@ -19,6 +20,7 @@ public interface BookDAO {
 
     void removeBook(int bookId) throws BookRemoveException;
     List<Book> searchBookByCategory(String categoryName) throws BookSearchByCategoryException;
+    Set<Book> findBooksByLoanId(int loanId) throws SQLException;
 
 
 

@@ -1,5 +1,6 @@
 package com.library.system.repository.impl;
 
+
 import com.library.system.dao.BookDAO;
 import com.library.system.dao.LoanDAO;
 import com.library.system.dao.MemberDAO;
@@ -11,15 +12,19 @@ import com.library.system.model.Book;
 import com.library.system.model.Member;
 import com.library.system.repository.LoanRepository;
 
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+
 public class LoanRepositoryImpl implements LoanRepository {
+
 
     private LoanDAO loanDAO;
     private MemberDAO memberDAO;
     private BookDAO bookDAO;
+
 
     // Constructeur où tu passes la connexion à LoanDAOImpl, MemberDAOImpl et BookDAOImpl
     public LoanRepositoryImpl(Connection connection) {
@@ -27,6 +32,7 @@ public class LoanRepositoryImpl implements LoanRepository {
         this.memberDAO = new MemberDAOImpl(connection);  // Initialise MemberDAOImpl avec la même connexion
         this.bookDAO = new BookDAOImpl(connection);  // Initialise BookDAOImpl avec la même connexion
     }
+
 
     // Méthode pour enregistrer un prêt
     @Override
@@ -37,6 +43,7 @@ public class LoanRepositoryImpl implements LoanRepository {
             throw new RegisterLoanException("Le membre avec l'ID " + memberId + " n'a pas été trouvé.");
         }
 
+
         // Pour chaque livre, vérifiez sa disponibilité et enregistrez-le dans la base de données
         for (Book book : books) {
             int bookId = book.getBook_id(); // Récupérer l'ID du livre
@@ -46,10 +53,12 @@ public class LoanRepositoryImpl implements LoanRepository {
                 throw new RegisterLoanException("Le livre avec l'ID " + bookId + " n'a pas été trouvé.");
             }
 
+
             // Enregistrer le prêt (ajoutez la logique de prêt ici si nécessaire)
             loanDAO.registerLoan(member, List.of(book));  // Passe une liste contenant un seul livre
         }
     }
+
 
     @Override
     public void returnBook(int loanId) throws SQLException {
@@ -57,3 +66,4 @@ public class LoanRepositoryImpl implements LoanRepository {
         loanDAO.returnBook(loanId);
     }
 }
+

@@ -135,28 +135,16 @@ public class Book {
     public void setCategories(Set<Category> categories) {
         this.categories = categories;  // Ajout de cette méthode
     }
+
     public void setAvailable(boolean available) {
-        // Implémentez la logique de mise à jour de l'état de disponibilité du livre.
         if (available) {
-            // Si vous souhaitez remettre le livre à disposition, vous pourriez augmenter le nombre de copies.
-            // Vous pouvez ajouter votre logique ici si nécessaire.
-            this.number_Of_Copies++;
+            // Si vous voulez remettre une copie du livre à disposition
+            this.number_Of_Copies++;  // Ajoute une copie disponible
         } else {
-            // Si vous souhaitez marquer le livre comme emprunté, vous pourriez diminuer le nombre de copies.
-            // Vous pouvez ajouter votre logique ici si nécessaire.
+            // Si vous marquez le livre comme emprunté
             if (this.number_Of_Copies > 0) {
-                this.number_Of_Copies--;
+                this.number_Of_Copies--;  // Diminue le nombre de copies disponibles
             }
-        }
-    }
-
-    // Dans la classe Book
-
-    public void borrowBook() {
-        if (this.number_Of_Copies > 0) {
-            this.number_Of_Copies--;  // Diminue le nombre de copies disponibles
-        } else {
-            System.out.println("Le livre \"" + title + "\" est épuisé et ne peut pas être emprunté.");
         }
     }
 
@@ -169,4 +157,6 @@ public class Book {
     public void setLoans(Set<Loan> loans) {
         this.loans = loans;
     }
+
+
 }

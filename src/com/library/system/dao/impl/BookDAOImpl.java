@@ -498,6 +498,27 @@ public class BookDAOImpl implements BookDAO {
     }
 
     @Override
+    public Set<Book> findBooksByLoanId(int loanId) throws SQLException {
+        Set<Book> books = new HashSet<>();
+        String query = "SELECT b.* FROM book b " +
+                "JOIN book_loan lb ON b.book_id = lb.book_id " +
+                "WHERE lb.loan_id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setInt(1, loanId);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Book book = new Book(
+                        rs.getInt("book_id"),
+                        rs.getString("title"),
+                        rs.getInt("number_of_copies")
+                );
+                books.add(book);
+            }
+        }
+        return books;
+    }
+
+    @Override
     public void borrowBook(int bookId) throws BookUpdateException {
         String query = "UPDATE book SET number_of_copies = number_of_copies - 1 WHERE book_id = ? AND number_of_copies > 0";
 
