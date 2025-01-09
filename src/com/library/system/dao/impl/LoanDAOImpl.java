@@ -3,12 +3,11 @@ package com.library.system.dao.impl;
 
 import com.library.system.dao.LoanDAO;
 import com.library.system.exception.loanException.RegisterLoanException;
-import com.library.system.model.Book;
-import com.library.system.model.Loan;
-import com.library.system.model.Member;
+import com.library.system.model.*;
 
 
 import java.sql.*;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -160,6 +159,116 @@ public class LoanDAOImpl implements LoanDAO {
             connection.setAutoCommit(true);
         }
     }
+
+    @Override
+    public void getAllLoans(List<Loan> loans) throws SQLException {
+        String query = "SELECT l.loan_id, m.first_name, m.last_name, m.email, l.loanDate, l.dueDate, l.returnDate, " +
+                "bl.book_id, b.title, b.number_of_copies, " +
+                "STRING_AGG(a.first_name || ' ' || a.last_name, ', ') AS authors, " +
+                "STRING_AGG(c.category_name, ', ') AS categories " +
+                "FROM Loan l " +
+                "JOIN Member m ON l.member_id = m.member_id " +
+                "JOIN Book_Loan bl ON l.loan_id = bl.loan_id " +
+                "JOIN Book b ON bl.book_id = b.book_id " +
+                "LEFT JOIN Book_Author ba ON b.book_id = ba.book_id " +
+                "LEFT JOIN Author a ON ba.author_id = a.author_id " +
+                "LEFT JOIN Books_Category bc ON b.book_id = bc.book_id " +
+                "LEFT JOIN Category c ON bc.category_id = c.category_id " +
+                "GROUP BY l.loan_id, m.first_name, m.last_name, m.email, l.loanDate, l.dueDate, l.returnDate, bl.book_id, b.title, b.number_of_copies " +
+                "ORDER BY l.loanDate DESC";
+
+
+        try (PreparedStatement pstmt = connection.prepareStatement(query);
+             ResultSet rs = pstmt.executeQuery()) {
+
+
+            // Parcours des résultats de la requête
+            while (rs.next()) {
+                int loanId = rs.getInt("loan_id");
+                String memberFirstName = rs.getString("first_name");
+                String memberLastName = rs.getString("last_name");
+                String memberEmail = rs.getString("email");
+
+
+                // Conversion explicite de Timestamp à ZonedDateTime
+                Timestamp loanDateTimestamp = rs.getTimestamp("loanDate");
+                ZonedDateTime loanDate = loanDateTimestamp.toInstant().atZone(ZoneId.systemDefault());
+
+
+                Timestamp dueDateTimestamp = rs.getTimestamp("dueDate");
+                ZonedDateTime dueDate = dueDateTimestamp.toInstant().atZone(ZoneId.systemDefault());
+
+
+                Timestamp returnDateTimestamp = rs.getTimestamp("returnDate");
+                ZonedDateTime returnedDate = returnDateTimestamp != null ? returnDateTimestamp.toInstant().atZone(ZoneId.systemDefault()) : null;
+
+
+                int bookId = rs.getInt("book_id");
+                String bookTitle = rs.getString("title");
+                int numberOfCopies = rs.getInt("number_of_copies");
+
+
+                // Récupérer les auteurs et les catégories
+                String authors = rs.getString("authors"); // Liste des auteurs concaténée
+                String categories = rs.getString("categories"); // Liste des catégories concaténée
+
+
+                // Vérification du titre du livre
+                if (bookTitle == null || bookTitle.trim().isEmpty()) {
+                    System.out.println("⚠️ Le livre avec l'ID " + bookId + " a un titre invalide.");
+                    continue;  // Ignore ce livre et passe au suivant
+                }
+
+
+                // Création d'un membre
+                Member member = new Member(memberFirstName, memberLastName, memberEmail);
+
+
+                // Création d'un livre avec un titre valide
+                Book book = new Book(bookId, bookTitle, numberOfCopies);
+
+
+                // Ajouter les auteurs
+                if (authors != null && !authors.isEmpty()) {
+                    String[] authorNames = authors.split(", ");
+                    for (String authorName : authorNames) {
+                        // Créer un objet Author
+                        Author author = new Author(); // Vous pouvez ajouter un id si vous en avez un
+                        String[] nameParts = authorName.split(" ");
+                        if (nameParts.length > 1) {
+                            author.setFirst_name(nameParts[0]);
+                            author.setLast_name(nameParts[1]);
+                        }
+                        book.addAuthor(author);
+                    }
+                }
+
+
+                // Ajouter les catégories
+                if (categories != null && !categories.isEmpty()) {
+                    String[] categoryNames = categories.split(", ");
+                    for (String categoryName : categoryNames) {
+                        // Créer un objet Category
+                        Category category = new Category(categoryName);
+                        book.addCategory(category);
+                    }
+                }
+
+
+                // Création d'un emprunt
+                Loan loan = new Loan(loanId, loanDate, dueDate, returnedDate, member);
+                loan.addBook(book); // Associer le livre au prêt
+
+
+                // Ajouter le prêt à la liste
+                loans.add(loan);
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Erreur lors de l'affichage des emprunts", e);
+        }
+    }
+
+
 
 
     // Vérifie la disponibilité du livre avant l'emprunt

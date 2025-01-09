@@ -4,8 +4,7 @@ package com.library.system.handler;
 
 import com.library.system.exception.loanException.RegisterLoanException;
 import com.library.system.exception.memberException.FindMemberByIdException;
-import com.library.system.model.Book;
-import com.library.system.model.Member;
+import com.library.system.model.*;
 import com.library.system.service.impl.LoanServiceImpl;
 import com.library.system.controller.LoanController;
 
@@ -42,6 +41,10 @@ public class LoanHandler {
                     returnBook();  // Appel de la méthode pour retourner un livre
                     break;
                 case 3:
+                    getAllLoans
+                            ();  // Appel de la méthode pour retourner un livre
+                    break;
+                case 4:
                     running = false;
                     break;
                 default:
@@ -66,7 +69,8 @@ public class LoanHandler {
         System.out.println("+--------------------------------------------+");
         System.out.printf("| %-2s | %-40s |\n", "1", "\u001B[32mEnregister un emprunt\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "2", "\u001B[32mRetouner un emprunt\u001B[0m");
-        System.out.printf("| %-2s | %-40s |\n", "3", "\u001B[31mQuitter\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "3", "\u001B[32mLister tous les emprunts\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "4", "\u001B[31mQuitter\u001B[0m");
         System.out.println("+--------------------------------------------+");
         System.out.print("\u001B[33mEntrez votre choix: \u001B[0m");
     }
@@ -134,6 +138,74 @@ public class LoanHandler {
             System.out.println("❌ Erreur lors du retour du livre : " + e.getMessage());
         }
     }
+
+    public void getAllLoans() {
+        try {
+            List<Loan> loans = new ArrayList<>();
+            loanController.getAllLoans(loans); // Passe la liste des emprunts à récupérer
+
+
+            // Affichage de l'en-tête du tableau
+            System.out.println("\n\u001B[34m========= Liste des Emprunts ========\u001B[0m");
+            System.out.println("+----------+--------------------+------------------+-------------------+-------------------+-------------------+--------------------+--------------------+--------------------+--------------------+");
+            System.out.printf("| %-8s | %-18s | %-16s | %-17s | %-17s | %-16s | %-18s | %-16s | %-16s | %-16s |\n",
+                    "Emprunt ID", "Membre", "Date d'Emprunt", "Date d'Échéance", "Date de Retour", "Livre ID", "Titre", "Nb Copies", "Auteurs", "Catégories");
+            System.out.println("+----------+--------------------+------------------+-------------------+-------------------+-------------------+--------------------+--------------------+--------------------+--------------------+");
+
+
+            // Affichage des emprunts récupérés
+            if (loans.isEmpty()) {
+                // Affiche une ligne avec "Aucun emprunt trouvé"
+                System.out.println("| Aucun emprunt trouvé                                                                            |");
+            } else {
+                for (Loan loan : loans) {
+                    // Affichage des informations sur chaque emprunt avec les livres associés
+                    for (Book book : loan.getBooks()) {
+                        // Convertir Set<Author> en List<String> pour pouvoir utiliser String.join()
+                        List<String> authorNames = new ArrayList<>();
+                        for (Author author : book.getAuthors()) {
+                            authorNames.add(author.getFirst_name() + " " + author.getLast_name());
+                        }
+
+
+                        // Convertir Set<Category> en List<String> pour pouvoir utiliser String.join()
+                        List<String> categoryNames = new ArrayList<>();
+                        for (Category category : book.getCategories()) {
+                            categoryNames.add(category.getCategory_name());
+                        }
+
+
+                        // Affichage des détails du prêt et des livres associés
+                        System.out.printf("| %-8d | %-18s | %-16s | %-17s | %-17s | %-16d | %-18s | %-16d | %-16s | %-16s |\n",
+                                loan.getLoanId(),
+                                loan.getMember().getFirstName() + " " + loan.getMember().getLastName(),
+                                loan.getFormattedLoanDate(),          // Date d'emprunt formatée
+                                loan.getFormattedDueDate(),           // Date d'échéance formatée
+                                loan.getFormattedReturnedDate(),      // Date de retour formatée (ou "Pas encore retourné")
+                                book.getBook_id(),
+                                book.getTitle(),
+                                book.getNumber_Of_Copies(),
+                                String.join(", ", authorNames),       // Liste des auteurs
+                                String.join(", ", categoryNames));    // Liste des catégories
+                    }
+                }
+            }
+
+
+            // Affichage de la ligne de fin du tableau
+            System.out.println("+----------+--------------------+------------------+-------------------+-------------------+-------------------+--------------------+--------------------+--------------------+--------------------+");
+        } catch (SQLException e) {
+            // Affiche l'erreur en cas de problème avec la récupération des emprunts
+            System.out.println("❌ Erreur lors de l'affichage des emprunts : " + e.getMessage());
+        }
+    }
+
+
+
+
+
+
+
 
 
 

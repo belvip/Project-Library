@@ -9,6 +9,7 @@ import com.library.system.dao.impl.MemberDAOImpl;
 import com.library.system.dao.impl.BookDAOImpl; // Ajout de l'importation de BookDAOImpl
 import com.library.system.exception.loanException.RegisterLoanException;
 import com.library.system.model.Book;
+import com.library.system.model.Loan;
 import com.library.system.model.Member;
 import com.library.system.repository.LoanRepository;
 
@@ -64,6 +65,11 @@ public class LoanRepositoryImpl implements LoanRepository {
     public void returnBook(int loanId) throws SQLException {
         // Appeler la méthode de LoanDAOImpl pour mettre à jour la date de retour
         loanDAO.returnBook(loanId);
+    }
+
+    @Override
+    public void getAllLoans(List<Loan> loans) throws SQLException {
+        loanDAO.getAllLoans(loans);
     }
 }
 
