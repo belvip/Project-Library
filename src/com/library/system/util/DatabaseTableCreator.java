@@ -1,13 +1,17 @@
 package com.library.system.util;
 
+
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.SQLException;
 
+
 public class DatabaseTableCreator {
+
 
     public static void createTables(Connection connection) {
         try (Statement statement = connection.createStatement()) {
+
 
             // Création de la table Category
             String createCategoryTable = "CREATE TABLE IF NOT EXISTS Category (" +
@@ -17,14 +21,17 @@ public class DatabaseTableCreator {
                     ");";
             statement.executeUpdate(createCategoryTable);
 
+
             // Supprimer la contrainte existante (si elle existe)
             String dropCategoryConstraint = "ALTER TABLE Category DROP CONSTRAINT IF EXISTS unique_category_name;";
             statement.executeUpdate(dropCategoryConstraint);
+
 
             // Ajouter la contrainte d'unicité pour category_name
             String addCategoryUniqueConstraint = "ALTER TABLE Category " +
                     "ADD CONSTRAINT unique_category_name UNIQUE (category_name);";
             statement.executeUpdate(addCategoryUniqueConstraint);
+
 
             // Création de la table Author
             String createAuthorTable = "CREATE TABLE IF NOT EXISTS Author (" +
@@ -36,14 +43,17 @@ public class DatabaseTableCreator {
                     ");";
             statement.executeUpdate(createAuthorTable);
 
+
             // Supprimer la contrainte existante (si elle existe)
             String dropAuthorEmailConstraint = "ALTER TABLE Author DROP CONSTRAINT IF EXISTS unique_author_email;";
             statement.executeUpdate(dropAuthorEmailConstraint);
+
 
             // Ajouter la contrainte d'unicité pour author_email
             String addAuthorUniqueConstraint = "ALTER TABLE Author " +
                     "ADD CONSTRAINT unique_author_email UNIQUE (author_email);";
             statement.executeUpdate(addAuthorUniqueConstraint);
+
 
             // Création de la table Book
             String createBookTable = "CREATE TABLE IF NOT EXISTS Book (" +
@@ -53,6 +63,7 @@ public class DatabaseTableCreator {
                     "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
                     ");";
             statement.executeUpdate(createBookTable);
+
 
             // Création de la table Member
             String createMemberTable = "CREATE TABLE IF NOT EXISTS Member (" +
@@ -64,6 +75,7 @@ public class DatabaseTableCreator {
                     "created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP " +
                     ");";
             statement.executeUpdate(createMemberTable);
+
 
             // Création de la table Loan
             String createLoanTable = "CREATE TABLE IF NOT EXISTS Loan (" +
@@ -77,6 +89,15 @@ public class DatabaseTableCreator {
                     ");";
             statement.executeUpdate(createLoanTable);
 
+
+            // Ajout de la colonne penalty
+            // Modifier la colonne penalty (si elle existe déjà) pour la mettre à jour ou garantir le bon état
+            String alterTableQuery = "ALTER TABLE Loan " +
+                    "ADD COLUMN IF NOT EXISTS penalty INT DEFAULT 0;";
+            statement.executeUpdate(alterTableQuery);
+            System.out.println("Colonne 'penalty' ajoutée ou déjà existante dans la table Loan.");
+
+
             // Création de la table de jointure Book_Loan
             String createBookLoanTable = "CREATE TABLE IF NOT EXISTS Book_Loan (" +
                     "book_id INT NOT NULL, " +
@@ -88,13 +109,15 @@ public class DatabaseTableCreator {
                     ");";
             statement.executeUpdate(createBookLoanTable);
 
+
+            // Création de la table Loan_Penalties
             String createLoanPenaltiesTable = "CREATE TABLE IF NOT EXISTS Loan_Penalties (" +
-                    "penalty_id SERIAL PRIMARY KEY,\n" +
-                    "loan_id INT NOT NULL,\n" +
-                    "penalty_amount INT NOT NULL,\n" +
-                    "penalty_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n" +
+                    "penalty_id SERIAL PRIMARY KEY, " +
+                    "loan_id INT NOT NULL, " +
+                    "penalty_amount INT NOT NULL, " +
+                    "penalty_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
                     "FOREIGN KEY (loan_id) REFERENCES Loan(loan_id) ON DELETE CASCADE" +
-                    ")";
+                    ");";
             statement.executeUpdate(createLoanPenaltiesTable);
 
 
@@ -109,6 +132,7 @@ public class DatabaseTableCreator {
                     ");";
             statement.executeUpdate(createBookAuthorTable);
 
+
             // Création de la table de jointure Books_Category
             String createBooksCategoryTable = "CREATE TABLE IF NOT EXISTS Books_Category (" +
                     "book_id INT NOT NULL, " +
@@ -120,10 +144,15 @@ public class DatabaseTableCreator {
                     ");";
             statement.executeUpdate(createBooksCategoryTable);
 
+
             System.out.println("Tables créées avec succès.");
+
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 }
+
+
+

@@ -9,11 +9,12 @@ import com.library.system.model.*;
 import java.sql.*;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 
 public class LoanDAOImpl implements LoanDAO {
-    private Connection connection;
+    private final Connection connection;
     // Constructeur pour initialiser la connexion à la base de données
     public LoanDAOImpl(Connection connection) {
         this.connection = connection;
@@ -33,7 +34,8 @@ public class LoanDAOImpl implements LoanDAO {
 
         // Créer un prêt avec la date actuelle et la date d'échéance (par exemple, 2 semaines plus tard)
         ZonedDateTime loanDate = ZonedDateTime.now();
-        ZonedDateTime dueDate = loanDate.plusWeeks(2); // Par exemple, la date d'échéance est dans 2 semaines
+        // ZonedDateTime dueDate = loanDate.plusWeeks(2); // Par exemple, la date d'échéance est dans 2 semaines
+        ZonedDateTime dueDate = loanDate.plusMinutes(2);
 
 
         // Créer un objet Loan
@@ -116,14 +118,51 @@ public class LoanDAOImpl implements LoanDAO {
             connection.setAutoCommit(false);
 
 
-            // Récupérer les livres liés à ce prêt
-            String selectQuery = "SELECT book_id FROM Book_Loan WHERE loan_id = ?";
+            // Récupérer les informations du prêt, y compris la dueDate
+            String selectQuery = "SELECT dueDate FROM Loan WHERE loan_id = ?";
+            ZonedDateTime returnDate = ZonedDateTime.now();  // Date actuelle de retour
+            int penalty = 0;  // Initialiser la pénalité à 0
+
+
             try (PreparedStatement selectStmt = connection.prepareStatement(selectQuery)) {
                 selectStmt.setInt(1, loanId);
                 ResultSet resultSet = selectStmt.executeQuery();
 
 
-                // Incrémenter le nombre de copies pour chaque livre
+                if (resultSet.next()) {
+                    // Récupérer la dueDate du prêt
+                    Timestamp dueDateTimestamp = resultSet.getTimestamp("dueDate");
+                    ZonedDateTime dueDate = dueDateTimestamp.toInstant().atZone(ZoneId.systemDefault());
+
+
+                    // Vérifier si le retour est en retard et calculer la pénalité si nécessaire
+                    if (returnDate.isAfter(dueDate)) {
+                        long lateMinutes = java.time.Duration.between(dueDate, returnDate).toMinutes();
+                        // Exemple de calcul de pénalité : 1 unité de pénalité pour chaque minute de retard
+                        penalty = (int) lateMinutes;  // La pénalité peut être ajustée en fonction des règles
+
+
+                        // Mettre à jour la pénalité dans la base de données
+                        String updatePenaltyQuery = "UPDATE Loan SET penalty = ? WHERE loan_id = ?";
+                        try (PreparedStatement updatePenaltyStmt = connection.prepareStatement(updatePenaltyQuery)) {
+                            updatePenaltyStmt.setInt(1, penalty);
+                            updatePenaltyStmt.setInt(2, loanId);
+                            updatePenaltyStmt.executeUpdate();
+                        }
+                    }
+                } else {
+                    throw new SQLException("Prêt introuvable avec l'ID " + loanId);
+                }
+            }
+
+
+            // Récupérer les livres liés à ce prêt et incrémenter le nombre de copies
+            String selectBooksQuery = "SELECT book_id FROM Book_Loan WHERE loan_id = ?";
+            try (PreparedStatement selectBooksStmt = connection.prepareStatement(selectBooksQuery)) {
+                selectBooksStmt.setInt(1, loanId);
+                ResultSet resultSet = selectBooksStmt.executeQuery();
+
+
                 while (resultSet.next()) {
                     int bookId = resultSet.getInt("book_id");
                     incrementBookCopies(bookId);
@@ -134,7 +173,7 @@ public class LoanDAOImpl implements LoanDAO {
             // Mettre à jour la date de retour
             String updateQuery = "UPDATE Loan SET returndate = ? WHERE loan_id = ?";
             try (PreparedStatement pstmt = connection.prepareStatement(updateQuery)) {
-                pstmt.setTimestamp(1, Timestamp.from(ZonedDateTime.now().toInstant()));  // Date actuelle
+                pstmt.setTimestamp(1, Timestamp.from(returnDate.toInstant()));  // Date actuelle
                 pstmt.setInt(2, loanId);
                 int affectedRows = pstmt.executeUpdate();
                 if (affectedRows == 0) {
@@ -145,7 +184,7 @@ public class LoanDAOImpl implements LoanDAO {
 
             // Commit de la transaction
             connection.commit();
-            System.out.println("📌 Prêt " + loanId + " traité avec succès.");
+            System.out.println("📌 Prêt " + loanId + " traité avec succès. Pénalité appliquée: " + penalty + " unités.");
 
 
         } catch (SQLException e) {
@@ -159,6 +198,9 @@ public class LoanDAOImpl implements LoanDAO {
             connection.setAutoCommit(true);
         }
     }
+
+
+
 
     @Override
     public void getAllLoans(List<Loan> loans) throws SQLException {
@@ -190,17 +232,21 @@ public class LoanDAOImpl implements LoanDAO {
                 String memberEmail = rs.getString("email");
 
 
-                // Conversion explicite de Timestamp à ZonedDateTime
-                Timestamp loanDateTimestamp = rs.getTimestamp("loanDate");
-                ZonedDateTime loanDate = loanDateTimestamp.toInstant().atZone(ZoneId.systemDefault());
-
-
-                Timestamp dueDateTimestamp = rs.getTimestamp("dueDate");
-                ZonedDateTime dueDate = dueDateTimestamp.toInstant().atZone(ZoneId.systemDefault());
-
-
+                // Conversion explicite des résultats SQL en ZonedDateTime
+                ZonedDateTime loanDate = rs.getTimestamp("loanDate").toInstant().atZone(ZoneId.systemDefault());
+                ZonedDateTime dueDate = rs.getTimestamp("dueDate").toInstant().atZone(ZoneId.systemDefault());
+                ZonedDateTime returnedDate = null;
                 Timestamp returnDateTimestamp = rs.getTimestamp("returnDate");
-                ZonedDateTime returnedDate = returnDateTimestamp != null ? returnDateTimestamp.toInstant().atZone(ZoneId.systemDefault()) : null;
+                if (returnDateTimestamp != null) {
+                    returnedDate = returnDateTimestamp.toInstant().atZone(ZoneId.systemDefault());
+                }
+
+
+                // Formatage des dates au format "yyyy-MM-dd"
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                String formattedLoanDate = loanDate.format(formatter);
+                String formattedDueDate = dueDate.format(formatter);
+                String formattedReturnDate = returnedDate != null ? returnedDate.format(formatter) : "Pas encore retourné";
 
 
                 int bookId = rs.getInt("book_id");
@@ -213,28 +259,19 @@ public class LoanDAOImpl implements LoanDAO {
                 String categories = rs.getString("categories"); // Liste des catégories concaténée
 
 
-                // Vérification du titre du livre
-                if (bookTitle == null || bookTitle.trim().isEmpty()) {
-                    System.out.println("⚠️ Le livre avec l'ID " + bookId + " a un titre invalide.");
-                    continue;  // Ignore ce livre et passe au suivant
-                }
-
-
                 // Création d'un membre
                 Member member = new Member(memberFirstName, memberLastName, memberEmail);
 
 
-                // Création d'un livre avec un titre valide
+                // Création d'un livre
                 Book book = new Book(bookId, bookTitle, numberOfCopies);
 
 
                 // Ajouter les auteurs
                 if (authors != null && !authors.isEmpty()) {
-                    String[] authorNames = authors.split(", ");
-                    for (String authorName : authorNames) {
-                        // Créer un objet Author
-                        Author author = new Author(); // Vous pouvez ajouter un id si vous en avez un
+                    for (String authorName : authors.split(", ")) {
                         String[] nameParts = authorName.split(" ");
+                        Author author = new Author();
                         if (nameParts.length > 1) {
                             author.setFirst_name(nameParts[0]);
                             author.setLast_name(nameParts[1]);
@@ -246,9 +283,7 @@ public class LoanDAOImpl implements LoanDAO {
 
                 // Ajouter les catégories
                 if (categories != null && !categories.isEmpty()) {
-                    String[] categoryNames = categories.split(", ");
-                    for (String categoryName : categoryNames) {
-                        // Créer un objet Category
+                    for (String categoryName : categories.split(", ")) {
                         Category category = new Category(categoryName);
                         book.addCategory(category);
                     }
@@ -257,16 +292,23 @@ public class LoanDAOImpl implements LoanDAO {
 
                 // Création d'un emprunt
                 Loan loan = new Loan(loanId, loanDate, dueDate, returnedDate, member);
-                loan.addBook(book); // Associer le livre au prêt
+                loan.addBook(book);
 
 
                 // Ajouter le prêt à la liste
                 loans.add(loan);
+
+
+                // Affichage formaté pour la console (ou une autre interface)
+                System.out.printf("Emprunt ID: %d, Membre: %s %s, Date d'Emprunt: %s, Date de Retour Prévue: %s, Date de retour réel: %s, Livre: %s%n",
+                        loanId, memberFirstName, memberLastName, formattedLoanDate, formattedDueDate, formattedReturnDate, bookTitle);
             }
         } catch (SQLException e) {
             throw new SQLException("Erreur lors de l'affichage des emprunts", e);
         }
     }
+
+
 
 
 

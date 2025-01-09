@@ -61,7 +61,7 @@ public class AuthorHandler {
         System.out.printf("| %-2s | %-40s |\n", "3", "\u001B[32mSupprimer un auteur\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "4", "\u001B[32mRechercher un auteur par email\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "5", "\u001B[32mRechercher un auteur par ID\u001B[0m");
-        System.out.printf("| %-2s | %-40s |\n", "6", "\u001B[31mQuitter\u001B[0m");
+        System.out.printf("| %-2s | %-40s |\n", "6", "\u001B[31mRetourner au menu principal\u001B[0m");
         System.out.println("+--------------------------------------------+");
         System.out.print("\u001B[33mEntrez votre choix: \u001B[0m");
     }
