@@ -70,7 +70,8 @@ public class ConsoleHandler {
 
 
                 default:
-                    System.out.println("Choix invalide. Veuillez essayer de nouveau.");
+                    System.out.println("\u001B[31m⛔ Choix invalide. Veuillez essayer de nouveau.\u001B[0m");
+
             }
         }
     }
@@ -80,7 +81,8 @@ public class ConsoleHandler {
         try {
             return scanner.nextInt();
         } catch (InputMismatchException e) {
-            System.out.println("Entrée invalide. Veuillez entrer un numéro valide.");
+            System.out.println("\u001B[31m⚠️ Choix invalide. Veuillez entrer un numéro valide.\u001B[0m");
+
             scanner.nextLine(); // Clear buffer
             return -1;
         }
@@ -88,6 +90,9 @@ public class ConsoleHandler {
 
     private void displayMenu() {
         System.out.println("\n\u001B[32m================ Library Management System ==================\u001B[0m");
+
+        // Affichage du message en TEAL (Cyan)
+        System.out.println("\u001B[36m⌨️ Veuillez choisir le numéro de l'opération et appuyer sur Entrer\u001B[0m");
 
         // Ligne supérieure du tableau
         System.out.println("+---------+------------------------------------------+");

@@ -14,6 +14,8 @@ public interface PenaltiesDAO {
     int calculatePenalty(Loan loan);
 
 
+    void updatePenaltyInDatabase(Loan loan);
+
     int getPenaltyRate();
 
 

@@ -31,12 +31,12 @@ public class CategoryDAOImpl implements CategoryDAO {
     public void updateCategory(Category category) throws SQLException {
         // Vérification des valeurs avant mise à jour
         if (category.getCategory_name() == null || category.getCategory_name().isEmpty()) {
-            System.out.println("Le nom de la catégorie ne peut pas être vide.");
+            System.out.println("\u001B[33m⚠️ Le nom de la catégorie ne peut pas être vide.\u001B[0m");
             return;
         }
 
         if (!doesCategoryExist(category.getCategory_id())) {
-            System.out.println("La catégorie avec l'ID " + category.getCategory_id() + " n'existe pas.");
+            System.out.println("❌ La catégorie avec l'ID " + category.getCategory_id() + " n'existe pas.");
             return;
         }
 
@@ -49,7 +49,7 @@ public class CategoryDAOImpl implements CategoryDAO {
             if (rowsAffected > 0) {
                 //System.out.println("Catégorie mise à jour avec succès!");
             } else {
-                System.out.println("La catégorie n'a pas été mise à jour.");
+                System.out.println("❌ La catégorie n'a pas été mise à jour.");
             }
         }
     }

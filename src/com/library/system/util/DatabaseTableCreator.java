@@ -95,7 +95,7 @@ public class DatabaseTableCreator {
             String alterTableQuery = "ALTER TABLE Loan " +
                     "ADD COLUMN IF NOT EXISTS penalty INT DEFAULT 0;";
             statement.executeUpdate(alterTableQuery);
-            System.out.println("Colonne 'penalty' ajoutée ou déjà existante dans la table Loan.");
+            //System.out.println("Colonne 'penalty' ajoutée ou déjà existante dans la table Loan.");
 
 
             // Création de la table de jointure Book_Loan

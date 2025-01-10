@@ -86,7 +86,6 @@ public class LoanDAOImpl implements LoanDAO {
                 updateBookCopies(book.getBook_id());
             }
 
-
             // Commit de la transaction
             connection.commit();
 
@@ -98,14 +97,14 @@ public class LoanDAOImpl implements LoanDAO {
             } catch (SQLException rollbackEx) {
                 throw new RegisterLoanException("Erreur lors du rollback de la transaction", rollbackEx);
             }
-            throw new RegisterLoanException("Erreur lors de l'enregistrement du prêt");
+            throw new RegisterLoanException("❌ Erreur lors de l'enregistrement du prêt");
 
 
         } finally {
             try {
                 connection.setAutoCommit(true);  // Réinitialiser l'autocommit à true
             } catch (SQLException e) {
-                throw new RegisterLoanException("Erreur lors de la réinitialisation de l'autocommit");
+                throw new RegisterLoanException("❌ Erreur lors de la réinitialisation de l'autocommit");
             }
         }
     }
@@ -151,10 +150,11 @@ public class LoanDAOImpl implements LoanDAO {
                         }
                     }
                 } else {
-                    throw new SQLException("Prêt introuvable avec l'ID " + loanId);
+                    //throw new SQLException("Prêt introuvable avec l'ID " + loanId);
+                    throw new SQLException("\u001B[31m❌ Prêt introuvable avec l'ID " + loanId + "\u001B[0m");
+
                 }
             }
-
 
             // Récupérer les livres liés à ce prêt et incrémenter le nombre de copies
             String selectBooksQuery = "SELECT book_id FROM Book_Loan WHERE loan_id = ?";
@@ -177,7 +177,7 @@ public class LoanDAOImpl implements LoanDAO {
                 pstmt.setInt(2, loanId);
                 int affectedRows = pstmt.executeUpdate();
                 if (affectedRows == 0) {
-                    throw new SQLException("Impossible de mettre à jour la date de retour pour le prêt avec l'ID " + loanId);
+                    throw new SQLException("❌ Impossible de mettre à jour la date de retour pour le prêt avec l'ID " + loanId);
                 }
             }
 
@@ -190,7 +190,7 @@ public class LoanDAOImpl implements LoanDAO {
         } catch (SQLException e) {
             // En cas d'erreur, rollback
             connection.rollback();
-            throw new SQLException("Erreur lors du traitement du retour pour le prêt avec l'ID " + loanId, e);
+            throw new SQLException("❌ Erreur lors du traitement du retour pour le prêt avec l'ID " + loanId, e);
 
 
         } finally {
@@ -198,8 +198,6 @@ public class LoanDAOImpl implements LoanDAO {
             connection.setAutoCommit(true);
         }
     }
-
-
 
 
     @Override
@@ -289,7 +287,6 @@ public class LoanDAOImpl implements LoanDAO {
                     }
                 }
 
-
                 // Création d'un emprunt
                 Loan loan = new Loan(loanId, loanDate, dueDate, returnedDate, member);
                 loan.addBook(book);
@@ -304,13 +301,9 @@ public class LoanDAOImpl implements LoanDAO {
                         loanId, memberFirstName, memberLastName, formattedLoanDate, formattedDueDate, formattedReturnDate, bookTitle);
             }
         } catch (SQLException e) {
-            throw new SQLException("Erreur lors de l'affichage des emprunts", e);
+            throw new SQLException("❌ Erreur lors de l'affichage des emprunts", e);
         }
     }
-
-
-
-
 
 
     // Vérifie la disponibilité du livre avant l'emprunt
@@ -326,7 +319,6 @@ public class LoanDAOImpl implements LoanDAO {
         return false;
     }
 
-
     // Méthode pour mettre à jour le nombre de copies d'un livre
     private void updateBookCopies(int bookId) throws SQLException {
         String updateQuery = "UPDATE Book SET number_of_copies = number_of_copies - 1 WHERE book_id = ?";
@@ -334,7 +326,7 @@ public class LoanDAOImpl implements LoanDAO {
             pstmt.setInt(1, bookId);
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows == 0) {
-                throw new SQLException("Impossible de mettre à jour le nombre de copies du livre avec l'ID " + bookId);
+                throw new SQLException("❌ Impossible de mettre à jour le nombre de copies du livre avec l'ID " + bookId);
             } else {
                 System.out.println("📌 Nombre de copies du livre " + bookId + " mis à jour !");
             }
@@ -348,7 +340,7 @@ public class LoanDAOImpl implements LoanDAO {
             pstmt.setInt(1, bookId);
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows == 0) {
-                throw new SQLException("Impossible de mettre à jour le nombre de copies pour le livre avec l'ID " + bookId);
+                throw new SQLException("❌ Impossible de mettre à jour le nombre de copies pour le livre avec l'ID " + bookId);
             } else {
                 System.out.println("📌 Nombre de copies du livre " + bookId + " incrémenté !");
             }

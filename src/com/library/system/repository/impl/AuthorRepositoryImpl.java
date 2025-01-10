@@ -23,7 +23,7 @@ public class AuthorRepositoryImpl implements AuthorRepository {
             checkEmailStmt.setString(1, author.getAuthor_email());
             ResultSet rs = checkEmailStmt.executeQuery();
             if (rs.next()) {
-                throw new AuthorEmailAlreadyExistsException("L'email de l'auteur existe déjà.");
+                throw new AuthorEmailAlreadyExistsException("⚠️ L'email de l'auteur existe déjà.");
             }
 
             String insertQuery = "INSERT INTO author (first_name, last_name, author_email) VALUES (?, ?, ?)";
@@ -44,7 +44,7 @@ public class AuthorRepositoryImpl implements AuthorRepository {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new RuntimeException("Erreur lors de la création de l'auteur.");
+            throw new RuntimeException("❌ Erreur lors de la création de l'auteur.");
         }
     }
 
@@ -61,7 +61,7 @@ public class AuthorRepositoryImpl implements AuthorRepository {
 
                 return new Author(author_id, firstName, lastName, email);
             } else {
-                throw new AuthorNotFoundException("Auteur non trouvé pour l'id : " + author_id);
+                throw new AuthorNotFoundException("❌ Auteur non trouvé pour l'id : " + author_id);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -82,7 +82,7 @@ public class AuthorRepositoryImpl implements AuthorRepository {
 
                 return new Author(author_id, firstName, lastName, author_email);
             } else {
-                throw new AuthorNotFoundException("Auteur non trouvé pour l'email : " + author_email);
+                throw new AuthorNotFoundException("❌ Auteur non trouvé pour l'email : " + author_email);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -118,7 +118,7 @@ public class AuthorRepositoryImpl implements AuthorRepository {
             checkStmt.setInt(1, author_id);
             ResultSet rs = checkStmt.executeQuery();
             if (!rs.next()) {
-                throw new AuthorNotFoundException("Auteur non trouvé pour l'id : " + author_id);
+                throw new AuthorNotFoundException("❌ Auteur non trouvé pour l'id : " + author_id);
             }
 
             String deleteQuery = "DELETE FROM author WHERE author_id = ?";

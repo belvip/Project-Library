@@ -31,7 +31,7 @@ public class LibrarySystemApp {
 
     public static void main(String[] args) {
         // Message de bienvenue en couleur
-        System.out.println(GREEN + "Bienvenue dans le système de gestion de bibliothèque !" + RESET);
+        System.out.println(GREEN + "BIENVENUE DANS LE SYSTÈME DE GESTION DE BIBLIOTHÈQUE !" + RESET);
         initialize();
     }
 

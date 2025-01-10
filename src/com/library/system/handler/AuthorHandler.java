@@ -178,9 +178,9 @@ public class AuthorHandler {
         int authorId = scanner.nextInt();
         boolean isDeleted = authorController.deleteAuthor(authorId);
         if (isDeleted) {
-            System.out.println("Auteur supprimé avec succès.");
+            System.out.println("✅ Auteur supprimé avec succès.");
         } else {
-            System.out.println("Auteur non trouvé.");
+            System.out.println("❌ Auteur non trouvé.");
         }
     }
 
@@ -196,7 +196,7 @@ public class AuthorHandler {
                 System.out.println("Auteur trouvé : " + author.getFirst_name() + " " + author.getLast_name());
             }
         } catch (AuthorNotFoundException e) {
-            System.out.println("Auteur non trouvé.");
+            System.out.println("❌ Auteur non trouvé.");
         }
     }
 
@@ -208,10 +208,10 @@ public class AuthorHandler {
         try {
             Author author = authorController.getAuthorById(authorId);
             if (author != null) {
-                System.out.println("Auteur trouvé : " + author.getFirst_name() + " " + author.getLast_name());
+                System.out.println("✅ Auteur trouvé : " + author.getFirst_name() + " " + author.getLast_name());
             }
         } catch (AuthorNotFoundException e) {
-            System.out.println("Auteur non trouvé.");
+            System.out.println("❌ Auteur non trouvé.");
         }
     }
 }

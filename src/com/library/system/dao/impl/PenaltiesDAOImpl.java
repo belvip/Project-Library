@@ -4,6 +4,7 @@ package com.library.system.dao.impl;
 import com.library.system.dao.PenaltiesDAO;
 import com.library.system.model.Loan;
 import com.library.system.model.Member;
+import com.library.system.util.DatabaseConnection;
 
 
 import java.sql.*;
@@ -14,17 +15,6 @@ import java.util.List;
 
 
 public class PenaltiesDAOImpl implements PenaltiesDAO {
-
-
-   /*@Override
-   public int calculatePenalty(Loan loan) {
-       // Logique de calcul de la pénalité
-       // Par exemple, multiplier le nombre de jours de retard par le taux de pénalité
-       int daysOverdue = loan.getDueDate().isBefore(java.time.ZonedDateTime.now()) ?
-               (int) java.time.Duration.between(loan.getDueDate(), java.time.ZonedDateTime.now()).toDays() : 0;
-       int penaltyRate = 100;  // Exemple de taux de pénalité
-       return daysOverdue * penaltyRate;
-   } */
 
 
     @Override
@@ -43,6 +33,29 @@ public class PenaltiesDAOImpl implements PenaltiesDAO {
         return 0; // Pas de pénalité si le livre est rendu à temps
     }
 
+    @Override
+    public void updatePenaltyInDatabase(Loan loan) {
+        String query = "UPDATE Loan SET penalty = ? WHERE loan_id = ?";
+
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            // Calculer la pénalité
+            int penalty = calculatePenalty(loan);
+
+
+            // Définir les paramètres
+            preparedStatement.setInt(1, penalty); // Pénalité calculée
+            preparedStatement.setInt(2, loan.getLoanId()); // ID du prêt
+
+
+            // Exécuter la mise à jour
+            preparedStatement.executeUpdate();
+            //System.out.println("Pénalité mise à jour pour l'emprunt ID " + loan.getLoanId());
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la mise à jour de la pénalité: " + e.getMessage());
+        }
+    }
 
 
     @Override
@@ -70,29 +83,34 @@ public class PenaltiesDAOImpl implements PenaltiesDAO {
 
 
             while (resultSet.next()) {
+                // Extraire les informations du prêt
                 int loanId = resultSet.getInt("loan_id");
                 ZonedDateTime loanDate = resultSet.getTimestamp("loanDate").toLocalDateTime().atZone(ZoneId.systemDefault());
                 ZonedDateTime dueDate = resultSet.getTimestamp("dueDate").toLocalDateTime().atZone(ZoneId.systemDefault());
                 ZonedDateTime returnDate = resultSet.getTimestamp("returnDate") == null ? null : resultSet.getTimestamp("returnDate").toLocalDateTime().atZone(ZoneId.systemDefault());
 
 
-                // Récupérer les informations du membre
+                // Extraire les informations du membre
                 int memberId = resultSet.getInt("member_id");
                 String firstName = resultSet.getString("first_name");
                 String lastName = resultSet.getString("last_name");
-                String email = resultSet.getString("email");  // Récupérer l'email du membre
-
-
-                // Utilisation correcte de java.sql.Date pour obtenir la date actuelle
-                java.sql.Date currentDate = new java.sql.Date(System.currentTimeMillis()); // Date actuelle
+                String email = resultSet.getString("email");
 
 
                 // Créer l'objet Member avec l'email
+                java.sql.Date currentDate = new java.sql.Date(System.currentTimeMillis()); // Date actuelle
                 Member member = new Member(memberId, firstName, lastName, email, currentDate);
 
 
                 // Créer l'objet Loan avec Member
                 Loan loan = new Loan(loanId, loanDate, dueDate, returnDate, member);
+
+
+                // Mettre à jour la pénalité dans la base de données
+                updatePenaltyInDatabase(loan);
+
+
+                // Ajouter le prêt à la liste des prêts en retard
                 delayedLoans.add(loan);
             }
         }
@@ -100,7 +118,6 @@ public class PenaltiesDAOImpl implements PenaltiesDAO {
 
         return delayedLoans;
     }
-
 
 
 
