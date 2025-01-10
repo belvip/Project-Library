@@ -305,6 +305,32 @@ public class LoanDAOImpl implements LoanDAO {
         }
     }
 
+    @Override
+    public void deleteLoan(int loanId) throws SQLException {
+        // Requête SQL pour supprimer un prêt basé sur son ID
+        String sql = "DELETE FROM loan WHERE loan_id = ?";
+
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, loanId); // Set the loanId parameter
+
+
+            // Exécute la suppression dans la base de données
+            int rowsAffected = preparedStatement.executeUpdate();
+
+
+            if (rowsAffected > 0) {
+                System.out.println("Loan with ID " + loanId + " successfully deleted.");
+            } else {
+                System.out.println("No loan found with ID " + loanId);
+            }
+        } catch (SQLException e) {
+            // Gérer l'exception si la suppression échoue
+            throw new SQLException("Error deleting loan with ID " + loanId, e);
+        }
+    }
+
+
 
     // Vérifie la disponibilité du livre avant l'emprunt
     private boolean isBookAvailable(int bookId) throws SQLException {

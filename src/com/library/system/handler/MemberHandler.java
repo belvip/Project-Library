@@ -72,7 +72,7 @@ public class MemberHandler {
 
     // Méthode pour afficher le menu des opérations
     private void displayMemberMenu() {
-        System.out.println("\n\u001B[34m======== Opérations sur les membres ========\u001B[0m");
+        //System.out.println("\n\u001B[34m======== Opérations sur les membres ========\u001B[0m");
         System.out.println("+--------------------------------------------+");
         System.out.printf("| %-2s | %-40s |\n", "1", "\u001B[32mEnregister un membre\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "2", "\u001B[32mSupprimer un membre\u001B[0m");

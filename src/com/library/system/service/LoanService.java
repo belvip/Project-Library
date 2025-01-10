@@ -16,4 +16,7 @@ public interface LoanService {
 
     // Méthode pour récupérer tous les emprunts
     void getAllLoans(List<Loan> loans) throws SQLException;
+
+    // Supprimer un emprunt
+    void deleteLoan(int loanId) throws SQLException;
 }

@@ -6,6 +6,7 @@ import com.library.system.model.Author;
 import com.library.system.exception.authorException.AuthorNotFoundException;
 import com.library.system.exception.authorException.AuthorEmailAlreadyExistsException;
 import com.library.system.service.impl.AuthorServiceImpl;
+import com.library.system.util.Logger;
 
 import java.sql.Connection;
 import java.util.List;
@@ -54,7 +55,7 @@ public class AuthorHandler {
 
     // Méthode pour afficher le menu des opérations
     private void displayAuthorMenu() {
-        System.out.println("\n\u001B[34m======== Opérations sur l'auteur ========\u001B[0m");
+        //System.out.println("\n\u001B[34m======== Opérations sur l'auteur ========\u001B[0m");
         System.out.println("+--------------------------------------------+");
         System.out.printf("| %-2s | %-40s |\n", "1", "\u001B[32mAjouter un auteur\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "2", "\u001B[32mLister tous les auteurs\u001B[0m");
@@ -153,7 +154,8 @@ public class AuthorHandler {
 
 
         // Affichage du tableau
-        System.out.println("\n\u001B[34m======== Liste des Auteurs ========\u001B[0m");
+        //System.out.println("\n\u001B[34m======== Liste des Auteurs ========\u001B[0m");
+        Logger.logInfo("======== Liste des Auteurs ========");
         System.out.println(horizontalLine);
         System.out.printf(CYAN + format + RESET, "ID", "Nom", "Prenom", "Email");
         System.out.println(horizontalLine);
@@ -181,6 +183,7 @@ public class AuthorHandler {
             System.out.println("✅ Auteur supprimé avec succès.");
         } else {
             System.out.println("❌ Auteur non trouvé.");
+
         }
     }
 
@@ -193,9 +196,11 @@ public class AuthorHandler {
         try {
             Author author = authorController.getAuthorByEmail(email);
             if (author != null) {
+                Logger.logSuccess("Recherche par email réussie");
                 System.out.println("Auteur trouvé : " + author.getFirst_name() + " " + author.getLast_name());
             }
         } catch (AuthorNotFoundException e) {
+            Logger.logError("Recherche d'auteur par email", e);
             System.out.println("❌ Auteur non trouvé.");
         }
     }

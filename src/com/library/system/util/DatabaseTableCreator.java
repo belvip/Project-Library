@@ -145,11 +145,14 @@ public class DatabaseTableCreator {
             statement.executeUpdate(createBooksCategoryTable);
 
 
-            System.out.println("Tables créées avec succès.");
+            //System.out.println("Tables créées avec succès.");
+            Logger.logSuccess("Tables créées avec succès.");
 
 
         } catch (SQLException e) {
             e.printStackTrace();
+
+
         }
     }
 }

@@ -71,5 +71,10 @@ public class LoanRepositoryImpl implements LoanRepository {
     public void getAllLoans(List<Loan> loans) throws SQLException {
         loanDAO.getAllLoans(loans);
     }
+
+    @Override
+    public void deleteLoan(int loanId) throws SQLException {
+        loanDAO.deleteLoan(loanId);
+    }
 }
 

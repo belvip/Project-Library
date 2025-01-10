@@ -1,6 +1,5 @@
-
-
 package com.library.system.controller;
+
 
 import com.library.system.dao.CategoryDAO;
 import com.library.system.exception.categoryException.CategoryAlreadyExistsException;
@@ -8,47 +7,58 @@ import com.library.system.exception.categoryException.CategoryNotFoundException;
 import com.library.system.model.Category;
 import com.library.system.service.CategoryService;
 import com.library.system.service.impl.CategoryServiceImpl;
+import com.library.system.util.Logger;
+
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+
 public class CategoryController {
 
+
     private final CategoryService categoryService;
+
 
     // Constructeur pour injecter le service
     public CategoryController(Connection connection) throws SQLException {
         this.categoryService = new CategoryServiceImpl(connection); // Appel au nouveau constructeur
     }
 
+
     // Méthode pour ajouter une catégorie avec validation
     public void addCategory(String categoryName) {
         try {
             if (categoryName == null || categoryName.trim().isEmpty()) {
-                System.out.println("Le nom de la catégorie ne peut pas être vide.");
+                Logger.logWarn("Ajout de la catégorie", "Le nom de la catégorie ne peut pas être vide.");
                 return;
             }
 
+
             if (!categoryName.matches("^[a-zA-Z]+$")) {
-                System.out.println("Le nom de la catégorie ne peut contenir que des lettres.");
+                Logger.logWarn("Ajout de la catégorie", "Le nom de la catégorie ne peut contenir que des lettres.");
                 return;
             }
+
 
             Category category = new Category(categoryName);
 
+
             if (categoryService.doesCategoryExist(category.getCategory_name())) {
-                System.out.println("La catégorie existe déjà : " + category.getCategory_name());
+                Logger.logWarn("Ajout de la catégorie", "La catégorie existe déjà : " + category.getCategory_name());
             } else {
                 categoryService.addCategory(category);
-                System.out.println("Catégorie ajoutée avec succès !");
+                Logger.logSuccess("Ajout de la catégorie");
             }
         } catch (SQLException e) {
-            System.out.println("Erreur lors de l'ajout de la catégorie : " + e.getMessage());
+            Logger.logError("Ajout de la catégorie", e);
         } catch (CategoryAlreadyExistsException e) {
-            System.out.println("Erreur : " + e.getMessage()); // Gestion de l'exception CategoryAlreadyExistsException
+            Logger.logError("Ajout de la catégorie", e);
         }
     }
+
+
     // Modifier une catégorie
     public void modifyCategory(int categoryId, String newCategoryName) {
         Category category = new Category();
@@ -56,32 +66,35 @@ public class CategoryController {
         category.setCategory_name(newCategoryName);
         try {
             categoryService.updateCategory(category);
-            System.out.println("Catégorie mise à jour avec succès!");
+            Logger.logSuccess("Modification de la catégorie");
         } catch (SQLException e) {
-            System.out.println("Erreur lors de la modification de la catégorie: " + e.getMessage());
+            Logger.logError("Modification de la catégorie", e);
         }
     }
 
+
+    // Supprimer une catégorie
     public void deleteCategory(int categoryId) {
         try {
             categoryService.deleteCategory(categoryId);
-            System.out.println("Catégorie supprimée avec succès!");
+            Logger.logSuccess("Suppression de la catégorie");
         } catch (CategoryNotFoundException e) {
-            System.out.println("Erreur: " + e.getMessage());
+            Logger.logError("Suppression de la catégorie", e);
         } catch (SQLException e) {
-            System.out.println("Erreur lors de la suppression de la catégorie: " + e.getMessage());
+            Logger.logError("Suppression de la catégorie", e);
         }
     }
 
 
-    // Lister toutes catégories
+    // Lister toutes les catégories sous forme de tableau
     public void listCategories() {
         try {
             List<Category> categories = categoryService.getAllCategories();
 
 
             if (categories == null || categories.isEmpty()) {
-                System.out.println("\nAucune catégorie disponible.");
+                // Fusionner les messages dans une seule chaîne
+                Logger.logInfo("Liste des catégories : Aucune catégorie disponible.");
                 return;
             }
 
@@ -111,7 +124,7 @@ public class CategoryController {
 
 
             // Affichage du tableau
-            System.out.println("\n\u001B[34m========= Liste des Catégories ========\u001B[0m");
+            Logger.logInfo("Liste des catégories : ");
             System.out.println(horizontalLine);
             System.out.printf(CYAN + format + RESET, "Catégorie ID", "Nom de la catégorie");
             System.out.println(horizontalLine);
@@ -124,10 +137,9 @@ public class CategoryController {
 
             System.out.println(horizontalLine);
         } catch (SQLException e) {
-            System.out.println("❌ Erreur lors de la récupération des catégories : " + e.getMessage());
+            Logger.logError("Récupération des catégories", e);
         }
     }
-
 
 
     // Méthode pour rechercher des catégories par mot-clé
@@ -135,17 +147,22 @@ public class CategoryController {
         try {
             List<Category> categories = categoryService.findCategoryByKeyword(keyword);
             if (categories.isEmpty()) {
-                System.out.println("Aucune catégorie trouvée avec le mot-clé : " + keyword);
+                // Fusion des messages dans un seul String
+                Logger.logInfo("Recherche de catégories : Aucune catégorie trouvée avec le mot-clé : " + keyword);
             } else {
                 for (Category category : categories) {
-                    System.out.println("ID: " + category.getCategory_id() + " | Nom: " + category.getCategory_name());
+                    // Fusion des messages dans un seul String
+                    Logger.logInfo("Recherche de catégories : ID: " + category.getCategory_id() + " | Nom: " + category.getCategory_name());
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Erreur lors de la recherche des catégories : " + e.getMessage());
+            Logger.logError("Recherche des catégories", e);
         }
     }
 
 
 
+
 }
+
+

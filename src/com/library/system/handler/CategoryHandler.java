@@ -3,6 +3,7 @@ package com.library.system.handler;
 import com.library.system.controller.CategoryController;
 import com.library.system.service.impl.CategoryServiceImpl;
 import com.library.system.model.Category;
+import com.library.system.util.Logger;
 
 import java.sql.SQLException;
 import java.util.InputMismatchException;
@@ -50,7 +51,7 @@ public class CategoryHandler {
     }
 
     private void displayCategoryMenu() {
-        System.out.println("\n\u001B[34m======== Opérations sur les catégories ========\u001B[0m");
+        //System.out.println("\n\u001B[34m======== Opérations sur les catégories ========\u001B[0m");
         System.out.println("+--------------------------------------------+");
         System.out.printf("| %-2s | %-40s |\n", "1", "\u001B[32mAjouter une catégorie\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "2", "\u001B[32mModifier une catégorie\u001B[0m");
@@ -103,9 +104,9 @@ public class CategoryHandler {
 
         try {
             categoryService.updateCategory(category);
-            System.out.println("Catégorie mise à jour avec succès!");
+            Logger.logSuccess("Catégorie mise à jour avec succès!");
         } catch (SQLException e) {
-            System.out.println("Erreur lors de la modification de la catégorie: " + e.getMessage());
+            System.out.println("❌ Erreur lors de la modification de la catégorie: " + e.getMessage());
         }
     }
 

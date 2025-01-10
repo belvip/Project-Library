@@ -57,7 +57,7 @@ public class PenaltiesHandler {
 
     // Méthode pour afficher le menu des opérations
     private void displayBookMenu() {
-        System.out.println("\n\u001B[34m======== Opérations sur les livres ========\u001B[0m");
+        //System.out.println("\n\u001B[34m======== Opérations sur les livres ========\u001B[0m");
         System.out.println("+--------------------------------------------+");
         System.out.printf("| %-2s | %-40s |\n", "1", "\u001B[32mAfficher les pénalités\u001B[0m");
         System.out.printf("| %-2s | %-40s |\n", "2", "\u001B[31mRetourner au menu principal\u001B[0m");

@@ -71,4 +71,19 @@ public class LoanServiceImpl implements LoanService {
             throw e;  // Relancer l'exception après l'avoir loggée si vous souhaitez la propager
         }
     }
+
+    public void deleteLoan(int loanId) {
+        try {
+            loanRepository.deleteLoan(loanId);  // Appel à la méthode deleteLoan de LoanRepositoryImpl
+            System.out.println("Loan deleted successfully.");
+        } catch (SQLException e) {
+            // Gestion de l'erreur et log
+            System.err.println("Error deleting loan: " + e.getMessage());
+            Logger.logError("Deleting loan with ID " + loanId, e);  // Log de l'erreur
+        }
+    }
+
+
+
+
 }

@@ -86,4 +86,18 @@ public class LoanController {
             throw e;
         }
     }
+
+    public void deleteLoan(int loanId) {
+        try {
+            loanService.deleteLoan(loanId);  // Appel du service pour supprimer le prêt
+            System.out.println("Loan deleted successfully.");
+        } catch (SQLException e) {
+            System.err.println("Error deleting loan: " + e.getMessage());
+            // Vous pouvez aussi loguer l'erreur si nécessaire
+        }
+    }
+
+
+
+
 }
