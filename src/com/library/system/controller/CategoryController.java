@@ -78,18 +78,56 @@ public class CategoryController {
         try {
             List<Category> categories = categoryService.getAllCategories();
 
+
             if (categories == null || categories.isEmpty()) {
-                System.out.println("Aucune catégorie disponible.");
-            } else {
-                System.out.println("\nListe des catégories:");
-                for (Category category : categories) {
-                    System.out.println("ID: " + category.getCategory_id() + " | Nom: " + category.getCategory_name());
-                }
+                System.out.println("\nAucune catégorie disponible.");
+                return;
             }
+
+
+            // Définir les largeurs des colonnes
+            int idWidth = "Catégorie ID".length();
+            int nameWidth = "Nom de la catégorie".length();
+
+
+            for (Category category : categories) {
+                idWidth = Math.max(idWidth, String.valueOf(category.getCategory_id()).length());
+                nameWidth = Math.max(nameWidth, category.getCategory_name().length());
+            }
+
+
+            // Couleurs ANSI pour la mise en forme
+            String CYAN = "\u001B[36m";
+            String RESET = "\u001B[0m";
+
+
+            // Ligne de séparation
+            String horizontalLine = CYAN + "+-" + "-".repeat(idWidth) + "-+-" + "-".repeat(nameWidth) + "-+" + RESET;
+
+
+            // Format d'affichage
+            String format = "| %-" + idWidth + "s | %-" + nameWidth + "s |\n";
+
+
+            // Affichage du tableau
+            System.out.println("\n\u001B[34m========= Liste des Catégories ========\u001B[0m");
+            System.out.println(horizontalLine);
+            System.out.printf(CYAN + format + RESET, "Catégorie ID", "Nom de la catégorie");
+            System.out.println(horizontalLine);
+
+
+            for (Category category : categories) {
+                System.out.printf(format, category.getCategory_id(), category.getCategory_name());
+            }
+
+
+            System.out.println(horizontalLine);
         } catch (SQLException e) {
-            System.out.println("Erreur lors de la récupération des catégories: " + e.getMessage());
+            System.out.println("❌ Erreur lors de la récupération des catégories : " + e.getMessage());
         }
     }
+
+
 
     // Méthode pour rechercher des catégories par mot-clé
     public void searchCategories(String keyword) {

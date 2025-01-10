@@ -139,72 +139,210 @@ public class LoanHandler {
         }
     }
 
+
     public void getAllLoans() {
         try {
             List<Loan> loans = new ArrayList<>();
-            loanController.getAllLoans(loans); // Passe la liste des emprunts à récupérer
+            loanController.getAllLoans(loans);
 
-
-            // Affichage de l'en-tête du tableau
-            System.out.println("\n\u001B[34m========= Liste des Emprunts ========\u001B[0m");
-            System.out.println("+----------+--------------------+------------------+-------------------+-------------------+-------------------+--------------------+--------------------+--------------------+--------------------+");
-            System.out.printf("| %-8s | %-18s | %-16s | %-17s | %-17s | %-16s | %-18s | %-16s | %-16s | %-16s |\n",
-                    "Emprunt ID", "Membre", "Date d'Emprunt", "Date d'Échéance", "Date de Retour", "Livre ID", "Titre", "Nb Copies", "Auteurs", "Catégories");
-            System.out.println("+----------+--------------------+------------------+-------------------+-------------------+-------------------+--------------------+--------------------+--------------------+--------------------+");
-
-
-            // Affichage des emprunts récupérés
             if (loans.isEmpty()) {
-                // Affiche une ligne avec "Aucun emprunt trouvé"
-                System.out.println("| Aucun emprunt trouvé                                                                            |");
-            } else {
-                for (Loan loan : loans) {
-                    // Affichage des informations sur chaque emprunt avec les livres associés
-                    for (Book book : loan.getBooks()) {
-                        // Convertir Set<Author> en List<String> pour pouvoir utiliser String.join()
-                        List<String> authorNames = new ArrayList<>();
-                        for (Author author : book.getAuthors()) {
-                            authorNames.add(author.getFirst_name() + " " + author.getLast_name());
-                        }
+                System.out.println("\nAucun emprunt trouvé.");
+                return;
+            }
 
+            // Détermination des largeurs maximales
+            int loanIdWidth = "Emprunt ID".length();
+            int memberWidth = "Membre".length();
+            int loanDateWidth = "Date d'Emprunt".length();
+            int dueDateWidth = "Date d'Échéance".length();
+            int returnDateWidth = "Date de Retour".length();
+            int bookIdWidth = "Livre ID".length();
+            int bookTitleWidth = "Titre".length();
+            int copiesWidth = "Nb Copies".length();
+            int authorsWidth = "Auteurs".length();
+            int categoriesWidth = "Catégories".length();
 
-                        // Convertir Set<Category> en List<String> pour pouvoir utiliser String.join()
-                        List<String> categoryNames = new ArrayList<>();
-                        for (Category category : book.getCategories()) {
-                            categoryNames.add(category.getCategory_name());
-                        }
+            for (Loan loan : loans) {
+                loanIdWidth = Math.max(loanIdWidth, String.valueOf(loan.getLoanId()).length());
+                memberWidth = Math.max(memberWidth, (loan.getMember().getFirstName() + " " + loan.getMember().getLastName()).length());
+                loanDateWidth = Math.max(loanDateWidth, loan.getFormattedLoanDate().length());
+                dueDateWidth = Math.max(dueDateWidth, loan.getFormattedDueDate().length());
+                returnDateWidth = Math.max(returnDateWidth, loan.getFormattedReturnedDate().length());
 
+                for (Book book : loan.getBooks()) {
+                    bookIdWidth = Math.max(bookIdWidth, String.valueOf(book.getBook_id()).length());
+                    bookTitleWidth = Math.max(bookTitleWidth, book.getTitle().length());
+                    copiesWidth = Math.max(copiesWidth, String.valueOf(book.getNumber_Of_Copies()).length());
 
-                        // Affichage des détails du prêt et des livres associés
-                        System.out.printf("| %-8d | %-18s | %-16s | %-17s | %-17s | %-16d | %-18s | %-16d | %-16s | %-16s |\n",
-                                loan.getLoanId(),
-                                loan.getMember().getFirstName() + " " + loan.getMember().getLastName(),
-                                loan.getFormattedLoanDate(),          // Date d'emprunt formatée
-                                loan.getFormattedDueDate(),           // Date d'échéance formatée
-                                loan.getFormattedReturnedDate(),      // Date de retour formatée (ou "Pas encore retourné")
-                                book.getBook_id(),
-                                book.getTitle(),
-                                book.getNumber_Of_Copies(),
-                                String.join(", ", authorNames),       // Liste des auteurs
-                                String.join(", ", categoryNames));    // Liste des catégories
-                    }
+                    authorsWidth = Math.max(authorsWidth, String.join(", ", book.getAuthors().stream()
+                            .map(author -> author.getFirst_name() + " " + author.getLast_name())
+                            .toList()).length());
+
+                    categoriesWidth = Math.max(categoriesWidth, String.join(", ", book.getCategories().stream()
+                            .map(Category::getCategory_name)
+                            .toList()).length());
                 }
             }
 
+            // Définition des couleurs ANSI
+            String BLUE = "\u001B[34m";
+            String GREEN = "\u001B[32m";
+            String RESET = "\u001B[0m";
 
-            // Affichage de la ligne de fin du tableau
-            System.out.println("+----------+--------------------+------------------+-------------------+-------------------+-------------------+--------------------+--------------------+--------------------+--------------------+");
+            // Ligne de séparation en bleu
+            String horizontalLine = BLUE + "-".repeat(
+                    loanIdWidth + memberWidth + loanDateWidth + dueDateWidth + returnDateWidth + bookIdWidth +
+                            bookTitleWidth + copiesWidth + authorsWidth + categoriesWidth + 29) + RESET;
+
+            // Format d'affichage
+            String format = "| %-" + loanIdWidth + "s | %-" + memberWidth + "s | %-" + loanDateWidth + "s | %-" + dueDateWidth +
+                    "s | %-" + returnDateWidth + "s | %-" + bookIdWidth + "s | %-" + bookTitleWidth + "s | %-" +
+                    copiesWidth + "s | %-" + authorsWidth + "s | %-" + categoriesWidth + "s |\n";
+
+            // Affichage de l'en-tête
+            System.out.println("\n\u001B[34m========= Liste des Emprunts ========\u001B[0m");
+            System.out.println(horizontalLine);
+            System.out.printf(BLUE + format + RESET,
+                    "Emprunt ID", "Membre", "Date d'Emprunt", "Date d'Échéance", "Date de Retour",
+                    "Livre ID", "Titre", "Nb Copies", "Auteurs", "Catégories");
+            System.out.println(horizontalLine);
+
+            // Affichage des données
+            for (Loan loan : loans) {
+                for (Book book : loan.getBooks()) {
+                    List<String> authorNames = book.getAuthors().stream()
+                            .map(author -> author.getFirst_name() + " " + author.getLast_name())
+                            .toList();
+                    List<String> categoryNames = book.getCategories().stream()
+                            .map(Category::getCategory_name)
+                            .toList();
+
+                    System.out.printf(format,
+                            String.valueOf(loan.getLoanId()),
+                            loan.getMember().getFirstName() + " " + loan.getMember().getLastName(),
+                            loan.getFormattedLoanDate(),
+                            loan.getFormattedDueDate(),
+                            loan.getFormattedReturnedDate(),
+                            String.valueOf(book.getBook_id()),
+                            book.getTitle(),
+                            String.valueOf(book.getNumber_Of_Copies()),
+                            String.join(", ", authorNames),
+                            String.join(", ", categoryNames));
+                }
+            }
+
+            System.out.println(horizontalLine);
+
         } catch (SQLException e) {
-            // Affiche l'erreur en cas de problème avec la récupération des emprunts
             System.out.println("❌ Erreur lors de l'affichage des emprunts : " + e.getMessage());
         }
     }
 
 
 
+    /*public void getAllLoans() {
+        try {
+            List<Loan> loans = new ArrayList<>();
+            loanController.getAllLoans(loans);
 
+            if (loans.isEmpty()) {
+                System.out.println("\nAucun emprunt trouvé.");
+                return;
+            }
 
+            // Détermination des largeurs maximales
+            int loanIdWidth = "Emprunt ID".length();
+            int memberWidth = "Membre".length();
+            int loanDateWidth = "Date d'Emprunt".length();
+            int dueDateWidth = "Date d'Échéance".length();
+            int returnDateWidth = "Date de Retour".length();
+            int bookIdWidth = "Livre ID".length();
+            int bookTitleWidth = "Titre".length();
+            int copiesWidth = "Nb Copies".length();
+            int authorsWidth = "Auteurs".length();
+            int categoriesWidth = "Catégories".length();
 
+            for (Loan loan : loans) {
+                loanIdWidth = Math.max(loanIdWidth, String.valueOf(loan.getLoanId()).length());
+                memberWidth = Math.max(memberWidth, (loan.getMember().getFirstName() + " " + loan.getMember().getLastName()).length());
+                loanDateWidth = Math.max(loanDateWidth, loan.getFormattedLoanDate().length());
+                dueDateWidth = Math.max(dueDateWidth, loan.getFormattedDueDate().length());
+                returnDateWidth = Math.max(returnDateWidth, loan.getFormattedReturnedDate().length());
+
+                for (Book book : loan.getBooks()) {
+                    bookIdWidth = Math.max(bookIdWidth, String.valueOf(book.getBook_id()).length());
+                    bookTitleWidth = Math.max(bookTitleWidth, book.getTitle().length());
+                    copiesWidth = Math.max(copiesWidth, String.valueOf(book.getNumber_Of_Copies()).length());
+
+                    authorsWidth = Math.max(authorsWidth, String.join(", ", book.getAuthors().stream()
+                            .map(author -> author.getFirst_name() + " " + author.getLast_name())
+                            .toList()).length());
+
+                    categoriesWidth = Math.max(categoriesWidth, String.join(", ", book.getCategories().stream()
+                            .map(Category::getCategory_name)
+                            .toList()).length());
+                }
+            }
+
+            // Définition des couleurs ANSI
+            String RED = "\u001B[31m";
+            String GREEN = "\u001B[32m";
+            String RESET = "\u001B[0m";
+
+            // Ligne de séparation en rouge
+            int consoleWidth = 140;
+            String horizontalLine = RED + "-".repeat(Math.max(consoleWidth, 100)) + RESET;
+
+            // Format d'affichage avec lignes verticales en vert
+            String format = GREEN + "| " + RESET + "%-" + loanIdWidth + "s " + GREEN + "| " + RESET
+                    + "%-" + memberWidth + "s " + GREEN + "| " + RESET
+                    + "%-" + loanDateWidth + "s " + GREEN + "| " + RESET
+                    + "%-" + dueDateWidth + "s " + GREEN + "| " + RESET
+                    + "%-" + returnDateWidth + "s " + GREEN + "| " + RESET
+                    + "%-" + bookIdWidth + "s " + GREEN + "| " + RESET
+                    + "%-" + bookTitleWidth + "s " + GREEN + "| " + RESET
+                    + "%-" + copiesWidth + "s " + GREEN + "| " + RESET
+                    + "%-" + authorsWidth + "s " + GREEN + "| " + RESET
+                    + "%-" + categoriesWidth + "s " + GREEN + "|\n" + RESET;
+
+            // Affichage du tableau
+            System.out.println("\n\u001B[34m========= Liste des Emprunts ========\u001B[0m");
+            System.out.println(horizontalLine);
+            System.out.printf(format, "Emprunt ID", "Membre", "Date d'Emprunt", "Date d'Échéance", "Date de Retour", "Livre ID", "Titre", "Nb Copies", "Auteurs", "Catégories");
+            System.out.println(horizontalLine);
+
+            for (Loan loan : loans) {
+                for (Book book : loan.getBooks()) {
+                    List<String> authorNames = new ArrayList<>();
+                    for (Author author : book.getAuthors()) {
+                        authorNames.add(author.getFirst_name() + " " + author.getLast_name());
+                    }
+
+                    List<String> categoryNames = new ArrayList<>();
+                    for (Category category : book.getCategories()) {
+                        categoryNames.add(category.getCategory_name());
+                    }
+
+                    System.out.printf(format,
+                            String.valueOf(loan.getLoanId()),
+                            loan.getMember().getFirstName() + " " + loan.getMember().getLastName(),
+                            loan.getFormattedLoanDate(),
+                            loan.getFormattedDueDate(),
+                            loan.getFormattedReturnedDate(),
+                            String.valueOf(book.getBook_id()),
+                            book.getTitle(),
+                            String.valueOf(book.getNumber_Of_Copies()),
+                            String.join(", ", authorNames),
+                            String.join(", ", categoryNames));
+                }
+            }
+
+            System.out.println(horizontalLine);
+
+        } catch (SQLException e) {
+            System.out.println("❌ Erreur lors de l'affichage des emprunts : " + e.getMessage());
+        }
+    } */
 
 
 

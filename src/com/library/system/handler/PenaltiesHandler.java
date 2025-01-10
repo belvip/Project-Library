@@ -16,9 +16,6 @@ public class PenaltiesHandler {
     public static final String GREEN = "\u001B[32m";  // Vert pour le succès
     public static final String RED = "\u001B[31m";    // Rouge pour l'erreur
 
-
-
-
     private final Scanner scanner = new Scanner(System.in);
     private final PenaltiesController penaltiesController;
 

@@ -197,63 +197,124 @@ public class BookHandler {
     private void displayAllAvailableBooks() {
         try {
             // Appel du contrôleur pour récupérer tous les livres disponibles
-            List<Book> books = bookController.displayAvailableBooks(); // Appel de la méthode sans argument
+            List<Book> books = bookController.displayAvailableBooks();
+
 
             // Vérification si la liste des livres est vide
             if (books.isEmpty()) {
-                System.out.println("Aucun livre disponible.");
-            } else {
-                System.out.println("\n\u001B[34m======== Liste des Livres ========\u001B[0m");
-                System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------------------+-----------------------+");
-                System.out.printf("| %-10s | %-30s | %-19s | %-25s | %-35s | %-30s |\n",
-                        "ID", "Titre", "Nb Copies", "Catégorie", "Email Auteur", "Nom de l'Auteur");
-                System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------------------+-----------------------+");
-
-                // Affichage des informations de chaque livre
-                for (Book book : books) {
-                    // Récupérer les catégories du livre
-                    String categories = "Aucune catégorie";
-                    if (book.getCategories() != null && !book.getCategories().isEmpty()) {
-                        categories = book.getCategories().stream()
-                                .map(Category::getCategory_name)
-                                .reduce((cat1, cat2) -> cat1 + ", " + cat2)
-                                .orElse("Aucune catégorie");
-                    }
-
-                    // Récupérer l'email de l'auteur
-                    String authorEmail = "Email non disponible";
-                    if (book.getAuthors() != null && !book.getAuthors().isEmpty()) {
-                        authorEmail = book.getAuthors().stream()
-                                .findFirst()
-                                .map(Author::getAuthor_email)
-                                .orElse("Email non disponible");
-                    }
-
-                    // Récupérer le nom complet de l'auteur
-                    String authorFullName = "Auteur non disponible";
-                    if (book.getAuthors() != null && !book.getAuthors().isEmpty()) {
-                        authorFullName = book.getAuthors().stream()
-                                .map(author -> author.getFirst_name() + " " + author.getLast_name())
-                                .reduce((name1, name2) -> name1 + ", " + name2)
-                                .orElse("Auteur inconnu");
-                    }
-
-                    // Affichage des informations du livre
-                    System.out.printf("| %-10d | %-30s | %-19d | %-25s | %-35s | %-30s |\n",
-                            book.getBook_id(),
-                            book.getTitle(),
-                            book.getNumber_Of_Copies(),
-                            categories,
-                            authorEmail,
-                            authorFullName); // Affichage du nom complet de l'auteur
-                }
-
-                System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------------------+-----------------------+");
+                System.out.println("\nAucun livre disponible.");
+                return;
             }
+
+
+            // Détermination des largeurs maximales pour chaque colonne
+            int idWidth = "ID".length();
+            int titleWidth = "Titre".length();
+            int copiesWidth = "Nb Copies".length();
+            int categoryWidth = "Catégorie".length();
+            int authorEmailWidth = "Email Auteur".length();
+            int authorNameWidth = "Nom de l'Auteur".length();
+
+
+            for (Book book : books) {
+                idWidth = Math.max(idWidth, String.valueOf(book.getBook_id()).length());
+                titleWidth = Math.max(titleWidth, book.getTitle().length());
+                copiesWidth = Math.max(copiesWidth, String.valueOf(book.getNumber_Of_Copies()).length());
+
+
+                // Calculer la largeur pour les catégories
+                String categories = book.getCategories().stream()
+                        .map(Category::getCategory_name)
+                        .reduce((cat1, cat2) -> cat1 + ", " + cat2)
+                        .orElse("Aucune catégorie");
+                categoryWidth = Math.max(categoryWidth, categories.length());
+
+
+                // Calculer la largeur pour les emails des auteurs
+                String authorEmail = book.getAuthors().stream()
+                        .findFirst()
+                        .map(Author::getAuthor_email)
+                        .orElse("Email non disponible");
+                authorEmailWidth = Math.max(authorEmailWidth, authorEmail.length());
+
+
+                // Calculer la largeur pour les noms des auteurs
+                String authorFullName = book.getAuthors().stream()
+                        .map(author -> author.getFirst_name() + " " + author.getLast_name())
+                        .reduce((name1, name2) -> name1 + ", " + name2)
+                        .orElse("Auteur inconnu");
+                authorNameWidth = Math.max(authorNameWidth, authorFullName.length());
+            }
+
+
+            // Couleurs ANSI pour les lignes et les en-têtes
+            String CYAN = "\u001B[36m";
+            String RESET = "\u001B[0m";
+
+
+            // Ligne de séparation
+            String horizontalLine = CYAN + "+-" + "-".repeat(idWidth) + "-+-" +
+                    "-".repeat(titleWidth) + "-+-" +
+                    "-".repeat(copiesWidth) + "-+-" +
+                    "-".repeat(categoryWidth) + "-+-" +
+                    "-".repeat(authorEmailWidth) + "-+-" +
+                    "-".repeat(authorNameWidth) + "-+" + RESET;
+
+
+            // Format d'affichage
+            String format = "| %-" + idWidth + "s | %-" + titleWidth + "s | %-" + copiesWidth + "s | %-" +
+                    categoryWidth + "s | %-" + authorEmailWidth + "s | %-" + authorNameWidth + "s |\n";
+
+
+            // Affichage du tableau
+            System.out.println("\n\u001B[34m======== Liste des Livres ========\u001B[0m");
+            System.out.println(horizontalLine);
+            System.out.printf(CYAN + format + RESET, "ID", "Titre", "Nb Copies", "Catégorie", "Email Auteur", "Nom de l'Auteur");
+            System.out.println(horizontalLine);
+
+
+            for (Book book : books) {
+                String categories = book.getCategories().stream()
+                        .map(Category::getCategory_name)
+                        .reduce((cat1, cat2) -> cat1 + ", " + cat2)
+                        .orElse("Aucune catégorie");
+
+
+                String authorEmail = book.getAuthors().stream()
+                        .findFirst()
+                        .map(Author::getAuthor_email)
+                        .orElse("Email non disponible");
+
+
+                String authorFullName = book.getAuthors().stream()
+                        .map(author -> author.getFirst_name() + " " + author.getLast_name())
+                        .reduce((name1, name2) -> name1 + ", " + name2)
+                        .orElse("Auteur inconnu");
+
+
+                System.out.printf(format,
+                        book.getBook_id(),
+                        book.getTitle(),
+                        book.getNumber_Of_Copies(),
+                        categories,
+                        authorEmail,
+                        authorFullName);
+            }
+
+
+            System.out.println(horizontalLine);
+
+
         } catch (BookDisplayException e) {
-            System.err.println(RED + "Erreur: " + e.getMessage());
+            System.err.println("\u001B[31mErreur: " + e.getMessage() + "\u001B[0m");
         }
     }
+
+
+
+
+
+
 
 
     // Méthode pour mettre à jour un livre

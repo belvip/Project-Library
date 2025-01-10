@@ -34,8 +34,8 @@ public class LoanDAOImpl implements LoanDAO {
 
         // Créer un prêt avec la date actuelle et la date d'échéance (par exemple, 2 semaines plus tard)
         ZonedDateTime loanDate = ZonedDateTime.now();
-        // ZonedDateTime dueDate = loanDate.plusWeeks(2); // Par exemple, la date d'échéance est dans 2 semaines
-        ZonedDateTime dueDate = loanDate.plusMinutes(2);
+        ZonedDateTime dueDate = loanDate.plusWeeks(7); // Par exemple, la date d'échéance est dans 1 semaine
+        //ZonedDateTime dueDate = loanDate.plusMinutes(2);
 
 
         // Créer un objet Loan

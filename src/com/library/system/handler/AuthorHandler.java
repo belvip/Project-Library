@@ -118,18 +118,57 @@ public class AuthorHandler {
     private void displayAuthors() {
         List<Author> authors = authorService.displayAuthors(); // Appel à la méthode du service
         if (authors.isEmpty()) {
-            System.out.println("Aucun auteur trouvé.");
-        } else {
-            System.out.println("\n\u001B[34m======== Liste des Auteurs ========\u001B[0m");
-            System.out.println("+------------+-----------------------------------+-----------------------------------+-----------------------------------------+");
-            System.out.printf("| %-10s | %-30s | %-30s | %-35s |\n", "ID", "Nom", "Prenom", "Email");
-            System.out.println("+------------+-----------------------------------+-----------------------------------+-----------------------------------------+");
-            for (Author author : authors) {
-                // Ajoutez author.getAuthor_email() pour afficher l'email dans la 4ème colonne
-                System.out.printf("| %-10d | %-30s | %-30s | %-35s |\n", author.getAuthor_id(), author.getFirst_name(), author.getLast_name(), author.getAuthor_email());
-            }
-            System.out.println("+------------+-----------------------------------+-----------------------------------+-----------------------------------------+");
+            System.out.println("\nAucun auteur trouvé.");
+            return;
         }
+
+
+        // Calcul des largeurs dynamiques pour chaque colonne
+        int idWidth = "ID".length();
+        int firstNameWidth = "Nom".length();
+        int lastNameWidth = "Prenom".length();
+        int emailWidth = "Email".length();
+
+
+        for (Author author : authors) {
+            idWidth = Math.max(idWidth, String.valueOf(author.getAuthor_id()).length());
+            firstNameWidth = Math.max(firstNameWidth, author.getFirst_name().length());
+            lastNameWidth = Math.max(lastNameWidth, author.getLast_name().length());
+            emailWidth = Math.max(emailWidth, author.getAuthor_email().length());
+        }
+
+
+        // Couleurs ANSI pour l'en-tête et les lignes
+        String CYAN = "\u001B[36m";
+        String RESET = "\u001B[0m";
+
+
+        // Ligne de séparation
+        String horizontalLine = CYAN + "+-" + "-".repeat(idWidth) + "-+-" + "-".repeat(firstNameWidth) + "-+-" +
+                "-".repeat(lastNameWidth) + "-+-" + "-".repeat(emailWidth) + "-+" + RESET;
+
+
+        // Format d'affichage
+        String format = "| %-" + idWidth + "s | %-" + firstNameWidth + "s | %-" + lastNameWidth + "s | %-" + emailWidth + "s |\n";
+
+
+        // Affichage du tableau
+        System.out.println("\n\u001B[34m======== Liste des Auteurs ========\u001B[0m");
+        System.out.println(horizontalLine);
+        System.out.printf(CYAN + format + RESET, "ID", "Nom", "Prenom", "Email");
+        System.out.println(horizontalLine);
+
+
+        for (Author author : authors) {
+            System.out.printf(format,
+                    author.getAuthor_id(),
+                    author.getFirst_name(),
+                    author.getLast_name(),
+                    author.getAuthor_email());
+        }
+
+
+        System.out.println(horizontalLine);
     }
 
 

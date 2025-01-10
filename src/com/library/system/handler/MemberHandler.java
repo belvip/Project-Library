@@ -156,31 +156,76 @@ public class MemberHandler {
 
 
     private void displayMemberTable(List<Member> members) {
-        // Code ANSI pour la couleur bleue
-        String blue = "\u001B[34m";
-        String reset = "\u001B[0m";
+        // Codes ANSI pour les couleurs
+        String BLUE = "\u001B[34m";
+        String RESET = "\u001B[0m";
 
-        // En-tête du tableau avec couleur bleue
-        System.out.println(blue + "\n╔════════════╦════════════════════╦════════════════════╦════════════════════════════╦══════════════════╗" + reset);
-        System.out.println(blue + "║   ID       ║   Prénom           ║   Nom             ║   Email                  ║   Date d'adhésion ║" + reset);
-        System.out.println(blue + "╠════════════╬════════════════════╬════════════════════╬════════════════════════════╬══════════════════╣" + reset);
+        // Vérification si la liste des membres est vide
+        if (members == null || members.isEmpty()) {
+            System.out.println("\nAucun membre trouvé.");
+            return;
+        }
+
+        // Détermination des largeurs maximales pour chaque colonne
+        int idWidth = "ID".length();
+        int firstNameWidth = "Prénom".length();
+        int lastNameWidth = "Nom".length();
+        int emailWidth = "Email".length();
+        int adhesionDateWidth = "Date d'adhésion".length();
+
+        for (Member member : members) {
+            idWidth = Math.max(idWidth, String.valueOf(member.getMember_id()).length());
+            firstNameWidth = Math.max(firstNameWidth, member.getFirstName().length());
+            lastNameWidth = Math.max(lastNameWidth, member.getLastName().length());
+            emailWidth = Math.max(emailWidth, member.getEmail().length());
+        }
 
         // Création du format pour la date et l'heure
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        // Affichage des données de chaque membre
-        for (Member member : members) {
-            // Formater la date d'adhésion pour inclure l'heure
-            String formattedAdhesionDate = sdf.format(member.getAdhesionDate());
+        // Ligne de séparation
+        String horizontalLine = BLUE + "╔" + "═".repeat(idWidth + 2) + "╦" +
+                "═".repeat(firstNameWidth + 2) + "╦" +
+                "═".repeat(lastNameWidth + 2) + "╦" +
+                "═".repeat(emailWidth + 2) + "╦" +
+                "═".repeat(adhesionDateWidth + 2) + "╗" + RESET;
 
-            // Affichage du membre avec la date formatée
-            System.out.printf("║ %-10d ║ %-18s ║ %-18s ║ %-24s ║ %-16s ║\n",
-                    member.getMember_id(), member.getFirstName(), member.getLastName(), member.getEmail(), formattedAdhesionDate);
+        String separatorLine = BLUE + "╠" + "═".repeat(idWidth + 2) + "╬" +
+                "═".repeat(firstNameWidth + 2) + "╬" +
+                "═".repeat(lastNameWidth + 2) + "╬" +
+                "═".repeat(emailWidth + 2) + "╬" +
+                "═".repeat(adhesionDateWidth + 2) + "╣" + RESET;
+
+        String footerLine = BLUE + "╚" + "═".repeat(idWidth + 2) + "╩" +
+                "═".repeat(firstNameWidth + 2) + "╩" +
+                "═".repeat(lastNameWidth + 2) + "╩" +
+                "═".repeat(emailWidth + 2) + "╩" +
+                "═".repeat(adhesionDateWidth + 2) + "╝" + RESET;
+
+        // Format d'affichage
+        String format = "║ %-"+idWidth+"s ║ %-"+firstNameWidth+"s ║ %-"+lastNameWidth+"s ║ %-"+emailWidth+"s ║ %-"+adhesionDateWidth+"s ║\n";
+
+        // Affichage de l'en-tête
+        System.out.println(horizontalLine);
+        System.out.printf(BLUE + format + RESET, "ID", "Prénom", "Nom", "Email", "Date d'adhésion");
+        System.out.println(separatorLine);
+
+        // Affichage des membres
+        for (Member member : members) {
+            String formattedAdhesionDate = sdf.format(member.getAdhesionDate());
+            System.out.printf(format,
+                    member.getMember_id(),
+                    member.getFirstName(),
+                    member.getLastName(),
+                    member.getEmail(),
+                    formattedAdhesionDate);
         }
 
-        // Footer du tableau
-        System.out.println("╚════════════╩════════════════════╩════════════════════╩════════════════════════════╩══════════════════╝");
+        // Affichage du footer
+        System.out.println(footerLine);
     }
+
+
 
     // Méthode pour récupérer l'entrée de l'utilisateur
     private String getInput(String prompt) {
