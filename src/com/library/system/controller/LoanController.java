@@ -9,12 +9,15 @@ import com.library.system.model.Member;
 import com.library.system.service.BookService;
 import com.library.system.service.LoanService;
 import com.library.system.service.MemberService;
+import com.library.system.util.DatabaseConnection;
 import com.library.system.util.Logger;  // Importation de la classe Logger
 
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-
 
 public class LoanController {
 
@@ -96,6 +99,29 @@ public class LoanController {
             // Vous pouvez aussi loguer l'erreur si nécessaire
         }
     }
+
+    public boolean hasMemberAlreadyLoanedBook(int memberId, int bookId) {
+        // Requête SQL pour vérifier si le membre a déjà emprunté ce livre et que l'emprunt est toujours en cours (returnDate IS NULL)
+        String sql = "SELECT l.member_id, bl.book_id " +
+                "FROM Loan l " +
+                "JOIN Book_Loan bl ON l.loan_id = bl.loan_id " +
+                "WHERE l.member_id = ? AND bl.book_id = ? AND l.returnDate IS NULL";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) { // Correction ici
+
+            stmt.setInt(1, memberId);
+            stmt.setInt(2, bookId);
+
+            ResultSet resultSet = stmt.executeQuery();
+            return resultSet.next(); // Si une ligne est retournée, le membre a déjà emprunté ce livre
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false; // En cas d'erreur, on considère que le membre peut emprunter ce livre
+        }
+    }
+
 
 
 

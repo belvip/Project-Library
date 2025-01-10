@@ -126,7 +126,7 @@ public class LoanHandler {
 
         Member member;
         try {
-            member = loanController.getMemberById(memberId); // 🔍 Récupérer le membre par ID
+            member = loanController.getMemberById(memberId); // Récupérer le membre par ID
         } catch (FindMemberByIdException e) {
             System.out.println("❌ Erreur : " + e.getMessage()); // Afficher un message clair
             return; // Arrêter le processus d'emprunt
@@ -145,6 +145,7 @@ public class LoanHandler {
 
 
         List<Book> books = new ArrayList<>(); // Liste pour stocker les livres trouvés
+        List<Book> booksAlreadyLoaned = new ArrayList<>(); // Liste des livres déjà empruntés par le membre
 
 
         // Parcourir chaque ID et récupérer le livre correspondant
@@ -155,7 +156,12 @@ public class LoanHandler {
 
 
                 if (book != null) {
-                    books.add(book);
+                    // Vérifier si le membre a déjà emprunté ce livre
+                    if (loanController.hasMemberAlreadyLoanedBook(memberId, bookId)) {
+                        booksAlreadyLoaned.add(book); // Ajouter à la liste des livres déjà empruntés
+                    } else {
+                        books.add(book); // Ajouter à la liste des livres à emprunter
+                    }
                 } else {
                     System.out.println("⚠️ Livre avec ID " + bookId + " introuvable.");
                 }
@@ -166,14 +172,30 @@ public class LoanHandler {
 
 
         // Vérifier si au moins un livre a été trouvé
-        if (books.isEmpty()) {
+        if (books.isEmpty() && booksAlreadyLoaned.isEmpty()) {
             System.out.println("❌ Aucun livre valide n'a été trouvé avec les IDs fournis.");
             return;
         }
 
 
-        // Étape 3 : Enregistrer l'emprunt via le LoanController
-        loanController.registerLoan(member, books);  // Appeler la méthode de LoanController
+        // Étape 3 : Afficher les livres déjà empruntés
+        if (!booksAlreadyLoaned.isEmpty()) {
+            System.out.println("❌ Ce livres ont déjà été empruntés par ce membre :");
+            for (Book book : booksAlreadyLoaned) {
+                System.out.println("Livre ID " + book.getBook_id() + ": " + book.getTitle());
+            }
+        }
+
+
+        // Étape 4 : Enregistrer les livres qui ne sont pas déjà empruntés
+        if (!books.isEmpty()) {
+            // Enregistrer les emprunts valides
+            loanController.registerLoan(member, books);  // Appeler la méthode de LoanController pour enregistrer les livres non empruntés
+            System.out.println("✅ L'emprunt a été enregistré pour les livres suivants :");
+            for (Book book : books) {
+                System.out.println("Livre ID " + book.getBook_id() + ": " + book.getTitle());
+            }
+        }
     }
 
 
@@ -189,8 +211,6 @@ public class LoanHandler {
             System.out.println("❌ Erreur lors du retour du livre : " + e.getMessage());
         }
     }
-
-
 
 
     public void getAllLoans() {
