@@ -138,7 +138,7 @@ La structure du projet est organisée comme suit :
 ## 6. Démarrage du Projet
 
 ### Prérequis
-- Installer Java (JDK 8 ou supérieur)
+- Installer Java (JDK 21 ou supérieur)
 - Installer PostgreSQL
 - Cloner le projet à partir de GitHub
 
