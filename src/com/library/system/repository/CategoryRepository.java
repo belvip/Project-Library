@@ -5,7 +5,8 @@ import com.library.system.model.Category;
 import java.sql.SQLException;
 import java.util.List;
 
-public interface CategoryRepository {
+public interface
+CategoryRepository {
 
     void addCategory(Category category) throws SQLException;
 

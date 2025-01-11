@@ -20,9 +20,8 @@ public interface BookDAO {
 
     void removeBook(int bookId) throws BookRemoveException;
     List<Book> searchBookByCategory(String categoryName) throws BookSearchByCategoryException;
+
     Set<Book> findBooksByLoanId(int loanId) throws SQLException;
-
-
 
     void borrowBook(int bookId) throws BookUpdateException;
 }

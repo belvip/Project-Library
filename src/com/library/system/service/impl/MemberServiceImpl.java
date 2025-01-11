@@ -1,6 +1,7 @@
 package com.library.system.service.impl;
 
 import com.library.system.exception.memberException.*;
+import com.library.system.model.Loan;
 import com.library.system.model.Member;
 import com.library.system.repository.MemberRepository;
 import com.library.system.service.MemberService;
@@ -52,9 +53,10 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public List<Member> getLoanHistory() throws MemberLoanHistoryException {
-        return memberRepository.getLoanHistory();
+    public List<Loan> getLoanHistory(int memberId) throws MemberLoanHistoryException {
+        return memberRepository.getLoanHistory(memberId);
     }
+
 
     // Méthode de validation des données du membre
     private void validateMemberData(Member member) throws MemberRegistrationException {

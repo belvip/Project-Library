@@ -3,6 +3,7 @@ package com.library.system.handler;
 import com.library.system.exception.memberException.FindMemberByIdException;
 import com.library.system.exception.memberException.FindMemberByNameException;
 import com.library.system.exception.memberException.MemberLoanHistoryException;
+import com.library.system.model.Loan;
 import com.library.system.model.Member;
 import com.library.system.service.impl.MemberServiceImpl;
 import com.library.system.controller.MemberController; // Ajout de l'importation
@@ -49,7 +50,7 @@ public class MemberHandler {
                     searchMemberById();
                     break;
                 case 5:
-                    dislayLoanHistoryp();
+                    displayLoanHistory();
                     break;
                 case 6:
                     running = false;
@@ -154,7 +155,6 @@ public class MemberHandler {
         }
     }
 
-
     private void displayMemberTable(List<Member> members) {
         // Codes ANSI pour les couleurs
         String BLUE = "\u001B[34m";
@@ -225,8 +225,6 @@ public class MemberHandler {
         System.out.println(footerLine);
     }
 
-
-
     // Méthode pour récupérer l'entrée de l'utilisateur
     private String getInput(String prompt) {
         System.out.print(prompt);
@@ -251,14 +249,47 @@ public class MemberHandler {
         }
     }
 
-    public void dislayLoanHistoryp() {
+    public void displayLoanHistory() {
+        Scanner scanner = new Scanner(System.in);
         try {
-            List<Member> loanHistory = memberController.getLoanHistory();
-            displayMemberTable(loanHistory);
-        } catch (MemberLoanHistoryException e) {
-            System.out.println("Erreur : " + e.getMessage());
+            // Demander l'ID du membre à l'utilisateur
+            System.out.print("Entrez l'ID du membre : ");
+            int memberId = scanner.nextInt();
+
+
+            // Récupérer l'historique des emprunts
+            List<Loan> loansHistory = memberController.getLoanHistory(memberId);
+
+
+            // Vérifier si des emprunts existent
+            if (loansHistory.isEmpty()) {
+                System.out.println("Aucun emprunt trouvé pour ce membre.");
+            } else {
+                // Codes ANSI pour la couleur du texte (ici en bleu pour l'entête)
+                String blue = "\033[34m"; // Code ANSI pour la couleur bleue
+                String reset = "\033[0m"; // Code pour réinitialiser la couleur à la couleur par défaut
+
+
+                // Afficher l'entête du tableau avec une couleur
+                System.out.println(blue + String.format("%-15s%-20s%-25s%-25s", "ID Emprunt", "Date Emprunt", "Date Retour prévue", "Date Retour effective") + reset);
+                System.out.println("---------------------------------------------------------------------------------------------------");
+
+
+                // Afficher les lignes du tableau sans couleur (par défaut)
+                for (Loan loan : loansHistory) {
+                    System.out.println(String.format("%-15d%-20s%-25s%-25s",
+                            loan.getLoanId(),
+                            loan.getFormattedLoanDate(),
+                            loan.getFormattedDueDate(),
+                            loan.getFormattedReturnedDate()));
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Erreur lors de la récupération de l'historique des emprunts : " + e.getMessage());
         }
     }
+
+
 
 
 

@@ -2,10 +2,12 @@ package com.library.system.dao.impl;
 
 import com.library.system.dao.MemberDAO;
 import com.library.system.exception.memberException.*;
+import com.library.system.model.Loan;
 import com.library.system.model.Member;
 
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -139,25 +141,48 @@ public class MemberDAOImpl implements MemberDAO {
     }
 
     @Override
-    public List<Member> getLoanHistory() throws MemberLoanHistoryException {
-        List<Member> loanHistory = new ArrayList<>();
-        String query = "SELECT DISTINCT m.member_id, m.first_name, m.last_name, m.email, m.adhesion_date " +
-                "FROM member m " +
-                "JOIN loan l ON m.member_id = l.member_id " +
-                "ORDER BY l.loandate DESC"; // Tri par date d'emprunt
+    public List<Loan> getLoanHistory(int memberId) throws MemberLoanHistoryException {
+        List<Loan> loanHistory = new ArrayList<>();
+        String query = "SELECT l.loan_id, l.loandate, l.duedate, l.returndate, " +
+                "m.member_id, m.first_name, m.last_name, m.email, m.adhesion_date " +
+                "FROM loan l " +
+                "JOIN member m ON l.member_id = m.member_id " +
+                "WHERE m.member_id = ? " +
+                "ORDER BY l.loandate DESC";
 
-        try (PreparedStatement stmt = connection.prepareStatement(query);
-             ResultSet resultSet = stmt.executeQuery()) {
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, memberId);
+            try (ResultSet resultSet = stmt.executeQuery()) {
+                boolean found = false;
+                while (resultSet.next()) {
+                    found = true;
 
-            while (resultSet.next()) {
-                Member member = new Member(
-                        resultSet.getInt("member_id"),
-                        resultSet.getString("first_name"),
-                        resultSet.getString("last_name"),
-                        resultSet.getString("email"),
-                        resultSet.getTimestamp("adhesion_date") // Assure-toi que le type de date est bien géré
-                );
-                loanHistory.add(member);
+                    // Convertir l'adhésion en Date
+                    Date adhesionDate = new Date(resultSet.getTimestamp("adhesion_date").getTime());
+
+                    // Création de l'objet Loan avec les données récupérées
+                    Loan loan = new Loan(
+                            resultSet.getInt("loan_id"),  // Maintenant disponible grâce à la correction SQL
+                            resultSet.getTimestamp("loandate").toInstant().atZone(ZoneId.systemDefault()),
+                            resultSet.getTimestamp("duedate").toInstant().atZone(ZoneId.systemDefault()),
+                            resultSet.getTimestamp("returndate") != null ?
+                                    resultSet.getTimestamp("returndate").toInstant().atZone(ZoneId.systemDefault())
+                                    : null,
+                            new Member(
+                                    resultSet.getInt("member_id"),
+                                    resultSet.getString("first_name"),
+                                    resultSet.getString("last_name"),
+                                    resultSet.getString("email"),
+                                    adhesionDate
+                            )
+                    );
+
+                    loanHistory.add(loan);
+                }
+
+                if (!found) {
+                    throw new MemberLoanHistoryException("Aucun emprunt trouvé pour ce membre.");
+                }
             }
         } catch (SQLException e) {
             throw new MemberLoanHistoryException("Erreur lors de la récupération de l'historique des emprunts : " + e.getMessage(), e);
@@ -165,6 +190,10 @@ public class MemberDAOImpl implements MemberDAO {
 
         return loanHistory;
     }
+
+
+
+
 
 
 }

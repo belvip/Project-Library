@@ -2,6 +2,7 @@ package com.library.system.repository.impl;
 
 import com.library.system.dao.MemberDAO;
 import com.library.system.exception.memberException.*;
+import com.library.system.model.Loan;
 import com.library.system.model.Member;
 import com.library.system.repository.MemberRepository;
 
@@ -46,13 +47,14 @@ public class MemberRepositoryImpl implements MemberRepository {
     }
 
     @Override
-    public List<Member> getLoanHistory() throws MemberLoanHistoryException {
+    public List<Loan> getLoanHistory(int memberId) throws MemberLoanHistoryException {
         try{
-            return memberDAO.getLoanHistory();
+            return memberDAO.getLoanHistory(memberId);
         }catch (Exception e){
-            throw new MemberLoanHistoryException("L'historique est vide " + e.getMessage());
+            throw new MemberLoanHistoryException(e.getMessage());
         }
     }
+
 
     @Override
     public void registerMember(Member member) throws MemberRegistrationException {
