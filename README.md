@@ -1,18 +1,5 @@
 # Système de Gestion de Bibliothèque
 
-## Table des matières
-1. [Introduction](#introduction)
-2. [Technologies Utilisées](#technologies-utilisées)
-3. [Fonctionnalités Principales](#fonctionnalités-principales)
-4. [Diagrammes UML](#diagrammes-uml)
-5. [Structure du Projet](#structure-du-projet)
-6. [Démarrage du Projet](#démarrage-du-projet)
-7. [Utilisation de l'Application](#utilisation-de-lapplication)
-8. [Modèle de Données](#modèle-de-données)
-9. [Contributions](#contributions)
-10. [Licence](#licence)
-11. [Contact](#contact)
-
 ---
 
 ## 1. Introduction {#introduction}
