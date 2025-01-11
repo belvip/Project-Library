@@ -19,8 +19,8 @@ public class PenaltiesDAOImpl implements PenaltiesDAO {
 
     @Override
     public int calculatePenalty(Loan loan) {
-        // Vérifier si la date d'échéance est dépassée
-        if (loan.getDueDate().isBefore(ZonedDateTime.now())) {
+        // Vérifier si la date d'échéance est dépassée et que le livre n'a pas encore été retourné
+        if (loan.getDueDate().isBefore(ZonedDateTime.now()) && loan.getReturnedDate() == null) {
             // Calculer la durée en jours entre la date d'échéance et maintenant
             long daysOverdue = java.time.Duration.between(loan.getDueDate(), ZonedDateTime.now()).toDays();
 
@@ -30,8 +30,9 @@ public class PenaltiesDAOImpl implements PenaltiesDAO {
             // Calculer la pénalité totale
             return (int) (daysOverdue * penaltyRatePerDay);
         }
-        return 0; // Pas de pénalité si le livre est rendu à temps
+        return 0; // Pas de pénalité si le livre est retourné à temps ou s'il a déjà été retourné
     }
+
 
     @Override
     public void updatePenaltyInDatabase(Loan loan) {
