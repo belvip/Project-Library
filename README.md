@@ -15,7 +15,7 @@
 
 ---
 
-## 1. Introduction
+## 1. Introduction {#introduction}
 
 Le **Système de Gestion de Bibliothèque** est une application conçue pour faciliter la gestion des livres, auteurs, membres, et prêts dans une bibliothèque. L'application permet d'emprunter et de retourner des livres, de suivre les retards et d'appliquer des pénalités. 
 
