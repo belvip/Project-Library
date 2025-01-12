@@ -2,7 +2,7 @@
 
 ---
 
-## 1. Introduction {#introduction}
+## 1. Introduction
 
 Le **Système de Gestion de Bibliothèque** est une application conçue pour faciliter la gestion des livres, auteurs, membres, et prêts dans une bibliothèque. L'application permet d'emprunter et de retourner des livres, de suivre les retards et d'appliquer des pénalités.
 
@@ -149,8 +149,9 @@ La structure du projet est organisée comme suit :
 
 ### Configurer la base de données :
 
-1. Créer une base de données PostgreSQL nommée `library_db`.
+1. Créer une base de données PostgreSQL nommée `library_management`.
 2. Mettre à jour les paramètres de connexion dans le fichier `DatabaseConnection.java`.
+3. Si la base de données bibli n'existe pas, elle sera automatiquement créée lors du lancement de l'application. Le système vérifie la présence de la base de données et crée celle-ci si nécessaire avant de se connecter. Une fois la base de données créée, l'application procède à la création des tables nécessaires pour le bon fonctionnement du système de gestion de la bibliothèque.
 
 ### Compiler et exécuter :
 
