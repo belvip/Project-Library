@@ -95,3 +95,104 @@ La structure du projet est organisée comme suit :
 1. **Cloner le dépôt :**
    ```bash
    git clone https://github.com/belvip/Project-Library.git
+
+### Configurer la base de données :
+
+1. Créer une base de données PostgreSQL nommée `library_management`.
+2. Mettre à jour les paramètres de connexion dans le fichier `DatabaseConnection.java`.
+3. Si la base de données bibli n'existe pas, elle sera automatiquement créée lors du lancement de l'application. Le système vérifie la présence de la base de données et crée celle-ci si nécessaire avant de se connecter. Une fois la base de données créée, l'application procède à la création des tables nécessaires pour le bon fonctionnement du système de gestion de la bibliothèque.
+
+### Compiler et exécuter :
+
+```bash
+javac -d bin src/com/belvinard/libraryManagementSystem/*.java
+java -cp bin com.belvinard.libraryManagementSystem.Main
+```
+
+---
+
+## 7. Utilisation de l'Application
+
+- Cette section décrit les différentes commandes que vous pouvez utiliser pour interagir avec l'application via la ligne de commande. Chaque commande correspond à une méthode d'une classe du projet.
+
+### Exemples de commandes
+
+#### Ajouter un livre :
+```bash
+addBook <title> <author>
+```
+
+#### Emprunter un livre :
+```bash
+borrowBook <bookId> <memberId>
+```
+
+#### Retourner un livre :
+```bash
+returnBook <loanId>
+```
+
+## Méthodes principales par classe
+
+### Classe `Book`
+- `addBook(Book book)`: Ajouter un livre.
+- `findBookById(int bookId)`: Trouver un livre par ID.
+- `displayAvailableBooks()`: Afficher les livres disponibles.
+- `searchBookByCategory(String categoryName)`: Rechercher par catégorie.
+
+### Classe `Member`
+- `registerMember(Member member)`: Ajouter un membre.
+- `findMemberById(int memberId)`: Trouver un membre par ID.
+- `getLoanHistory()`: Afficher l'historique des prêts.
+
+### Classe `Loan`
+- `registerLoan(Member member, List<Book> books)`: Enregistrer un prêt.
+- `returnBook(int loanId)`: Retourner un livre.
+
+### Interface `PenaltiesDAO`
+- `calculatePenalty(Loan loan)`: Calculer une pénalité.
+- `getLoansWithDelays()`: Obtenir les prêts en retard.
+
+## 8. Modèle de Données
+
+Les entités principales sont :
+
+- **Book** : Livres (titre, auteur, copies disponibles).
+- **Member** : Membres (nom, email, date d'adhésion).
+- **Loan** : Prêts (date de prêt, date d’échéance, pénalités).
+- **Category** : Catégories de livres.
+- **Author** : Informations sur les auteurs.
+
+
+---
+
+## 9. Contributions
+
+Si tu souhaites contribuer au projet, voici les étapes à suivre :
+
+1. **Forkez le projet** sur GitHub.
+2. **Clonez** votre fork localement :  
+   `git clone <url_du_fork>`
+3. **Créez une nouvelle branche** pour vos modifications :  
+   `git checkout -b feature/nouvelle-fonctionnalité`
+4. **Faites vos modifications**, puis ajoutez et validez vos changements :
+   - `git add .`
+   - `git commit -m "Ajout de la nouvelle fonctionnalité"`
+5. **Poussez les modifications** sur votre fork :  
+   `git push origin feature/nouvelle-fonctionnalité`
+6. **Soumettez une pull request** pour proposer vos modifications.
+
+---
+
+## 10. Licence
+- Ce projet est sous licence MIT. Voir le fichier LICENCE pour plus de details
+
+---
+
+## 11. Contact
+
+Si vous avez des questions, des suggestions ou des demandes, vous pouvez me contacter :
+
+- **Email** : `pouadjeubelvi@gmail.com`
+
+
