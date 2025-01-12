@@ -73,7 +73,6 @@ Les diagrammes UML suivants illustrent la structure et les relations du système
 ## 5. Structure du Projet
 
 La structure du projet est organisée comme suit :
-
 - `src/` : Contient les fichiers source Java.
   - `com/library/model/` : Contient les classes représentant les entités principales du système.
     - `Book.java` : Classe représentant un livre.
@@ -81,6 +80,75 @@ La structure du projet est organisée comme suit :
     - `Loan.java` : Classe représentant un prêt.
     - `Author.java` : Classe représentant un auteur.
     - `Category.java` : Classe représentant une catégorie de livre.
+ 
+  - `com/library/controller/` : Contient les classes de contrôleur pour gérer les actions du système.
+    - `BookController.java` : Contrôleur pour la gestion des livres.
+    - `MemberController.java` : Contrôleur pour la gestion des membres.
+    - `LoanController.java` : Contrôleur pour la gestion des prêts.
+    - `AuthorController.java` : Contrôleur pour la gestion des auteurs.
+    - `PenaltiesController.java` : Contrôleur pour la gestion des pénalités.
+    - `CategoryController.java` : Contrôleur pour la gestion des catégories.
+ 
+  - `com/library/service/` : Contient les interfaces des services pour chaque entité.
+    - `BookService.java` : Interface pour la gestion des services liés aux livres.
+    - `AuthorService.java` : Interface pour la gestion des services liés aux auteurs.
+    - `CategoryService.java` : Interface pour la gestion des services liés aux catégories.
+    - `LoanService.java` : Interface pour la gestion des services liés aux prêts.
+    - `MemberService.java` : Interface pour la gestion des services liés aux membres.
+    - `PenaltiesService.java` : Interface pour la gestion des services liés aux pénalités.
+ 
+  - `com/library/service/impl/` : Contient les classes d'implémentation des services.
+    - `BookServiceImpl.java` : Implémentation des services liés aux livres.
+    - `AuthorServiceImpl.java` : Implémentation des services liés aux auteurs.
+    - `CategoryServiceImpl.java` : Implémentation des services liés aux catégories.
+    - `LoanServiceImpl.java` : Implémentation des services liés aux prêts.
+    - `MemberServiceImpl.java` : Implémentation des services liés aux membres.
+    - `PenaltiesServiceImpl.java` : Implémentation des services liés aux pénalités.
+ 
+  - `com/library/system/dao/` : Contient les interfaces pour l'accès aux données des entités.
+    - `BookDAO.java` : Interface pour l'accès aux données des livres.
+    - `MemberDAO.java` : Interface pour l'accès aux données des membres.
+    - `LoanDAO.java` : Interface pour l'accès aux données des prêts.
+    - `PenaltiesDAO.java` : Interface pour l'accès aux données des pénalités.
+ 
+  - `com/library/system/dao/impl/` : Contient les implémentations des DAO pour l'accès aux données.
+    - `BookDAOImpl.java` : Implémentation du DAO pour les livres.
+    - `MemberDAOImpl.java` : Implémentation du DAO pour les membres.
+    - `LoanDAOImpl.java` : Implémentation du DAO pour les prêts.
+    - `PenaltiesDAOImpl.java` : Implémentation du DAO pour les pénalités.
+ 
+  - `com/library/system/repository/` : Contient les interfaces pour les repositories.
+    - `AuthorRepository.java` : Interface pour la gestion des auteurs dans le repository.
+    - `BookRepository.java` : Interface pour la gestion des livres dans le repository.
+    - `CategoryRepository.java` : Interface pour la gestion des catégories dans le repository.
+    - `LoanRepository.java` : Interface pour la gestion des prêts dans le repository.
+    - `MemberRepository.java` : Interface pour la gestion des membres dans le repository.
+    - `PenaltiesRepository.java` : Interface pour la gestion des pénalités dans le repository.
+ 
+  - `com/library/system/repository/impl/` : Contient les implémentations des repositories.
+    - `AuthorRepositoryImpl.java` : Implémentation du repository pour les auteurs.
+    - `BookRepositoryImpl.java` : Implémentation du repository pour les livres.
+    - `CategoryRepositoryImpl.java` : Implémentation du repository pour les catégories.
+    - `LoanRepositoryImpl.java` : Implémentation du repository pour les prêts.
+    - `MemberRepositoryImpl.java` : Implémentation du repository pour les membres.
+    - `PenaltiesRepositoryImpl.java` : Implémentation du repository pour les pénalités.
+ 
+  - `com/library/utils/` : Contient les classes utilitaires.
+    - `ConsoleHandler.java` : Classe pour la gestion de la console.
+    - `DatabaseConnection.java` : Classe pour la connexion à la base de données.
+    - `DatabaseTableCreator.java` : Classe pour la création des tables de la base de données.
+    - `EmailValidator.java` : Classe pour valider les emails.
+    - `Logger.java` : Classe pour la gestion des logs.
+ 
+  - `com/library/exception/` : Contient les classes pour la gestion des exceptions.
+    - `BookNotFoundException.java` : Exception levée lorsqu'un livre n'est pas trouvé.
+    - `MemberNotFoundException.java` : Exception levée lorsqu'un membre n'est pas trouvé.
+    - `LoanNotFoundException.java` : Exception levée lorsqu'un prêt n'est pas trouvé.
+ 
+- `resources/` : Dossier contenant les ressources nécessaires au projet (par exemple, fichiers de configuration, SQL, etc.).
+
+
+    
 
 ---
 
