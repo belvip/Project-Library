@@ -75,7 +75,6 @@ public class LoanHandler {
         }
     }
 
-
     // Méthode pour obtenir l'entrée de l'utilisateur
     private int getChoiceInput() {
         try {

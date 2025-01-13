@@ -98,40 +98,36 @@ public class MemberHandler {
 
     // Méthode pour enregistrer un nouveau membre
     private void registerMember() {
-
         Logger.logInfo("------------------ Enregistrement d'un Membre ------------------ ");
 
         // Demander le prénom
         String firstName = getInput("Entrez le prénom du membre : ");
-        // Validation du prénom (lettres uniquement)
         if (!firstName.matches("^[\\p{L}&\\s-]+$")) {
-            // System.out.println("⚠️ Le prénom ne doit contenir que des lettres.");
-            Logger.logWarn("Prénom du membre ",
-                    "Le prénom ne peut contenir que des lettres (y compris accentuées), des espaces, des tirets ou le caractère '&'.\"");
+            Logger.logWarn("Prénom du membre ", "Le prénom ne peut contenir que des lettres, des espaces, des tirets ou le caractère '&'.");
             return;
         }
 
         // Demander le nom
         String lastName = getInput("Entrez le nom du membre : ");
-        // Validation du nom (lettres uniquement)
         if (!lastName.matches("^[\\p{L}&\\s-]+$")) {
-            //System.out.println("⚠️ Le nom ne doit contenir que des lettres.");
-            Logger.logWarn("Nom du membre ",
-                    "Le nom ne peut contenir que des lettres (y compris accentuées), des espaces, des tirets ou le caractère '&'.\"");
+            Logger.logWarn("Nom du membre ", "Le nom ne peut contenir que des lettres, des espaces, des tirets ou le caractère '&'.");
             return;
         }
 
         // Demander l'email
-        String email = getInput("Entrez l'email du membre : ");
-
-        // Validation de l'email
+        String email = getInput("Entrez l'email du membre : ").trim().toLowerCase(); // Normalisation
         if (!email.matches("^[\\p{L}0-9._%+-]+@[\\p{L}0-9.-]+\\.[A-Za-z]{2,10}$")) {
-            Logger.logWarn("Email du membre ",
-                    "L'email doit être valide et peut contenir des lettres avec accents, des chiffres, des points, des tirets et des underscores.");
+            Logger.logWarn("Email du membre ", "L'email doit être valide.");
             return;
         }
 
-        // Date d'adhésion (date actuelle)
+        // Vérifier si l'email est déjà utilisé avant de tenter l'ajout
+        if (memberService.isEmailTaken(email)) {
+            Logger.logWarn("Email du membre", "L'email " + email + " est déjà pris. Veuillez en choisir un autre.");
+            return;
+        }
+
+        // Date d'adhésion
         Date adhesionDate = Date.valueOf(LocalDate.now());
 
         // Création du membre
@@ -140,13 +136,11 @@ public class MemberHandler {
         // Ajout en base de données
         try {
             memberService.addMember(newMember);
-            Logger.logSuccess("Membre ajouté avec succès!");
-            //System.out.println("\u001B[32m✅ Membre ajouté avec succès !\u001B[0m");
+            Logger.logSuccess("✅ Membre ajouté avec succès !");
         } catch (Exception e) {
             Logger.logError("Ajout du membre", e);
         }
     }
-
 
     private void deleteMember() {
         Logger.logInfo("Supprimer un membre");
@@ -287,7 +281,6 @@ public class MemberHandler {
         }
     }
 
-
     public void displayLoanHistory() {
         Logger.logInfo("Historique des emprunts pour un membre");
         Scanner scanner = new Scanner(System.in);
@@ -295,9 +288,6 @@ public class MemberHandler {
             // Demander l'ID du membre à l'utilisateur
             System.out.print("Entrez l'ID du membre : ");
             int memberId = scanner.nextInt();
-
-
-
 
             // Récupérer l'historique des emprunts
             List<Loan> loansHistory = memberController.getLoanHistory(memberId);

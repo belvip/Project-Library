@@ -37,30 +37,22 @@ public class MemberDAOImpl implements MemberDAO {
         return false;  // En cas d'erreur SQL, considère que l'e-mail n'est pas pris
     }
 
-
-
-
-
     @Override
     public void registerMember(Member member) throws MemberRegistrationException {
-        // Normalise l'e-mail pour éviter les doublons (e-mails insensibles à la casse)
+        // Normalisation de l'email
         String email = member.getEmail().trim().toLowerCase();
         member.setEmail(email);
 
-
-        // Vérifie si l'e-mail est déjà utilisé
+        // Vérifie si l'email existe déjà
         if (isEmailTaken(email)) {
-            throw new MemberRegistrationException("L'e-mail " + email + " est déjà utilisé.");
+            throw new MemberRegistrationException("L'email " + email + " est déjà utilisé. Veuillez en choisir un autre.");
         }
 
-
-        // Ajoute un timestamp pour la date d'adhésion
+        // Création du Timestamp
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         member.setAdhesionDate(timestamp);
 
-
         String query = "INSERT INTO member (first_name, last_name, email, adhesion_date) VALUES (?, ?, ?, ?)";
-
 
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, member.getFirstName());
@@ -68,24 +60,16 @@ public class MemberDAOImpl implements MemberDAO {
             stmt.setString(3, email);
             stmt.setTimestamp(4, timestamp);
 
-
             int rowsInserted = stmt.executeUpdate();
             if (rowsInserted == 0) {
                 throw new MemberRegistrationException("Échec de l'enregistrement du membre, aucune ligne insérée.");
+            } else {
+                Logger.logSuccess("✅ Membre ajouté avec succès !");
             }
-
-
-            // Affiche un message de succès
-            System.out.println("✅ Membre enregistré avec succès !");
         } catch (SQLException e) {
-            // Gère une violation de contrainte unique si elle est définie en base
-            if ("23505".equals(e.getSQLState())) { // Code SQL pour contrainte unique (PostgreSQL)
-                throw new MemberRegistrationException("L'e-mail " + email + " est déjà utilisé.", e);
-            }
             throw new MemberRegistrationException("Erreur SQL lors de l'enregistrement du membre : " + e.getMessage(), e);
         }
     }
-
 
     @Override
     public void deleteMember(int memberID) throws MemberDeleteException {

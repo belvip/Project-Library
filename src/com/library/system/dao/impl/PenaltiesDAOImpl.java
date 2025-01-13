@@ -70,8 +70,6 @@ public class PenaltiesDAOImpl implements PenaltiesDAO {
     public List<Loan> getLoansWithDelays() throws SQLException {
         List<Loan> delayedLoans = new ArrayList<>();
 
-
-        // Ajouter "m.email" dans la requête pour récupérer l'email
         String query = "SELECT l.loan_id, l.loanDate, l.dueDate, l.returnDate, l.member_id, " +
                 "m.first_name, m.last_name, m.email " +
                 "FROM Loan l JOIN Member m ON l.member_id = m.member_id " +

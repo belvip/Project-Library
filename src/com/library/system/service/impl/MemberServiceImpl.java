@@ -80,5 +80,11 @@ public class MemberServiceImpl implements MemberService {
         registerMember(member);
     }
 
+    @Override
+    public boolean isEmailTaken(String email) {
+        return memberRepository.isEmailTaken(email);
+    }
+
+
 
 }

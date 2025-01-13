@@ -18,4 +18,5 @@ public interface MemberService {
     List<Loan> getLoanHistory(int memberId) throws MemberLoanHistoryException;
 
 
+    boolean isEmailTaken(String email);
 }
