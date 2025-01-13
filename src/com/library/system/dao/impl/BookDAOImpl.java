@@ -433,13 +433,21 @@ public class BookDAOImpl implements BookDAO {
 
     @Override
     public List<Book> searchBookByCategory(String categoryName) throws BookSearchByCategoryException {
+        /*String query = "SELECT b.book_id, b.title, b.number_of_copies, a.first_name, a.last_name, a.author_email, c.category_name " +
+                "FROM Book b " +
+                "LEFT JOIN Book_Author ba ON b.book_id = ba.book_id " +
+                "LEFT JOIN Author a ON ba.author_id = a.author_id " +
+                "LEFT JOIN Books_Category bc ON b.book_id = bc.book_id " +
+                "LEFT JOIN Category c ON bc.category_id = c.category_id " +
+                "WHERE c.category_name = ?"; */
         String query = "SELECT b.book_id, b.title, b.number_of_copies, a.first_name, a.last_name, a.author_email, c.category_name " +
                 "FROM Book b " +
                 "LEFT JOIN Book_Author ba ON b.book_id = ba.book_id " +
                 "LEFT JOIN Author a ON ba.author_id = a.author_id " +
                 "LEFT JOIN Books_Category bc ON b.book_id = bc.book_id " +
                 "LEFT JOIN Category c ON bc.category_id = c.category_id " +
-                "WHERE c.category_name = ?";
+                "WHERE LOWER(c.category_name) = LOWER(?)";  // Conversion en minuscules
+
 
         List<Book> books = new ArrayList<>();
 

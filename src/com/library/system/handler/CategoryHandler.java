@@ -74,13 +74,18 @@ public class CategoryHandler {
     }
 
     private void addCategory() {
+        Logger.logInfo("Ajouter une catégorie : ");
         System.out.print("Entrez le nom de la catégorie: ");
         scanner.nextLine(); // Clear buffer
-        String categoryName = scanner.nextLine();
+        String categoryName = scanner.nextLine().trim(); // Supprime les espaces inutiles
+
+        // ✅ On laisse la validation au CategoryController
         categoryController.addCategory(categoryName);
     }
 
+
     public void modifyCategory() {
+        Logger.logInfo("Modifier une catégorie");
         System.out.print("Entrez l'ID de la catégorie à modifier: ");
         int categoryId = getChoiceInput();
         scanner.nextLine(); // Consommer le retour à la ligne après l'entrée de l'ID
@@ -89,14 +94,16 @@ public class CategoryHandler {
         String newCategoryName = scanner.nextLine();
 
         if (newCategoryName == null || newCategoryName.trim().isEmpty()) {
-            System.out.println("Le nom de la catégorie ne peut pas être vide.");
+            Logger.logWarn("Modifier une categorie : ","⚠️Le nom de la catégorie ne peut pas être vide.");
             return;
         }
 
-        if (!newCategoryName.matches("^[a-zA-Z]+$")) {
-            System.out.println("Le nom de la catégorie ne peut contenir que des lettres.");
+        if (!newCategoryName.matches("^[a-zA-Z&\\s-]+$")) {
+            //System.out.println("⚠️ Le nom de la catégorie ne peut contenir que des lettres, espaces, tirets ou apostrophes.");
+            Logger.logWarn("Ajout de la catégorie", "Le nom de la catégorie ne peut contenir que des lettres, des espaces ou des tirets.");
             return;
         }
+
 
         Category category = new Category();
         category.setCategory_id(categoryId);
@@ -106,11 +113,12 @@ public class CategoryHandler {
             categoryService.updateCategory(category);
             Logger.logSuccess("Catégorie mise à jour avec succès!");
         } catch (SQLException e) {
-            System.out.println("❌ Erreur lors de la modification de la catégorie: " + e.getMessage());
+            Logger.logError("Erreur lors de la modification de la catégorie: " , e);
         }
     }
 
     private void deleteCategory() {
+        Logger.logInfo("Supprimer une catégorie : ");
         System.out.print("Entrez l'ID de la catégorie à supprimer: ");
         int categoryId = getChoiceInput();
         categoryController.deleteCategory(categoryId);
@@ -121,6 +129,7 @@ public class CategoryHandler {
     }
 
     private void searchCategoriesByKeyword() {
+        Logger.logInfo("Rechercher une catégorie par mot-clé : ");
         System.out.print("Entrez le mot-clé pour rechercher des catégories: ");
         scanner.nextLine(); // Clear buffer
         String keyword = scanner.nextLine();

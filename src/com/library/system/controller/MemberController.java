@@ -4,6 +4,7 @@ import com.library.system.exception.memberException.*;
 import com.library.system.model.Loan;
 import com.library.system.model.Member;
 import com.library.system.service.MemberService;
+import com.library.system.util.Logger;
 
 import java.util.List;
 
@@ -19,9 +20,9 @@ public class MemberController {
     public void registerMember(Member member) {
         try {
             memberService.registerMember(member);
-            System.out.println("✅ Membre ajouté avec succès : " + member.getEmail());
+            Logger.logSuccess("✅ Membre ajouté avec succès : " + member.getEmail());
         } catch (MemberRegistrationException e) {
-            System.out.println("❌ Erreur lors de l'ajout du membre : " + e.getMessage());
+            Logger.logError("❌ Erreur lors de l'ajout du membre : " + e.getMessage());
         }
     }
 
@@ -30,10 +31,10 @@ public class MemberController {
         try {
             // Appel au service pour supprimer le membre
             memberService.deleteMember(memberID);
-            System.out.println("✅ Le membre a été supprimé avec succès.");
+            Logger.logSuccess("Le membre a été supprimé avec succès.");
         } catch (MemberDeleteException e) {
             // Gestion de l'exception et affichage de l'erreur
-            System.out.println("❌ Erreur : " + e.getMessage());
+            Logger.logError("Erreur : " , e);
         }
     }
 

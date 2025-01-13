@@ -3,6 +3,7 @@ package com.library.system.handler;
 
 import com.library.system.controller.PenaltiesController;
 import com.library.system.exception.memberException.InvalidMemberEmailException;
+import com.library.system.util.Logger;
 
 
 import java.util.Scanner;
@@ -50,7 +51,8 @@ public class PenaltiesHandler {
         try {
             penaltiesController.applyPenaltiesToDelayedLoans(); // Appel de la méthode dans le controller
         } catch (Exception e) {
-            System.err.println("Erreur lors de l'application des pénalités : " + e.getMessage());
+            //System.err.println("Erreur lors de l'application des pénalités : " + e.getMessage());
+            Logger.logError("Erreur lors de l'application des pénalités : ", e);
         }
     }
 
@@ -78,16 +80,18 @@ public class PenaltiesHandler {
 
 
     public void displayDelayedLoans() {
+        Logger.logInfo("Afficher la liste des penalites");
         try {
             // Appel de la méthode dans le contrôleur pour afficher les prêts en retard
             penaltiesController.displayDelayedLoans();
         } catch (InvalidMemberEmailException e) {
             // Si l'email du membre est invalide, afficher un message d'erreur spécifique
-            System.err.println("Erreur : L'email du membre est invalide. Veuillez vérifier l'adresse email.");
+            Logger.logError("Erreur : L'email du membre est invalide. Veuillez vérifier l'adresse email.");
             e.printStackTrace();  // Afficher la trace de l'exception pour le débogage, si nécessaire
         } catch (Exception e) {
             // Capturer toute autre exception non anticipée
-            System.err.println("Erreur inattendue lors de l'affichage des prêts en retard : " + e.getMessage());
+            //System.err.println("Erreur inattendue lors de l'affichage des prêts en retard : " + e.getMessage());
+            Logger.logError("Erreur inattendue lors de l'affichage des prêts en retard : " , e);
             e.printStackTrace();  // Afficher la trace de l'exception pour le débogage, si nécessaire
         }
     }

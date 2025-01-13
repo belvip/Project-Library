@@ -11,4 +11,6 @@ public interface AuthorService {
     Author findAuthorByEmail(String author_email) throws AuthorNotFoundException;
     List<Author> displayAuthors();
     boolean deleteAuthor(int author_id) throws AuthorNotFoundException;
+
+    Author getAuthorById(int authorId);
 }

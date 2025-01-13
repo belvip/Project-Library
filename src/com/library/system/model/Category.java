@@ -14,8 +14,14 @@ public class Category {
     public Category() {
     }
 
-    // Constructeur avec arguments
+    // Constructeur avec le nom de la catégorie
     public Category(String category_name) {
+        this.category_name = category_name;
+    }
+
+    // Constructeur avec l'ID et le nom de la catégorie
+    public Category(int category_id, String category_name) {
+        this.category_id = category_id;
         this.category_name = category_name;
     }
 

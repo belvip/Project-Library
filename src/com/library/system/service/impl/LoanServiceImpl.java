@@ -32,7 +32,7 @@ public class LoanServiceImpl implements LoanService {
             // Utiliser l'ID du membre (member.getMember_id()) et passer la liste de livres
             loanRepository.registerLoan(member.getMember_id(), books);
             // Log success
-            Logger.logSuccess("Emprunt enregistré pour le membre " + member.getFirstName() + " " + member.getLastName());
+            //Logger.logSuccess("Emprunt enregistré pour le membre " + member.getFirstName() + " " + member.getLastName());
         } catch (Exception e) {
             // Log error
             Logger.logError("l'enregistrement du prêt", e);

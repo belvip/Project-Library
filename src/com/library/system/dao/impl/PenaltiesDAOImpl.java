@@ -78,7 +78,7 @@ public class PenaltiesDAOImpl implements PenaltiesDAO {
                 "WHERE l.returnDate IS NULL AND l.dueDate < CURRENT_TIMESTAMP";
 
 
-        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/library_db", "postgres", "belvi");
+        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/library_system", "postgres", "belvi");
              PreparedStatement statement = connection.prepareStatement(query);
              ResultSet resultSet = statement.executeQuery()) {
 

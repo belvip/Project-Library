@@ -7,7 +7,10 @@ import com.library.system.exception.bookDaoException.BookUpdateException;
 import com.library.system.model.Author;
 import com.library.system.model.Book;
 import com.library.system.model.Category;
+import com.library.system.service.AuthorService;
+import com.library.system.service.CategoryService;
 import com.library.system.service.impl.BookServiceImpl;
+import com.library.system.util.Logger;
 
 import java.util.*;
 
@@ -19,13 +22,16 @@ public class BookHandler {
 
 
     private final Scanner scanner = new Scanner(System.in);
-    private final BookServiceImpl bookService; // Service pour gérer les livres
     private final BookController bookController; // Contrôleur pour gérer les requêtes des livres
+    private final AuthorService authorService;
+    private final  CategoryService categoryService;
 
     // Constructeur qui accepte BookServiceImpl et BookController
-    public BookHandler(BookServiceImpl bookService, BookController bookController) {
-        this.bookService = bookService;  // Initialisation correcte
+    public BookHandler(BookServiceImpl bookService, BookController bookController, AuthorService authorService, CategoryService categoryService) {
+        // Service pour gérer les livres
         this.bookController = bookController;
+        this.authorService = authorService;
+        this.categoryService = categoryService;
     }
 
     // Méthode pour traiter les opérations sur les livres
@@ -88,6 +94,7 @@ public class BookHandler {
     }
 
     private void addBook() {
+        Logger.logInfo("Ajouter un livre : ");
         scanner.nextLine(); // Nettoyer le buffer du scanner
 
         // Demander les informations du livre
@@ -102,29 +109,64 @@ public class BookHandler {
             try {
                 numberOfCopies = scanner.nextInt();  // Essayer de lire un int
                 if (numberOfCopies < 0) {
-                    System.out.println("Le nombre d'exemplaires ne peut pas être négatif. Veuillez réessayer.");
+                    Logger.logWarn("Erreur.", " Le nombre d'exemplaires ne peut pas être négatif. Veuillez réessayer.");
                 }
             } catch (InputMismatchException e) {
-                // Si une exception se produit (par exemple, si ce n'est pas un nombre), on la gère
-                System.out.println(RED + "Entrée invalide. Veuillez entrer un nombre entier.");
+                Logger.logWarn("Entrée invalide.", " Veuillez entrer un nombre entier.");
                 scanner.nextLine(); // Nettoyer le buffer du scanner pour éviter une boucle infinie
             }
         }
 
         // Créer le set des auteurs
         Set<Author> authors = new HashSet<>();
-        System.out.print("Entrez l'ID de l'auteur : ");
-        int authorId = scanner.nextInt();
-        Author author = new Author(); // Récupérer l'auteur via un service
-        author.setAuthor_id(authorId);
+        int authorId = -1;
+
+        // Demander l'ID de l'auteur et gérer les erreurs de saisie
+        while (authorId < 0) {
+            System.out.print("Entrez l'ID de l'auteur : ");
+            try {
+                authorId = scanner.nextInt();
+                if (authorId < 0) {
+                    Logger.logWarn("Entrée invalide.", " L'ID de l'auteur ne peut pas être négatif.");
+                }
+            } catch (InputMismatchException e) {
+                Logger.logWarn("Entrée invalide.", " Veuillez entrer un nombre entier pour l'ID de l'auteur.");
+                scanner.nextLine(); // Nettoyer le buffer
+            }
+        }
+
+        // Vérifier si l'auteur existe dans la base de données
+        Author author = authorService.getAuthorById(authorId);
+        if (author == null) {
+            Logger.logError("L'auteur avec l'ID " + authorId + " n'existe pas.");
+            return; // Sortir de la méthode si l'auteur n'existe pas
+        }
         authors.add(author);
 
         // Créer le set des catégories
         Set<Category> categories = new HashSet<>();
-        System.out.print("Entrez l'ID de la catégorie : ");
-        int categoryId = scanner.nextInt();
-        Category category = new Category(); // Récupérer la catégorie via un service
-        category.setCategory_id(categoryId);
+        int categoryId = -1;
+
+        // Demander l'ID de la catégorie et gérer les erreurs de saisie
+        while (categoryId < 0) {
+            System.out.print("Entrez l'ID de la catégorie : ");
+            try {
+                categoryId = scanner.nextInt();
+                if (categoryId < 0) {
+                    Logger.logWarn("Entrée invalide.", " L'ID de la catégorie ne peut pas être négatif.");
+                }
+            } catch (InputMismatchException e) {
+                Logger.logWarn("Entrée invalide.", " Veuillez entrer un nombre entier pour l'ID de la catégorie.");
+                scanner.nextLine(); // Nettoyer le buffer
+            }
+        }
+
+        // Vérifier si la catégorie existe dans la base de données
+        Category category = categoryService.getCategoryById(categoryId);
+        if (category == null) {
+            Logger.logError("La catégorie avec l'ID " + categoryId + " n'existe pas.");
+            return; // Sortir de la méthode si la catégorie n'existe pas
+        }
         categories.add(category);
 
         // Créer l'objet Book sans ID
@@ -135,14 +177,19 @@ public class BookHandler {
         book.setNumber_Of_Copies(numberOfCopies);
 
         // Ajouter le livre via le contrôleur
-        bookController.addBook(book);
-
-        // Afficher l'ID généré
-        System.out.println("Livre ajouté avec succès. L'ID du livre est : " + book.getBook_id());
+        try {
+            bookController.addBook(book);
+            Logger.logSuccess("✅ Livre ajouté avec succès. L'ID du livre est : " + book.getBook_id());
+        } catch (Exception e) {
+            Logger.logError("Erreur lors de l'ajout du livre : " + e.getMessage());
+        }
     }
 
-    // Méthode pour afficher un livre
+
+
+    // Méthode pour afficher un livre par ID
     private void displayBookById() {
+        Logger.logInfo("Afficher un livre par ID");
         System.out.print("Entrez l'ID du livre à afficher: ");
         int bookId = scanner.nextInt(); // Demander l'ID du livre à afficher
 
@@ -151,11 +198,13 @@ public class BookHandler {
             Book book = bookController.displayBookById(bookId);
 
             if (book != null) {
-                System.out.println("\n\u001B[34m======== Détails du Livre ========\u001B[0m");
-                System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------------------+");
-                System.out.printf("| %-10s | %-30s | %-19s | %-25s | %-35s | %-35s |\n",
+                Logger.logInfo("--------------- Détails du Livre --------------- ");
+                System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------+-----------------------------------------+");
+
+                // Affichage des titres de colonnes
+                System.out.printf("| %-10s | %-35s | %-15s | %-25s | %-25s | %-35s |\n",
                         "ID", "Titre", "Nb Copies", "Catégorie", "Email Auteur", "Nom de l'Auteur");
-                System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------------------+");
+                System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------+-----------------------------------------+");
 
                 // Récupérer les catégories du livre
                 String categories = book.getCategories().stream()
@@ -163,11 +212,20 @@ public class BookHandler {
                         .reduce((cat1, cat2) -> cat1 + ", " + cat2)
                         .orElse("Aucune catégorie");
 
+                // Tronquer les catégories si elles sont trop longues
+                if (categories.length() > 25) {
+                    categories = categories.substring(0, 22) + "...";
+                }
+
                 // Récupérer l'email et le nom de l'auteur
                 String authorEmail = book.getAuthors().stream()
                         .findFirst() // On prend seulement le premier auteur
                         .map(Author::getAuthor_email)
                         .orElse("Email non disponible");
+
+                if (authorEmail.length() > 25) {
+                    authorEmail = authorEmail.substring(0, 22) + "...";
+                }
 
                 // Récupérer le nom complet de l'auteur (prénom et nom)
                 String authorName = book.getAuthors().stream()
@@ -175,18 +233,22 @@ public class BookHandler {
                         .map(a -> a.getFirst_name() + " " + a.getLast_name())
                         .orElse("Auteur inconnu");
 
-                // Afficher les informations du livre
-                System.out.printf("| %-10d | %-30s | %-19d | %-25s | %-35s | %-35s |\n",
+                if (authorName.length() > 35) {
+                    authorName = authorName.substring(0, 32) + "...";
+                }
+
+                // Affichage des informations du livre avec des largeurs réduites
+                System.out.printf("| %-10d | %-35s | %-15d | %-25s | %-25s | %-35s |\n",
                         book.getBook_id(),
-                        book.getTitle(),
+                        book.getTitle().length() > 35 ? book.getTitle().substring(0, 32) + "..." : book.getTitle(),
                         book.getNumber_Of_Copies(),
                         categories,
                         authorEmail,
                         authorName);
 
-                System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------------------+");
+                System.out.println("+------------+-----------------------------------+---------------------+---------------------------+-----------------------------+-----------------------------------------+");
             } else {
-                System.out.println("Livre non trouvé.");
+                Logger.logError("Livre non trouvé.");
             }
         } catch (BookDisplayException e) {
             System.err.println(RED + "Erreur: " + e.getMessage());
@@ -202,7 +264,7 @@ public class BookHandler {
 
             // Vérification si la liste des livres est vide
             if (books.isEmpty()) {
-                System.out.println("\nAucun livre disponible.");
+                System.out.println("\n ❌ Aucun livre disponible.");
                 return;
             }
 
@@ -267,7 +329,8 @@ public class BookHandler {
 
 
             // Affichage du tableau
-            System.out.println("\n\u001B[34m======== Liste des Livres ========\u001B[0m");
+            //System.out.println("\n\u001B[34m======== Liste des Livres ========\u001B[0m");
+            Logger.logInfo("--------------------- Liste des Livres ---------------------");
             System.out.println(horizontalLine);
             System.out.printf(CYAN + format + RESET, "ID", "Titre", "Nb Copies", "Catégorie", "Email Auteur", "Nom de l'Auteur");
             System.out.println(horizontalLine);
@@ -311,65 +374,72 @@ public class BookHandler {
     }
 
 
-
-
-
-
-
-
     // Méthode pour mettre à jour un livre
     public void updateBook() {
+        Logger.logInfo("Mettre à jour un livre : ");
         Scanner scanner = new Scanner(System.in);
 
-        // Demander l'ID du livre à mettre à jour
-        System.out.print("Entrez l'ID du livre à mettre à jour : ");
-        int bookId = scanner.nextInt();
-        scanner.nextLine();  // Consommer la ligne restante
+        // 🔹 Demander l'ID du livre avec validation
+        int bookId = getValidIntInput(scanner, "Entrez l'ID du livre à mettre à jour : ");
 
-        // Demander le nouveau titre
+        // 🔹 Demander le nouveau titre
         System.out.print("Entrez le nouveau titre du livre : ");
-        String title = scanner.nextLine();
+        String title = scanner.nextLine().trim();  // Supprimer les espaces inutiles
 
-        // Demander le nouveau nombre d'exemplaires
-        System.out.print("Entrez le nouveau nombre d'exemplaires : ");
-        int numberOfCopies = scanner.nextInt();
+        // 🔹 Demander le nouveau nombre d'exemplaires avec validation
+        int numberOfCopies = getValidIntInput(scanner, "Entrez le nouveau nombre d'exemplaires : ");
 
-        // Demander les nouveaux IDs des auteurs
+        // 🔹 Demander les nouveaux IDs des auteurs avec validation
         Set<Author> authors = new HashSet<>();
-        System.out.print("Entrez l'ID de l'auteur : ");
-        int authorId = scanner.nextInt();
+        int authorId = getValidIntInput(scanner, "Entrez l'ID de l'auteur : ");
         Author author = new Author();
-        author.setAuthor_id(authorId);  // Définir l'ID de l'auteur
-        authors.add(author);  // Ajouter l'auteur au set
+        author.setAuthor_id(authorId);
+        authors.add(author);
 
-        // Demander les nouveaux IDs des catégories
+        // 🔹 Demander les nouveaux IDs des catégories avec validation
         Set<Category> categories = new HashSet<>();
-        System.out.print("Entrez l'ID de la catégorie : ");
-        int categoryId = scanner.nextInt();
+        int categoryId = getValidIntInput(scanner, "Entrez l'ID de la catégorie : ");
         Category category = new Category();
-        category.setCategory_id(categoryId);  // Définir l'ID de la catégorie
-        categories.add(category);  // Ajouter la catégorie au set
+        category.setCategory_id(categoryId);
+        categories.add(category);
 
-        // Créer un objet Book avec les nouvelles données
+        // 🔹 Créer un objet Book avec les nouvelles données
         Book bookToUpdate = new Book();
-        bookToUpdate.setBook_id(bookId);  // Définir l'ID du livre
-        bookToUpdate.setTitle(title);     // Définir le titre
-        bookToUpdate.setNumber_Of_Copies(numberOfCopies);  // Définir le nombre d'exemplaires
-        bookToUpdate.setAuthors(authors);  // Définir les auteurs
-        bookToUpdate.setCategories(categories);  // Définir les catégories
+        bookToUpdate.setBook_id(bookId);
+        bookToUpdate.setTitle(title);
+        bookToUpdate.setNumber_Of_Copies(numberOfCopies);
+        bookToUpdate.setAuthors(authors);
+        bookToUpdate.setCategories(categories);
 
-        // Appeler la méthode de BookController pour mettre à jour le livre
+        // 🔹 Appeler la méthode de mise à jour dans BookController
         try {
             bookController.updateBook(bookToUpdate);
-            System.out.println(GREEN + "Livre mis à jour avec succès." + RESET);
+            Logger.logSuccess("📘 Livre mis à jour avec succès.");
         } catch (BookUpdateException e) {
-            // Gérer les erreurs si la mise à jour échoue
-            System.err.println(RED + "Erreur lors de la mise à jour du livre : " + e.getMessage() + RESET);
+            Logger.logError("❌ Erreur lors de la mise à jour du livre : ", e);
         }
     }
 
+    private int getValidIntInput(Scanner scanner, String prompt) {
+        int value;
+        while (true) {
+            System.out.print(prompt);
+            if (scanner.hasNextInt()) {  // Vérifie si l'entrée est un nombre
+                value = scanner.nextInt();
+                scanner.nextLine();  // Consommer la ligne restante
+                break;
+            } else {
+                System.out.println("⚠️ Entrée invalide ! Veuillez entrer un nombre valide.");
+                scanner.next(); // Consommer l'entrée incorrecte pour éviter une boucle infinie
+            }
+        }
+        return value;
+    }
+
+
     // Methode pour supprimer un livre
     public void removeBook() {
+        Logger.logInfo("Supprimer un livre : ");
         Scanner scanner = new Scanner(System.in);
 
         // Demander l'ID du livre à supprimer
@@ -381,30 +451,64 @@ public class BookHandler {
             bookController.removeBook(bookId);  // Appel de la méthode pour supprimer le livre
         } catch (BookRemoveException e) {
             // Gestion des erreurs si le livre ne peut pas être supprimé
-            System.err.println(RED + "Erreur lors de la suppression du livre : " + e.getMessage() + RESET);
+            Logger.logError(RED + "Erreur lors de la suppression du livre : " + e.getMessage() + RESET);
             return; // Ne pas afficher le message de succès en cas d'erreur
         }
 
 
         // Message de succès
-        System.out.println(GREEN + "Le livre avec l'ID " + bookId + " a été supprimé avec succès." + RESET);
+        Logger.logSuccess(GREEN + "Le livre avec l'ID " + bookId + " a été supprimé avec succès." + RESET);
     }
 
     public void searchBookByCategory() {
+        Logger.logInfo("Rechercher un livre par catégories : ");
         Scanner scanner = new Scanner(System.in);
         System.out.print("Entrez le nom de la catégorie : ");
-        String categoryName = scanner.nextLine();
+        String categoryName = scanner.nextLine().trim().toLowerCase(); // Normalisation de l'entrée utilisateur
 
         List<Book> books = bookController.searchBookByCategory(categoryName);
+
         if (books.isEmpty()) {
-            System.out.println("Aucun livre trouvé pour la catégorie : " + categoryName);
+            Logger.logWarn("Entrée invalide.",
+                    " Aucun livre trouvé pour la catégorie : " + categoryName);
         } else {
-            System.out.println("Livres trouvés :");
+            Logger.logSuccess("📚 Livres trouvés dans la catégorie : " + categoryName);
+            System.out.println("+----+--------------------------------------+-------+---------------------+----------------------+-------------+");
+            System.out.printf("| %-2s | %-36s | %-5s | %-19s | %-20s | %-11s |\n",
+                    "ID", "Titre", "Nb", "Auteur", "Email", "Catégorie");
+            System.out.println("+----+--------------------------------------+-------+---------------------+----------------------+-------------+");
+
             for (Book book : books) {
-                System.out.println("- " + book.getTitle() + " par " + book.getAuthorFullName());
+                String authorName = book.getAuthors().stream()
+                        .findFirst()
+                        .map(a -> a.getFirst_name() + " " + a.getLast_name())
+                        .orElse("Inconnu");
+
+                String authorEmail = book.getAuthors().stream()
+                        .findFirst()
+                        .map(Author::getAuthor_email)
+                        .orElse("Non disponible");
+
+                String categories = book.getCategories().stream()
+                        .map(Category::getCategory_name)
+                        .reduce((cat1, cat2) -> cat1 + ", " + cat2)
+                        .orElse("Aucune");
+
+                System.out.printf("| %-2d | %-36s | %-5d | %-19s | %-20s | %-11s |\n",
+                        book.getBook_id(),
+                        book.getTitle(),
+                        book.getNumber_Of_Copies(),
+                        authorName,
+                        authorEmail,
+                        categories);
             }
+
+            System.out.println("+----+--------------------------------------+-------+---------------------+----------------------+-------------+");
         }
     }
+
+
+
 
 
 

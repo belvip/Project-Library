@@ -9,6 +9,7 @@ import com.library.system.service.impl.AuthorServiceImpl;
 import com.library.system.util.Logger;
 
 import java.sql.Connection;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -76,7 +77,10 @@ public class AuthorHandler {
             return -1;
         }
     }
+
+    // Ajouter un auteur
     private void createAuthor() {
+        Logger.logInfo("Ajouter un auteur");
         scanner.nextLine(); // Nettoyer le buffer du scanner
         System.out.print("Entrez le prénom de l'auteur : ");
         String firstName = scanner.nextLine();
@@ -87,42 +91,48 @@ public class AuthorHandler {
 
         // Validation du prénom et du nom
         if (!isValidName(firstName)) {
-            System.out.println("Erreur : Le prénom ne doit contenir que des lettres.");
+            // System.out.println("⚠️ Erreur : Le prénom ne doit contenir que des lettres.");
+            Logger.logWarn("Erreur", " Le prénom ne doit contenir que des lettres.");
             return; // Retourner sans créer l'auteur si la validation échoue
         }
 
         if (!isValidName(lastName)) {
-            System.out.println("Erreur : Le nom ne doit contenir que des lettres.");
+            //System.out.println("Erreur : Le nom ne doit contenir que des lettres.");
+            Logger.logWarn("Erreur", " Le nom ne doit contenir que des lettres.");
             return; // Retourner sans créer l'auteur si la validation échoue
         }
+        // Logger.logWarn("Ajout de la catégorie", "Le n tirets ou le caractère '&'.");
 
         try {
             Author author = authorController.createAuthor(firstName, lastName, email);
             if (author != null) {
-                System.out.println("Auteur ajouté avec succès : " + author.getFirst_name() + " " + author.getLast_name());
+                Logger.logSuccess("Auteur ajouté : " + author.getFirst_name() + " " + author.getLast_name());
             }
         } catch (AuthorEmailAlreadyExistsException e) {
-            System.out.println("Erreur : L'email existe déjà.");
+            //System.out.println("️⚠️ ️️ ️Erreur : L'email existe déjà.");
+            Logger.logWarn("Erreur", " L'email existe déjà.");
         } catch (InvalidAuthorEmailException e) {
-            System.out.println("Erreur : L'email n'est pas valide. Veuillez entrer un email valide.");
+            //System.out.println("❌ Erreur : L'email n'est pas valide. Veuillez entrer un email valide.");
+            Logger.logWarn("Erreur : ", " L'email n'est pas valide. Veuillez entrer un email valide.");
         }
     }
 
     // Méthode pour valider si le nom contient uniquement des lettres
     private boolean isValidName(String name) {
-        return name.matches("[a-zA-Z]+([\\s][a-zA-Z]+)*");
+        return name.trim().matches("^[\\p{L}&-]+(\\s[\\p{L}&-]+)*$");
     }
+
 
 
 
     // AuthorHandler.java
     private void displayAuthors() {
+        Logger.logInfo("Lister les auteurs");
         List<Author> authors = authorService.displayAuthors(); // Appel à la méthode du service
         if (authors.isEmpty()) {
-            System.out.println("\nAucun auteur trouvé.");
+            Logger.logError("Aucun auteur trouvé.");
             return;
         }
-
 
         // Calcul des largeurs dynamiques pour chaque colonne
         int idWidth = "ID".length();
@@ -176,19 +186,39 @@ public class AuthorHandler {
 
     // Méthode pour supprimer un auteur par ID
     private void deleteAuthor() {
+        Logger.logInfo("Supprimer un auteur par ID ");
         System.out.print("Entrez l'ID de l'auteur à supprimer : ");
-        int authorId = scanner.nextInt();
+
+        int authorId;
+        while (true) {
+            try {
+                if (!scanner.hasNextInt()) { // Vérifie si la saisie est un nombre
+                    Logger.logWarn("Suppression de l'auteur", "L'ID doit être un nombre entier.");
+                    scanner.next(); // Vide l'entrée incorrecte
+                    System.out.print("Veuillez entrer un ID valide : ");
+                    continue; // Redemande l'entrée
+                }
+                authorId = scanner.nextInt();
+                scanner.nextLine(); // Consomme le retour à la ligne
+                break; // Sort de la boucle si l'entrée est correcte
+            } catch (InputMismatchException e) {
+                Logger.logWarn("Suppression de l'auteur", "Veuillez entrer un ID valide.");
+                scanner.nextLine(); // Évite une boucle infinie en nettoyant l'entrée
+            }
+        }
+
         boolean isDeleted = authorController.deleteAuthor(authorId);
         if (isDeleted) {
-            System.out.println("✅ Auteur supprimé avec succès.");
+            Logger.logSuccess("Auteur supprimé avec succès.");
         } else {
-            System.out.println("❌ Auteur non trouvé.");
-
+            Logger.logError("Auteur non trouvé.");
         }
     }
 
+
     // Méthode pour rechercher un auteur par email
     private void getAuthorByEmail() {
+        Logger.logInfo("Rechercher un auteur par email");
         scanner.nextLine(); // Nettoyer le buffer du scanner
         System.out.print("Entrez l'email de l'auteur : ");
         String email = scanner.nextLine();
@@ -197,26 +227,45 @@ public class AuthorHandler {
             Author author = authorController.getAuthorByEmail(email);
             if (author != null) {
                 Logger.logSuccess("Recherche par email réussie");
-                System.out.println("Auteur trouvé : " + author.getFirst_name() + " " + author.getLast_name());
+                Logger.logInfo("Auteur trouvé : " + author.getFirst_name() + " " + author.getLast_name());
             }
         } catch (AuthorNotFoundException e) {
             Logger.logError("Recherche d'auteur par email", e);
-            System.out.println("❌ Auteur non trouvé.");
+            Logger.logError("Auteur non trouvé.");
         }
     }
 
     // Méthode pour rechercher un auteur par ID
     private void getAuthorById() {
+        Logger.logInfo("Rechercher un auteur par ID ");
         System.out.print("Entrez l'ID de l'auteur : ");
-        int authorId = scanner.nextInt();
+
+        int authorId;
 
         try {
+            if (!scanner.hasNextInt()) {  // Vérifie si l'entrée est un nombre
+                Logger.logWarn("Recherche d'auteur", "L'ID doit être un nombre entier.");
+                scanner.next();  // Nettoie l'entrée incorrecte
+                return;
+            }
+
+            authorId = scanner.nextInt();
+            scanner.nextLine(); // Nettoie la ligne après nextInt()
+
             Author author = authorController.getAuthorById(authorId);
             if (author != null) {
-                System.out.println("✅ Auteur trouvé : " + author.getFirst_name() + " " + author.getLast_name());
+                Logger.logSuccess("Auteur trouvé : " + author.getFirst_name() + " " + author.getLast_name());
+            } else {
+                Logger.logWarn("Recherche d'auteur", "Aucun auteur trouvé avec cet ID.");
             }
+
+        } catch (InputMismatchException e) {
+            Logger.logWarn("Recherche d'auteur", "Entrée invalide. Veuillez saisir un nombre entier.");
+            scanner.nextLine(); // Nettoie l'entrée erronée
         } catch (AuthorNotFoundException e) {
-            System.out.println("❌ Auteur non trouvé.");
+            Logger.logError("Auteur non trouvé.");
         }
     }
+
+
 }

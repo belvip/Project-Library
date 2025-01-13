@@ -74,7 +74,7 @@ public class Logger {
                 formattedMessage = RED + getTimeStamp() + " ❌ ERROR " + action + " : " + message + RESET;
                 break;
             case "SUCCESS":
-                formattedMessage = GREEN + getTimeStamp() + " ✅ " + action + " effectué avec success!" + RESET;
+                formattedMessage = GREEN + getTimeStamp() + " ✅ " + action + " effectué avec succès!" + RESET;
                 break;
             case "INFO":
                 formattedMessage = BLUE + getTimeStamp() + " ℹ️ " + message + RESET;
@@ -94,7 +94,7 @@ public class Logger {
 
 
     /**
-     * Enregistre un message d'erreur.
+     * Enregistre un message d'erreur avec une action spécifique et une exception.
      */
     public static void logError(String action, Exception e) {
         String message = RED + getTimeStamp() + " ❌ ERROR during " + action + " : " + e.getMessage() + RESET;
@@ -111,6 +111,31 @@ public class Logger {
 
 
     /**
+     * Enregistre un message d'erreur avec un simple message et une exception.
+     */
+    public static void logErrorWithMessage(String message, Exception e) {
+        String timestamp = getTimeStamp();
+        String formattedMessage = RED + timestamp + " ❌ ERROR: " + message + RESET;
+
+
+        System.err.println(formattedMessage);
+        if (e != null) {
+            e.printStackTrace();
+        }
+        writeToFile(formattedMessage);
+
+
+        try (PrintWriter writer = new PrintWriter(new FileWriter(LOG_FILE_PATH, true))) {
+            if (e != null) {
+                e.printStackTrace(writer);
+            }
+        } catch (IOException ioException) {
+            System.err.println(RED + getTimeStamp() + " ❌ Error writing stack trace to log file: " + ioException.getMessage() + RESET);
+        }
+    }
+
+
+    /**
      * Enregistre un message de succès.
      */
     public static void logSuccess(String action) {
@@ -120,7 +145,6 @@ public class Logger {
 
     /**
      * Enregistre un message d'information.
-     *
      */
     public static void logInfo(String message) {
         logMessage("INFO", "", message);
@@ -140,6 +164,14 @@ public class Logger {
      */
     public static void logDebug(String message) {
         logMessage("DEBUG", "", message);
+    }
+
+
+    /**
+     * Enregistre une erreur avec un simple message.
+     */
+    public static void logError(String message) {
+        logErrorWithMessage(message, null);
     }
 }
 

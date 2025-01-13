@@ -8,13 +8,20 @@ import com.library.system.exception.authorException.AuthorEmailAlreadyExistsExce
 import com.library.system.service.AuthorService;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 public class AuthorServiceImpl implements AuthorService {
-    private AuthorRepository authorRepository;
 
+    private AuthorRepository authorRepository;
+    private Connection connection;  // Déclarez la variable connection
+
+    // Constructeur pour initialiser la connexion et l'auteurRepository
     public AuthorServiceImpl(Connection connection) {
-        this.authorRepository = new AuthorRepositoryImpl(connection);
+        this.connection = connection;  // Initialisez la variable connection
+        this.authorRepository = new AuthorRepositoryImpl(connection);  // Passez la connexion à AuthorRepositoryImpl
     }
 
     @Override
@@ -46,5 +53,36 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     public boolean deleteAuthor(int author_id) throws AuthorNotFoundException {
         return authorRepository.deleteAuthor(author_id);
+    }
+
+    @Override
+    public Author getAuthorById(int authorId) {
+        // Requête SQL pour trouver l'auteur par son ID
+        String query = "SELECT * FROM Author WHERE author_id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            // Passer l'ID de l'auteur dans la requête
+            stmt.setInt(1, authorId);
+
+            // Exécuter la requête
+            ResultSet rs = stmt.executeQuery();
+
+            // Si l'auteur est trouvé, créer et retourner un objet Author
+            if (rs.next()) {
+                String firstName = rs.getString("first_name");
+                String lastName = rs.getString("last_name");
+                String authorEmail = rs.getString("author_email");
+
+                // Retourner l'auteur récupéré de la base de données
+                return new Author(authorId, firstName, lastName, authorEmail);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Log l'erreur et retourne null en cas d'exception
+        }
+
+        // Si l'auteur n'est pas trouvé, retourner null
+        return null;
     }
 }

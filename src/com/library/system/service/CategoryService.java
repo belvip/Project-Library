@@ -27,4 +27,5 @@ public interface CategoryService {
     List<Category> findAllCategories() throws SQLException;
 
 
+    Category getCategoryById(int categoryId);
 }

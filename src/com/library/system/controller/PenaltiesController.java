@@ -4,6 +4,8 @@ package com.library.system.controller;
 import com.library.system.model.Member;
 import com.library.system.service.PenaltiesService;
 import com.library.system.model.Loan;
+import com.library.system.util.Logger;
+
 import java.sql.SQLException;
 import java.util.List;
 
@@ -20,6 +22,7 @@ public class PenaltiesController {
 
     // Exemple de méthode pour afficher les prêts en retard
     public void displayDelayedLoans() {
+        //Logger.logInfo(" ----------- Afficher la liste des penalites -----------");
         final String ANSI_RESET = "\u001B[0m";
         final String ANSI_YELLOW = "\u001B[33m";
         final String ANSI_CYAN = "\u001B[36m";
@@ -28,7 +31,7 @@ public class PenaltiesController {
         try {
             List<Loan> delayedLoans = penaltiesService.getLoansWithDelays();
             if (delayedLoans.isEmpty()) {
-                System.out.println("Aucun emprunt en retard.");
+                Logger.logSuccess("Aucun emprunt en retard.");
             } else {
                 // Affichage de l'en-tête en couleur
                 System.out.println(ANSI_YELLOW + "+------------+---------------------+-------------+-------------------+---------------------+--------------+" + ANSI_RESET);
@@ -54,7 +57,7 @@ public class PenaltiesController {
                 System.out.println(ANSI_YELLOW + "+------------+---------------------+-------------+-------------------+---------------------+--------------+" + ANSI_RESET);
             }
         } catch (SQLException e) {
-            System.err.println("Erreur lors de l'affichage des emprunts en retard : " + e.getMessage());
+            Logger.logError("Erreur lors de l'affichage des emprunts en retard : " + e.getMessage());
         }
     }
 
@@ -63,7 +66,7 @@ public class PenaltiesController {
         try {
             penaltiesService.handleDelaysAndPenalties();
         } catch (Exception e) {  // Ou une autre exception si nécessaire
-            System.err.println("Erreur lors de l'application des pénalités : " + e.getMessage());
+            Logger.logError("Erreur lors de l'application des pénalités : " + e.getMessage());
         }
     }
 
@@ -71,7 +74,7 @@ public class PenaltiesController {
     // Méthode pour afficher le taux de pénalité
     public void displayPenaltyRate() {
         int penaltyRate = penaltiesService.getPenaltyRate();
-        System.out.println("Le taux de pénalité est : " + penaltyRate + " F CFA par jour.");
+        Logger.logSuccess("Le taux de pénalité est : " + penaltyRate + " F CFA par jour.");
     }
 }
 

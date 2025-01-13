@@ -4,6 +4,7 @@ import com.library.system.dao.MemberDAO;
 import com.library.system.exception.memberException.*;
 import com.library.system.model.Loan;
 import com.library.system.model.Member;
+import com.library.system.util.Logger;
 
 import java.sql.*;
 import java.text.SimpleDateFormat;
@@ -20,50 +21,71 @@ public class MemberDAOImpl implements MemberDAO {
     }
 
     // Méthode pour vérifier si l'email est déjà pris
+
     @Override
     public boolean isEmailTaken(String email) {
-        String query = "SELECT 1 FROM member WHERE email = ? LIMIT 1";
-
+        String query = "SELECT 1 FROM member WHERE email = ? LIMIT 1"; // Vérifie l'existence de l'email
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setString(1, email);
+            stmt.setString(1, email.trim().toLowerCase()); // Normalise l'e-mail en minuscule
             try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next();  // Si un résultat est trouvé, l'email existe déjà
+                return rs.next();  // Retourne `true` si un résultat est trouvé
             }
         } catch (SQLException e) {
-            System.err.println("Erreur SQL lors de la vérification de l'email : " + e.getMessage());
+            System.err.println("Erreur SQL lors de la vérification de l'e-mail : " + e.getMessage());
+            e.printStackTrace();
         }
-        return false;  // En cas d'erreur SQL, on suppose que l'email n'est pas pris
+        return false;  // En cas d'erreur SQL, considère que l'e-mail n'est pas pris
     }
+
+
+
+
 
     @Override
     public void registerMember(Member member) throws MemberRegistrationException {
-        // Vérifier si l'email est déjà pris
-        if (isEmailTaken(member.getEmail())) {
-            throw new MemberRegistrationException("L'email " + member.getEmail() + " est déjà utilisé.");
+        // Normalise l'e-mail pour éviter les doublons (e-mails insensibles à la casse)
+        String email = member.getEmail().trim().toLowerCase();
+        member.setEmail(email);
+
+
+        // Vérifie si l'e-mail est déjà utilisé
+        if (isEmailTaken(email)) {
+            throw new MemberRegistrationException("L'e-mail " + email + " est déjà utilisé.");
         }
 
-        // Création du Timestamp à partir de la date actuelle
+
+        // Ajoute un timestamp pour la date d'adhésion
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        member.setAdhesionDate(timestamp);  // Met à jour la date d'adhésion du membre avec le Timestamp
+        member.setAdhesionDate(timestamp);
+
 
         String query = "INSERT INTO member (first_name, last_name, email, adhesion_date) VALUES (?, ?, ?, ?)";
+
 
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, member.getFirstName());
             stmt.setString(2, member.getLastName());
-            stmt.setString(3, member.getEmail());
+            stmt.setString(3, email);
+            stmt.setTimestamp(4, timestamp);
 
-            // Si member.getAdhesionDate() est de type Date, on doit le convertir en Timestamp
-            stmt.setTimestamp(4, new Timestamp(member.getAdhesionDate().getTime()));  // Conversion en Timestamp
 
             int rowsInserted = stmt.executeUpdate();
             if (rowsInserted == 0) {
                 throw new MemberRegistrationException("Échec de l'enregistrement du membre, aucune ligne insérée.");
             }
+
+
+            // Affiche un message de succès
+            System.out.println("✅ Membre enregistré avec succès !");
         } catch (SQLException e) {
+            // Gère une violation de contrainte unique si elle est définie en base
+            if ("23505".equals(e.getSQLState())) { // Code SQL pour contrainte unique (PostgreSQL)
+                throw new MemberRegistrationException("L'e-mail " + email + " est déjà utilisé.", e);
+            }
             throw new MemberRegistrationException("Erreur SQL lors de l'enregistrement du membre : " + e.getMessage(), e);
         }
     }
+
 
     @Override
     public void deleteMember(int memberID) throws MemberDeleteException {

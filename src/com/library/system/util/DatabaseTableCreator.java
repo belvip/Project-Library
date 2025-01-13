@@ -76,6 +76,11 @@ public class DatabaseTableCreator {
                     ");";
             statement.executeUpdate(createMemberTable);
 
+            /*String addMemberUniqueConstraint = "ALTER TABLE Member " +
+                    "ADD CONSTRAINT unique_email UNIQUE (email);";
+            statement.executeUpdate(addMemberUniqueConstraint); */
+
+
 
             // Création de la table Loan
             String createLoanTable = "CREATE TABLE IF NOT EXISTS Loan (" +

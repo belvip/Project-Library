@@ -9,8 +9,11 @@ import com.library.system.service.BookService;
 import com.library.system.service.impl.BookServiceImpl;
 import com.library.system.model.Book;
 import com.library.system.exception.bookDaoException.BookAddException;
+import com.library.system.util.Logger;
+
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 public class BookController {
@@ -29,7 +32,7 @@ public class BookController {
         try {
             bookService.addBook(book);
         } catch (BookAddException e) {
-            System.out.println("Erreur lors de l'ajout du livre : " + e.getMessage());
+            Logger.logError("Erreur lors de l'ajout du livre : " + e.getMessage());
         }
     }
 
@@ -38,9 +41,9 @@ public class BookController {
         try {
             // Utiliser bookRepository pour effectuer la mise à jour
             bookService.updateBook(book);
-            System.out.println("Livre mis à jour avec succès.");
+            Logger.logSuccess("Livre mis à jour avec succès.");
         } catch (Exception e) {
-            System.out.println("Erreur lors de la mise à jour du livre : " + e.getMessage());
+            Logger.logError("Erreur lors de la mise à jour du livre : " + e.getMessage());
         }
     }
 
@@ -49,22 +52,22 @@ public class BookController {
         try{
             bookService.removeBook(bookId);
         }catch (Exception e) {
-            System.out.println("Erreur lors de la suppression du livre : " + e.getMessage());
+            Logger.logError("Erreur lors de la suppression du livre : " + e.getMessage());
         }
     }
 
-    // Rechercher un livre par categorie
-    public List<Book> searchBookByCategory(String categoryName){
+    // Rechercher un livre par catégorie
+    public List<Book> searchBookByCategory(String categoryName) {
         try {
-            // Appel au service pour obtenir le livre
+            // Appel au service pour obtenir les livres
             return bookService.searchBookByCategory(categoryName);
         } catch (BookSearchByCategoryException e) {
             // Gestion de l'erreur
             System.out.println("Erreur : " + e.getMessage());
-            return null;
+            return Collections.emptyList(); // Retourner une liste vide au lieu de null
         }
-
     }
+
 
 
     public Book displayBookById(int bookId) {
@@ -73,7 +76,7 @@ public class BookController {
             return bookService.displayBookById(bookId);
         } catch (BookDisplayException e) {
             // Gestion de l'erreur
-            System.out.println("Erreur : " + e.getMessage());
+            Logger.logError("Erreur : " + e.getMessage());
             return null;
         }
     }
@@ -83,7 +86,7 @@ public class BookController {
     public List<Book> displayAvailableBooks() {
         List<Book> books = bookService.getAvailableBooks();  // Appel de la méthode du service
         if (books.isEmpty()) {
-            System.out.println("Aucun livre disponible.");
+            Logger.logError("Aucun livre disponible.");
         } else {
             // Afficher les livres disponibles
             for (Book book : books) {

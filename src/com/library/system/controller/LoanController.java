@@ -73,7 +73,7 @@ public class LoanController {
         try {
             loanService.getAllLoans(loans);
             if (loans.isEmpty()) {
-                Logger.logInfo("Aucun emprunt trouvé.");
+                Logger.logError("Aucun emprunt trouvé.");
             } else {
                 for (Loan loan : loans) {
                     System.out.println("Emprunt ID: " + loan.getLoanId() +
@@ -93,9 +93,10 @@ public class LoanController {
     public void deleteLoan(int loanId) {
         try {
             loanService.deleteLoan(loanId);  // Appel du service pour supprimer le prêt
-            System.out.println("Loan deleted successfully.");
+           Logger.logSuccess("Loan deleted successfully.");
         } catch (SQLException e) {
-            System.err.println("Error deleting loan: " + e.getMessage());
+            //System.err.println("Error deleting loan: " + e.getMessage());
+            Logger.logError("Error deleting loan: " , e);
             // Vous pouvez aussi loguer l'erreur si nécessaire
         }
     }

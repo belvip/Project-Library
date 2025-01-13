@@ -69,7 +69,7 @@ public class MemberServiceImpl implements MemberService {
         }
 
         if (member.getEmail() == null || member.getEmail().trim().isEmpty() ||
-                !member.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+                !member.getEmail().matches("^[\\p{L}0-9._%+-]+@[\\p{L}0-9.-]+\\.[A-Za-z]{2,10}$")) {
             throw new MemberRegistrationException("L'email du membre est invalide.");
         }
     }

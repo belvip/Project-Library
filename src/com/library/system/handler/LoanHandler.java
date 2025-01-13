@@ -102,6 +102,7 @@ public class LoanHandler {
 
 
     public void deleteLoan() {
+        Logger.logInfo("Supprimer un emprunt");
         System.out.print("Entrez l'ID de l'emprunt à supprimer : ");
         int loanId = scanner.nextInt(); // Demande l'ID de l'emprunt à supprimer
         scanner.nextLine();  // Consommer le saut de ligne restant
@@ -110,7 +111,7 @@ public class LoanHandler {
         try {
             loanController.deleteLoan(loanId);  // Appel du contrôleur pour supprimer le prêt
         } catch (Exception e) {
-            System.err.println("Erreur lors de la suppression du prêt: " + e.getMessage());
+            Logger.logError("Erreur lors de la suppression du prêt: " + e.getMessage());
             Logger.logError("Erreur lors de la suppression du prêt avec l'ID " + loanId, e); // Log de l'erreur
         }
     }
@@ -118,6 +119,7 @@ public class LoanHandler {
 
     // Méthode pour enregistrer un emprunt via LoanController
     public void registerLoan() {
+        Logger.logInfo("Enregistrer un emprunt");
         // Étape 1 : Obtenir les informations du membre
         System.out.print("Entrez l'ID du membre qui souhaite emprunter des livres : ");
         int memberId = scanner.nextInt();
@@ -128,16 +130,15 @@ public class LoanHandler {
         try {
             member = loanController.getMemberById(memberId); // Récupérer le membre par ID
         } catch (FindMemberByIdException e) {
-            System.out.println("❌ Erreur : " + e.getMessage()); // Afficher un message clair
+           Logger.logError("Erreur : " + e.getMessage()); // Afficher un message clair
             return; // Arrêter le processus d'emprunt
         }
 
 
         if (member == null) {
-            System.out.println("❌ Membre introuvable. Veuillez vérifier l'ID.");
+            Logger.logError(" Membre introuvable. Veuillez vérifier l'ID.");
             return;
         }
-
 
         // Étape 2 : Obtenir les livres à emprunter
         System.out.print("Entrez les IDs des livres à emprunter (séparés par des espaces) : ");
@@ -163,35 +164,42 @@ public class LoanHandler {
                         books.add(book); // Ajouter à la liste des livres à emprunter
                     }
                 } else {
-                    System.out.println("⚠️ Livre avec ID " + bookId + " introuvable.");
+                    //System.out.println("⚠️ Livre avec ID " + bookId + " introuvable.");
+                    Logger.logWarn("ID invalide : ",
+                            " " + bookIdStr);
                 }
             } catch (NumberFormatException e) {
-                System.out.println("⚠️ ID invalide : " + bookIdStr);
+                //System.out.println("ID invalide : " + bookIdStr);
+                Logger.logWarn("ID invalide : ",
+                        " " + bookIdStr);
             }
         }
 
 
         // Vérifier si au moins un livre a été trouvé
         if (books.isEmpty() && booksAlreadyLoaned.isEmpty()) {
-            System.out.println("❌ Aucun livre valide n'a été trouvé avec les IDs fournis.");
+            //System.out.println("❌ Aucun livre valide n'a été trouvé avec les IDs fournis.");
+            Logger.logWarn("Erreur",
+                    " Aucun livre valide n'a été trouvé avec les IDs fournis.");
             return;
         }
 
 
         // Étape 3 : Afficher les livres déjà empruntés
         if (!booksAlreadyLoaned.isEmpty()) {
-            System.out.println("❌ Ce livres ont déjà été empruntés par ce membre :");
+            // System.out.println("❌ Ce livres ont déjà été empruntés par ce membre :");
+            Logger.logWarn("Erreur",
+                    " Ce livres ont déjà été empruntés par ce membre :");
             for (Book book : booksAlreadyLoaned) {
-                System.out.println("Livre ID " + book.getBook_id() + ": " + book.getTitle());
+                Logger.logSuccess("Livre ID " + book.getBook_id() + ": " + book.getTitle());
             }
         }
-
 
         // Étape 4 : Enregistrer les livres qui ne sont pas déjà empruntés
         if (!books.isEmpty()) {
             // Enregistrer les emprunts valides
             loanController.registerLoan(member, books);  // Appeler la méthode de LoanController pour enregistrer les livres non empruntés
-            System.out.println("✅ L'emprunt a été enregistré pour les livres suivants :");
+            //Logger.logSuccess("L'emprunt a été enregistré pour les livres suivants :");
             for (Book book : books) {
                 System.out.println("Livre ID " + book.getBook_id() + ": " + book.getTitle());
             }
@@ -200,20 +208,21 @@ public class LoanHandler {
 
 
     public void returnBook() {
+        Logger.logInfo("Retourner un emprunt");
         System.out.print("Entrez l'ID du prêt à retourner : ");
         int loanId = scanner.nextInt();
 
-
         try {
             loanController.returnBook(loanId);  // Appel de la méthode returnBook dans LoanController
-            System.out.println("✅ Le livre a été retourné avec succès !");
+            Logger.logSuccess("Le livre a été retourné avec succès !");
         } catch (SQLException e) {
-            System.out.println("❌ Erreur lors du retour du livre : " + e.getMessage());
+            Logger.logError("❌ Erreur lors du retour du livre : " + e);
         }
     }
 
 
     public void getAllLoans() {
+        Logger.logInfo("Afficher tous les emprunts");
         try {
             List<Loan> loans = new ArrayList<>();
             loanController.getAllLoans(loans);
@@ -283,7 +292,7 @@ public class LoanHandler {
 
 
             // Affichage de l'en-tête
-            System.out.println("\n\u001B[34m========= Liste des Emprunts ========\u001B[0m");
+            Logger.logInfo("========= Liste des Emprunts ========");
             System.out.println(horizontalLine);
             System.out.printf(BLUE + format + RESET,
                     "Emprunt ID", "Membre", "Date d'Emprunt", "Date d'Échéance", "Date de Retour",
@@ -321,16 +330,9 @@ public class LoanHandler {
 
 
         } catch (SQLException e) {
-            System.out.println("❌ Erreur lors de l'affichage des emprunts : " + e.getMessage());
+            Logger.logError("Erreur lors de l'affichage des emprunts : " , e);
         }
     }
-
-
-
-
-
-
-
 
 
 

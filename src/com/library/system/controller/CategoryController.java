@@ -35,26 +35,24 @@ public class CategoryController {
                 return;
             }
 
-
-            if (!categoryName.matches("^[a-zA-Z]+$")) {
-                Logger.logWarn("Ajout de la catégorie", "Le nom de la catégorie ne peut contenir que des lettres.");
+            // ✅ Expression corrigée : accepte espaces et caractères accentués
+            if (!categoryName.matches("^[\\p{L}&\\s-]+$")) {
+                Logger.logWarn("Ajout de la catégorie",
+                        "Le nom de la catégorie ne peut contenir que des lettres (y compris accentuées), des espaces, des tirets ou le caractère '&'.");
                 return;
             }
 
-
             Category category = new Category(categoryName);
 
-
-            if (categoryService.doesCategoryExist(category.getCategory_name())) {
-                Logger.logWarn("Ajout de la catégorie", "La catégorie existe déjà : " + category.getCategory_name());
-            } else {
-                categoryService.addCategory(category);
-                Logger.logSuccess("Ajout de la catégorie");
-            }
+            // Ajout de la catégorie via le service
+            categoryService.addCategory(category);
+            Logger.logSuccess("Ajout de la catégorie");
+        } catch (CategoryAlreadyExistsException e) {
+            Logger.logWarn("Ajout de la catégorie", "La catégorie '" + categoryName + "' existe déjà.");
         } catch (SQLException e) {
             Logger.logError("Ajout de la catégorie", e);
-        } catch (CategoryAlreadyExistsException e) {
-            Logger.logError("Ajout de la catégorie", e);
+        } catch (Exception e) {
+            Logger.logError("Ajout de la catégorie",e);
         }
     }
 
@@ -124,7 +122,7 @@ public class CategoryController {
 
 
             // Affichage du tableau
-            Logger.logInfo("Liste des catégories : ");
+            Logger.logInfo("================ Liste des catégories ================");
             System.out.println(horizontalLine);
             System.out.printf(CYAN + format + RESET, "Catégorie ID", "Nom de la catégorie");
             System.out.println(horizontalLine);
